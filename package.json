@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "engines": {
-    "node": "your-node-version"
+    "node": "v16.16.0"
   },
   "scripts": {
     "start": "node server/index.js",
