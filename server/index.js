@@ -3,12 +3,12 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const mongoose = require("mongoose");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
 const PORT = process.env.PORT || 5000;
 app.use(cors());
 require("dotenv").config();
+const MyData = require("./models/numMod");
 
 // app.use(express.static(path.resolve(__dirname, "../client/build")));
 // All other GET requests not handled before will return our React app
@@ -33,17 +33,24 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const database = client.db("sample_airbnb");
-    const listingsAndReviews = database.collection("listingsAndReviews");
-    // Query for a listingsAndReview that has the title 'Back to the Future'
-    const query = { _id: "10006546" };
-    const listingsAndReview = await listingsAndReviews.findOne(query);
-    console.log(listingsAndReview);
+    const database = client.db("simple_numbers_to_display");
+    const foundNumbers = database.collection("simple_numbers_to_display");
+    const query = { number: 23 };
+    const foundNumber = await foundNumbers.findOne(query);
+
+    app.get("/expressed_backend", (req, res) => {
+      console.log("hey", foundNumber);
+
+      res.json({ express: foundNumber });
+    });
+
+    console.log(foundNumber);
   } finally {
     // Ensures that the client will close when you finish/error
     await client.close();
   }
 }
+
 run().catch(console.dir);
 
 app.listen(PORT, () => {
