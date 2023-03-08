@@ -14,7 +14,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 require("dotenv").config();
-const MyData = require("./models/numMod");
 
 // app.use(express.static(path.resolve(__dirname, "../client/build")));
 // All other GET requests not handled before will return our React app
@@ -29,19 +28,33 @@ app.get("/express_backend", (req, res) => {
 
 const pass = process.env.ATLAS;
 
-const uri = `mongodb+srv://daro6551:${pass}@dr-social-media-app.hm6wqbm.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://daro6551:${pass}@dr-social-media-app.hm6wqbm.mongodb.net/?retryWrites=true&w=majority&ssl=true`;
+
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
 
-async function run() {
+const mongoose = require("mongoose");
+
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
+
+async function run(user) {
   try {
     const database = client.db("app_users");
     const users = database.collection("user_account_data");
     const query = { username: "David" };
     const foundUser = await users.findOne(query);
+
+    if (user) {
+      console.log("Running with user" + user);
+      database.users.save(user);
+    }
 
     app.get("/expressed_backend", (req, res) => {
       console.log("hey", foundUser);
@@ -66,13 +79,17 @@ app.post("/api/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     // Hash the password with the salt value
     const hashedPassword = await bcrypt.hash(password, salt);
-    // Save the hashed password to the database
 
-    console.log(username, hashedPassword);
+    console.log(hashedPassword);
+
+    // Save the hashed password to the database
     const user = await User.create({
       username,
       password: hashedPassword,
     });
+
+    run(user);
+
     res.status(200).json({ message: "User registered successfully" });
   } catch (error) {
     console.error(error);
