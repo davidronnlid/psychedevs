@@ -26,7 +26,7 @@ const VasForm: React.FC<VasFormProps> = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/vas", {
+      const response = await fetch("http://localhost:5000/vas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formInputs),

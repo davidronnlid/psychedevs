@@ -7,6 +7,7 @@ const User = require("../models/user");
 module.exports = ({ client }) => {
   const database = client.db("app_users");
   const users = database.collection("user_account_data");
+
   // User registration route
   router.post("/register", async (req, res) => {
     const { username, password } = req.body;
@@ -33,8 +34,11 @@ module.exports = ({ client }) => {
 
   // User login route
   router.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+    console.log("Req received at /auth/register");
+
     try {
-      console.log("Looking for user in " + JSON.stringify(users));
+      console.log("Looking for user");
 
       // Find the user by username
       const user = await users.findOne({ username });
@@ -45,7 +49,7 @@ module.exports = ({ client }) => {
         return res.status(404).send();
       }
       // Check if the password is correct
-      if (!(await bcrypt.compare(req.body.password, user.password))) {
+      if (!(await bcrypt.compare(password, user.password))) {
         return res.status(401).send();
       }
 
