@@ -10,13 +10,14 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <Link to="/users">Users Page</Link>
         <Link to="/logs">Logs Page</Link>
         <DataFetching />
         <Counter />
         <VasForm value={0} />
         <Form username="" password="" signupOrLogin={true} />
         <Form username="" password="" signupOrLogin={false} />
+        <p>Token available: {localStorage.getItem("user_sesh_JWT")}</p>
       </header>
     </div>
   );

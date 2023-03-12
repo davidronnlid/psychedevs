@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
+const usersRouter = require("./controllers/users");
 
 require("dotenv").config();
 
@@ -33,6 +34,7 @@ client
     console.log("Connected to MongoDB");
     app.use("/auth", authRouter({ client }));
     app.use("/vas", vasRouter({ client }));
+    app.use("/users", usersRouter({ client }));
   })
   .catch((err) => {
     console.error("Error connecting to MongoDB", err);

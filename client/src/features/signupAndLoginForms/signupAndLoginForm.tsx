@@ -99,7 +99,6 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
         </form>
       ) : (
         <div>
-          <p>You are logged in with token: {jwtToken}</p>
           <button onClick={() => setJwtToken("")}>Log out</button>
         </div>
       )}

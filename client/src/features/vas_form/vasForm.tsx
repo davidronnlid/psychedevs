@@ -4,7 +4,6 @@ interface VasFormProps {
   // Define the interface for the form inputs
   date?: Date;
   value: number;
-  // If form is used for signup, set prop to true, if used for login, set it to false
 }
 
 const VasForm: React.FC<VasFormProps> = () => {
@@ -26,9 +25,14 @@ const VasForm: React.FC<VasFormProps> = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/vas", {
+      const token = localStorage.getItem("user_sesh_JWT");
+      console.log("Token log", localStorage.getItem("user_sesh_JWT"));
+      const response = await fetch("http://localhost:5000/vas/logs", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(formInputs),
       });
       if (!response.ok) {
@@ -48,11 +52,11 @@ const VasForm: React.FC<VasFormProps> = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label htmlFor="date">date:</label>
+        <label htmlFor="date">Date:</label>
         <input type="Date" name="date" onChange={handleInputChange} required />
       </div>
       <div>
-        <label htmlFor="value">value:</label>
+        <label htmlFor="value">Value:</label>
         <input
           type="value"
           name="value"
