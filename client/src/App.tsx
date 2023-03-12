@@ -1,9 +1,9 @@
-import React from "react";
 import logo from "./logo.svg";
 import { Counter } from "./features/counter/Counter";
 import "./App.css";
 import DataFetching from "./features/backendConnection";
-import Form from "./features/signupForm/signupForm";
+import Form from "./features/signupAndLoginForms/signupAndLoginForm";
+import VasForm from "./features/vas_form/vasForm";
 
 function App() {
   return (
@@ -11,48 +11,9 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" /> <DataFetching />
         <Counter />
-        <Form username="" password="" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
+        <VasForm value={0} />
+        <Form username="" password="" signupOrLogin={true} />
+        <Form username="" password="" signupOrLogin={false} />
       </header>
     </div>
   );

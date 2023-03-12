@@ -4,9 +4,11 @@ interface FormProps {
   // Define the interface for the form inputs
   username: string;
   password: string;
+  signupOrLogin?: boolean;
+  // If form is used for signup, set prop to true, if used for login, set it to false
 }
 
-const Form: React.FC<FormProps> = () => {
+const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
   // Define state for the form inputs
   const [formInputs, setFormInputs] = useState<FormProps>({
     username: "",
@@ -25,7 +27,18 @@ const Form: React.FC<FormProps> = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
+      let endpoint;
+      if (signupOrLogin) {
+        endpoint = "register";
+      } else {
+        endpoint = "login";
+      }
+
+      const req_endpoint = "http://localhost:5000/auth/" + endpoint;
+
+      console.log(req_endpoint);
+
+      const response = await fetch(req_endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formInputs),
@@ -46,11 +59,11 @@ const Form: React.FC<FormProps> = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+      {signupOrLogin ? <h3>Sign up:</h3> : <h3>Login</h3>}
       <div>
         <label htmlFor="username">Username:</label>
         <input
           type="text"
-          id="username"
           name="username"
           value={formInputs.username}
           onChange={handleInputChange}
@@ -61,7 +74,6 @@ const Form: React.FC<FormProps> = () => {
         <label htmlFor="password">password:</label>
         <input
           type="password"
-          id="password"
           name="password"
           value={formInputs.password}
           onChange={handleInputChange}
