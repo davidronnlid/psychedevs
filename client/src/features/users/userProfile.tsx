@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import FollowButton from "../../components/followButton";
 
 interface User {
   _id: string;
@@ -13,6 +14,24 @@ interface UserProfileProps {
 const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   const { userId } = useParams<{ userId: string }>();
   const [userData, setUserData] = useState<User | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const handleFollowClick = async () => {
+    setIsFollowing(!isFollowing);
+
+    try {
+      const token = localStorage.getItem("user_sesh_JWT");
+      await fetch(`http://localhost:5000/follow/${userId}?${isFollowing}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -48,6 +67,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       <ul>
         <li>ID: {userData._id}</li>
         <li>Username: {userData.username}</li>
+        <FollowButton isFollowing={isFollowing} onClick={handleFollowClick} />
       </ul>
     </div>
   );
