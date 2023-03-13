@@ -2,12 +2,22 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
-const { addFollower, User } = require("../models/follow");
+const connectToDB = require("../dbConnect");
+const createClient = async () => {
+  try {
+    const client = await connectToDB();
+    console.log("Connected to MongoDB in followC.js");
+    const { User, addFollower } = require("../models/followM")({ client });
+  } catch (error) {
+    console.error(error);
+  }
+};
+createClient();
+
+//   const database = client.db("app_users");
+//   const user_account_data_collection = database.collection("user_account_data");
 
 module.exports = ({ client }) => {
-  //   const database = client.db("app_users");
-  //   const user_account_data_collection = database.collection("user_account_data");
-
   // Define a post route to let users update who they follow
   router.post("/:id", async (req, res) => {
     // Formatting req query to be only the boolean of interest, which represents the isFollowing boolean in the React component
@@ -23,11 +33,13 @@ module.exports = ({ client }) => {
     const userId = new ObjectId(decodedToken.userId);
 
     try {
-      console.log(
-        "This will be User",
-        addFollower(followedUserId, userId),
-        User
-      );
+      // console.log(
+      //   "This will be User",
+      //   addFollower(followedUserId, userId),
+      //   User
+      // );
+      const addFollowerResult = addFollower(followedUserId, userId);
+      console.log(addFollowerResult);
       //   const foundUser = await User.findOne({
       //     _id: userId,
       //   });

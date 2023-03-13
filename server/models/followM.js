@@ -33,5 +33,10 @@ module.exports = ({ client }) => {
     } catch (error) {
       console.error(error);
     }
+    return user;
+  };
+  return {
+    User,
+    addFollower,
   };
 };
