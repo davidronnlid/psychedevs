@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import FollowButton from "../../components/followButton";
 
 interface User {
   _id: string;
@@ -67,7 +66,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
       <ul>
         <li>ID: {userData._id}</li>
         <li>Username: {userData.username}</li>
-        <FollowButton isFollowing={isFollowing} onClick={handleFollowClick} />
       </ul>
     </div>
   );

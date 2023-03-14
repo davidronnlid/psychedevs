@@ -10,7 +10,6 @@ app.use(bodyParser.json());
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
 const usersRouter = require("./controllers/users");
-const followRouter = require("./controllers/followC");
 
 const connectToDB = require("./dbConnect");
 
@@ -23,7 +22,6 @@ app.get("/express_backend", (req, res) => {
   app.use("/auth", authRouter({ client }));
   app.use("/vas", vasRouter({ client }));
   app.use("/users", usersRouter({ client }));
-  app.use("/follow", followRouter({ client }));
 
   app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
