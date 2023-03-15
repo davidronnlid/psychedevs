@@ -23,8 +23,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
 
       const baseUrl =
         process.env.NODE_ENV === "development"
-          ? process.env.BACKEND_LOCAL_URL
-          : process.env.PROD_URL;
+          ? process.env.REACT_APP_BACKEND_LOCAL_URL
+          : process.env.REACT_APP_PROD_URL;
 
       await fetch(`${baseUrl}/follow/${userId}?${isFollowing}`, {
         method: "POST",
@@ -45,8 +45,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
 
         const baseUrl =
           process.env.NODE_ENV === "development"
-            ? process.env.BACKEND_LOCAL_URL
-            : process.env.PROD_URL;
+            ? process.env.REACT_APP_BACKEND_LOCAL_URL
+            : process.env.REACT_APP_PROD_URL;
 
         const response = await fetch(`${baseUrl}/users/${userId}`, {
           method: "GET",

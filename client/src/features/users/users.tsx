@@ -17,8 +17,13 @@ const UsersPage: React.FC = () => {
 
         const baseUrl =
           process.env.NODE_ENV === "development"
-            ? process.env.BACKEND_LOCAL_URL
-            : process.env.PROD_URL;
+            ? process.env.REACT_APP_BACKEND_LOCAL_URL
+            : process.env.REACT_APP_PROD_URL;
+
+        console.log(
+          process.env.REACT_APP_BACKEND_LOCAL_URL,
+          process.env.REACT_APP_PROD_URL
+        );
 
         const response = await fetch(`${baseUrl}/users/`, {
           method: "GET",
