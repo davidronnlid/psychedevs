@@ -38,7 +38,7 @@ module.exports = ({ client }) => {
     }
   });
 
-  // Define a POST route to let users see their logged data
+  // Define a POST route to let users log data
   router.post("/logs", async (req, res) => {
     console.log(
       "POST Req received at /vas/logs",
