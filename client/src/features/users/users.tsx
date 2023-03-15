@@ -15,7 +15,12 @@ const UsersPage: React.FC = () => {
       try {
         const token = localStorage.getItem("user_sesh_JWT");
 
-        const response = await fetch("http://localhost:5000/users/", {
+        const baseUrl =
+          process.env.NODE_ENV === "development"
+            ? process.env.BACKEND_LOCAL_URL
+            : process.env.PROD_URL;
+
+        const response = await fetch(`${baseUrl}/users/`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

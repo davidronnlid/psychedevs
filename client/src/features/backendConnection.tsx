@@ -14,7 +14,12 @@ const DataFetching: React.FC = () => {
       setLoading(true);
       setError("");
       try {
-        const response = await fetch("http://localhost:5000/express_backend");
+        const baseUrl =
+          process.env.NODE_ENV === "development"
+            ? process.env.BACKEND_LOCAL_URL
+            : process.env.PROD_URL;
+
+        const response = await fetch(`${baseUrl}/express_backend`);
         const jsonData = await response.json();
         setData(jsonData);
       } catch (error) {

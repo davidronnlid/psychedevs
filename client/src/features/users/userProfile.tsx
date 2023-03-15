@@ -20,7 +20,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
 
     try {
       const token = localStorage.getItem("user_sesh_JWT");
-      await fetch(`http://localhost:5000/follow/${userId}?${isFollowing}`, {
+
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BACKEND_LOCAL_URL
+          : process.env.PROD_URL;
+
+      await fetch(`${baseUrl}/follow/${userId}?${isFollowing}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +42,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
     const getUser = async () => {
       try {
         const token = localStorage.getItem("user_sesh_JWT");
-        const response = await fetch(`http://localhost:5000/users/${userId}`, {
+
+        const baseUrl =
+          process.env.NODE_ENV === "development"
+            ? process.env.BACKEND_LOCAL_URL
+            : process.env.PROD_URL;
+
+        const response = await fetch(`${baseUrl}/users/${userId}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

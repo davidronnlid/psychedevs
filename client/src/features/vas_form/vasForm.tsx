@@ -27,7 +27,13 @@ const VasForm: React.FC<VasFormProps> = () => {
     try {
       const token = localStorage.getItem("user_sesh_JWT");
       console.log("Token log", localStorage.getItem("user_sesh_JWT"));
-      const response = await fetch("http://localhost:5000/vas/logs", {
+
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BACKEND_LOCAL_URL
+          : process.env.PROD_URL;
+
+      const response = await fetch(`${baseUrl}/vas/logs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

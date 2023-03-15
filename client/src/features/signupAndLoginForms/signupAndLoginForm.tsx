@@ -41,7 +41,12 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
         endpoint = "login";
       }
 
-      const req_endpoint = "http://localhost:5000/auth/" + endpoint;
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BACKEND_LOCAL_URL
+          : process.env.PROD_URL;
+
+      const req_endpoint = `${baseUrl}/auth/` + endpoint;
 
       console.log(req_endpoint);
 
