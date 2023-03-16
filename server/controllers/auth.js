@@ -35,7 +35,7 @@ module.exports = ({ client }) => {
   // User login route
   router.post("/login", async (req, res) => {
     const { username, password } = req.body;
-    console.log("Req received at /auth/register");
+    console.log("Req received at /auth/login");
 
     try {
       console.log("Looking for user");

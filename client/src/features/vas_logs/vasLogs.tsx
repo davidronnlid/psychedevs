@@ -26,10 +26,13 @@ const LogsPage: React.FC = () => {
         if (response.ok) {
           const data = await response.json();
           setMoodLogList(data);
+
           console.log(data);
         } else {
           throw new Error("Error fetching user logs");
         }
+
+        console.log(response);
       } catch (error) {
         console.error(error);
       }

@@ -7,6 +7,7 @@ module.exports = ({ client }) => {
   const database = client.db("app_users");
   const user_account_data_collection = database.collection("user_account_data");
 
+  console.log("Router for users set up");
   // Define a get route to let users see their logged data
   router.get("/", async (req, res) => {
     console.log("GET Req received at users/", req);

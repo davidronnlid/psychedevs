@@ -18,10 +18,17 @@ app.get("/express_backend", (req, res) => {
 });
 
 (async () => {
-  const client = await connectToDB();
-  app.use("/auth", authRouter({ client }));
-  app.use("/vas", vasRouter({ client }));
-  app.use("/users", usersRouter({ client }));
+  try {
+    const client = await connectToDB();
+
+    app.use("/auth", authRouter({ client }));
+    app.use("/vas", vasRouter({ client }));
+    app.use("/users", usersRouter({ client }));
+
+    console.log("All routers are set up");
+  } catch (err) {
+    console.error("Error connecting to MongoDB", err);
+  }
 })();
 
 const path = require("path");
