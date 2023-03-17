@@ -10,6 +10,8 @@ module.exports = ({ client }) => {
 
   // User registration route
   router.post("/register", async (req, res) => {
+    console.log("Req received at /auth/register");
+
     const { username, password } = req.body;
     try {
       // Generate a salt value
@@ -17,14 +19,12 @@ module.exports = ({ client }) => {
       // Hash the password with the salt value
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      console.log("Req received at /auth/register");
-
       // Save the hashed password to the database
       const result = await users.insertOne({
         username,
         password: hashedPassword,
       });
-      console.log(result);
+      console.log("User registered successfully", result);
       res.status(200).json({ message: "User registered successfully" });
     } catch (error) {
       console.error(error);
@@ -38,12 +38,9 @@ module.exports = ({ client }) => {
     console.log("Req received at /auth/login");
 
     try {
-      console.log("Looking for user");
-
       // Find the user by username
       const user = await users.findOne({ username });
-
-      console.log(user.username);
+      console.log("Found user with this username: ", user.username);
 
       if (!user) {
         return res.status(404).send();
@@ -53,11 +50,11 @@ module.exports = ({ client }) => {
         return res.status(401).send();
       }
 
-      console.log("About to generate JWT token");
+      console.log("Password correct! About to generate JWT token.");
       // Generate a JWT token
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
       res.status(200).send({ token });
-      console.log("User signed in successfully and JWT was sent successfully");
+      console.log("JWT was sent successfully");
     } catch {
       res.status(500).send();
     }
@@ -66,8 +63,8 @@ module.exports = ({ client }) => {
   // User logout route
   router.post("/logout", async (req, res) => {
     // Implement logout logic here
+    // As user logs out, their JWT should be deleted - not sure if this should be implemented in the front or backend tho
   });
 
-  // rest of the code
   return router;
 };

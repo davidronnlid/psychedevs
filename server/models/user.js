@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// Define the user schema
+// Define the user schema - which will be used in auth.js primarily
 const userSchema = new mongoose.Schema({
   username: {
     type: String,

@@ -9,7 +9,6 @@ app.use(bodyParser.json());
 
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
-const usersRouter = require("./controllers/users");
 
 const connectToDB = require("./dbConnect");
 
@@ -23,7 +22,6 @@ app.get("/express_backend", (req, res) => {
 
     app.use("/auth", authRouter({ client }));
     app.use("/vas", vasRouter({ client }));
-    app.use("/users", usersRouter({ client }));
 
     console.log("All routers are set up");
   } catch (err) {
