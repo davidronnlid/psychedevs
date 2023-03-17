@@ -10,7 +10,6 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <Link to="/users">Users Page</Link>
         <Link to="/logs">Logs Page</Link>
         <DataFetching />
         <Counter />
