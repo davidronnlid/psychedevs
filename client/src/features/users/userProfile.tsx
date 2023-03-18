@@ -11,32 +11,7 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
-  const { userId } = useParams<{ userId: string }>();
   const [userData, setUserData] = useState<User | null>(null);
-  const [isFollowing, setIsFollowing] = useState(false);
-
-  const handleFollowClick = async () => {
-    setIsFollowing(!isFollowing);
-
-    try {
-      const token = localStorage.getItem("user_sesh_JWT");
-
-      const baseUrl =
-        process.env.NODE_ENV === "development"
-          ? process.env.REACT_APP_BACKEND_LOCAL_URL
-          : process.env.REACT_APP_PROD_URL;
-
-      await fetch(`${baseUrl}/follow/${userId}?${isFollowing}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -48,7 +23,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
             ? process.env.REACT_APP_BACKEND_LOCAL_URL
             : process.env.REACT_APP_PROD_URL;
 
-        const response = await fetch(`${baseUrl}/users/${userId}`, {
+        const response = await fetch(`${baseUrl}/users/user-profile`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +41,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
     } else {
       setUserData(user);
     }
-  }, [userId, user]);
+  }, [user]);
 
   if (!userData) {
     return <div>Loading user data...</div>;

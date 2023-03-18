@@ -1,15 +1,19 @@
-import logo from "./logo.svg";
 import { Counter } from "./features/counter/Counter";
 import "./App.css";
 import DataFetching from "./features/backendConnection";
 import Form from "./features/signupAndLoginForms/signupAndLoginForm";
 import VasForm from "./features/vas_form/vasForm";
 import { Link } from "react-router-dom";
+import UserProfileButton from "./components/navButton";
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <UserProfileButton
+          buttonText="Go to User Profile"
+          linkTo="/user-profile"
+        />
         <Link to="/logs">Logs Page</Link>
         <DataFetching />
         <Counter />

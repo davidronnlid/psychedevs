@@ -2,6 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+
+// Import ObjectId
+const { ObjectId } = mongoose.Types;
 
 const PORT = process.env.PORT || 5000;
 app.use(cors());
@@ -9,6 +14,7 @@ app.use(bodyParser.json());
 
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
+const usersRouter = require("./controllers/users");
 
 const connectToDB = require("./dbConnect");
 
@@ -16,12 +22,16 @@ app.get("/express_backend", (req, res) => {
   res.json({ express: "YOUR EXPRESS BACKEND IS CONNECTED TO REACT" });
 });
 
+app.use("/users", usersRouter());
+app.use("/vas", vasRouter());
+
 (async () => {
   try {
     const client = await connectToDB();
+    const db = client.db("app_users");
+    app.locals.db = db;
 
     app.use("/auth", authRouter({ client }));
-    app.use("/vas", vasRouter({ client }));
 
     console.log("All routers are set up");
   } catch (err) {

@@ -21,9 +21,15 @@ const LogsPage: React.FC = () => {
             : process.env.REACT_APP_PROD_URL;
 
         const response = await fetch(`${baseUrl}/vas/logs`, {
+          method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        console.log(response);
+
+        console.log("sending req");
         if (response.ok) {
+          console.log("awaiting response");
           const data = await response.json();
           setMoodLogList(data);
 

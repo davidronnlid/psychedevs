@@ -5,24 +5,24 @@ const { ObjectId } = require("mongodb");
 const Logs = require("../models/logs");
 const moment = require("moment");
 
-module.exports = ({ client }) => {
-  const database = client.db("app_users");
-  const vas_mood_logs = database.collection("vas_mood_logs");
+module.exports = () => {
   console.log("Router for /logs set up");
 
   // Define a get route to let users see their logged data
   router.get("/logs", async (req, res) => {
-    console.log("GET Req received at /vas/logs", req.headers.authorization);
+    const db = req.app.locals.db;
+    const vas_mood_logs = db.collection("vas_mood_logs");
+    console.log("GET Req received at /vas/logs");
 
     const token = req.headers.authorization.split(" ")[1];
-
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
     const userId = new ObjectId(decodedToken.userId);
-
+    console.log("decodedToken.userId:", decodedToken.userId);
+    console.log("userId:", userId);
     try {
-      const logsQuery = { user_id: userId };
+      const logsQuery = { user_id: new ObjectId(userId) };
       const foundUserLogs = await vas_mood_logs.findOne(logsQuery);
+      console.log("foundUserLogs:", foundUserLogs);
 
       if (foundUserLogs) {
         console.log("Found some user logs: " + foundUserLogs.logs);
@@ -48,6 +48,8 @@ module.exports = ({ client }) => {
       req.body
     );
 
+    const db = req.app.locals.db;
+    const vas_mood_logs = db.collection("vas_mood_logs");
     const submittedLog = req.body;
     const dateString = submittedLog.date;
     const value = submittedLog.value;

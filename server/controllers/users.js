@@ -3,36 +3,30 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 
-module.exports = ({ client }) => {
-  const database = client.db("app_users");
-  const user_account_data_collection = database.collection("user_account_data");
+module.exports = () => {
+  console.log("Router for /users set up");
 
-  console.log("Router for users set up");
-  // Define a get route to let users see their logged data
-  router.get("/", async (req, res) => {
-    console.log("GET Req received at users/", req);
+  router.get("/user-id", async (req, res) => {
+    const db = req.app.locals.db;
+    const user_account_data_collection = db.collection("user_account_data");
 
+    console.log("Received req at /users/user-id");
     const token = req.headers.authorization.split(" ")[1];
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    console.log("token", token, "decodedtoken", decodedToken);
-
     const userId = new ObjectId(decodedToken.userId);
 
-    console.log("JWT userId is " + userId);
-
     try {
-      const foundUsers = await user_account_data_collection
-        .find({
-          _id: { $ne: userId },
-        })
-        .toArray();
+      const foundUser = await user_account_data_collection.findOne({
+        _id: userId,
+      });
 
-      if (foundUsers) {
-        res.status(200).json(foundUsers);
+      if (foundUser) {
+        console.log("Found user id", foundUser._id);
+        res.status(200).json(foundUser._id);
       } else {
-        console.log("No found for this user", foundUsers);
+        console.log("No found for this user", foundUser);
         res.status(404).json({ message: "No found for this user" });
       }
     } catch (error) {
@@ -41,7 +35,11 @@ module.exports = ({ client }) => {
     }
   });
 
-  router.get("/:id", async (req, res) => {
+  router.get("/user-profile", async (req, res) => {
+    const db = req.app.locals.db;
+    const user_account_data_collection = db.collection("user_account_data");
+
+    console.log("Received req at /users/user-profile");
     const token = req.headers.authorization.split(" ")[1];
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -52,18 +50,20 @@ module.exports = ({ client }) => {
 
     console.log("JWT userId is " + userId);
 
-    const user_Id = req.params.id;
-
     try {
       const foundUser = await user_account_data_collection.findOne({
-        _id: new ObjectId(user_Id),
+        _id: userId,
       });
 
       console.log("Found user", foundUser);
 
-      if (foundUser) {
-        console.log("Found user", foundUser);
-        res.status(200).json(foundUser);
+      const userToSend = {
+        _id: foundUser._id,
+        username: foundUser.username,
+      };
+
+      if (userToSend) {
+        res.status(200).json(userToSend);
       } else {
         console.log("No found for this user", foundUser);
         res.status(404).json({ message: "No found for this user" });
