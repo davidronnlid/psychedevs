@@ -11,7 +11,7 @@ const RDRRoutes: React.FC = () => {
       <BackButton />
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/logs" element={<LogsPage />} />
+        <Route path="/logs" element={<LogsPage MoodLogList={[]} />} />
         <Route path="/user-profile/:userId" element={<UserProfile />} />
       </Routes>
     </>

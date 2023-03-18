@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 const Logs = require("../models/logs");
 const moment = require("moment");
+const { Long } = require("bson");
 
 module.exports = () => {
   console.log("Router for /logs set up");
@@ -52,14 +53,17 @@ module.exports = () => {
     const vas_mood_logs = db.collection("vas_mood_logs");
     const submittedLog = req.body;
     const dateString = submittedLog.date;
-    const value = submittedLog.value;
+
+    const int64Value = Long.fromString(submittedLog.value);
+
+    console.log("turned into int64: ", int64Value);
 
     // assuming that the date string is in the format "YYYY-MM-DD"
     // convert the date string to a Date object
     const date = moment(dateString, "YYYY-MM-DD").toDate();
 
     // create the log object with the date string converted to a date Date object
-    const datifiedSubmittedLog = { date: date, value: value };
+    const datifiedSubmittedLog = { date: date, value: int64Value };
     // the submitted log object will be inserted into the database below
 
     const token = req.headers.authorization.split(" ")[1];
