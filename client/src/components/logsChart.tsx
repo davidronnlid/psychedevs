@@ -6,6 +6,7 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ResponsiveContainer,
 } from "recharts";
 interface Log {
   date: Date;
@@ -25,19 +26,21 @@ const Chart: React.FC<Logs> = ({ logs }) => {
   });
 
   return (
-    <LineChart width={500} height={300} data={datesAndValues}>
-      <CartesianGrid />
-      <XAxis dataKey="date" />
-      <YAxis />
-      <Tooltip />
-      <Legend verticalAlign="top" height={36} />
-      <Line
-        type="monotone"
-        dataKey="value"
-        stroke="#8884d8"
-        activeDot={{ r: 12 }}
-      />
-    </LineChart>
+    <ResponsiveContainer width="90%" height={300}>
+      <LineChart width={500} height={300} data={datesAndValues}>
+        <CartesianGrid />
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+        <Legend verticalAlign="top" height={36} />
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke="#8884d8"
+          activeDot={{ r: 12 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
   );
 };
 
