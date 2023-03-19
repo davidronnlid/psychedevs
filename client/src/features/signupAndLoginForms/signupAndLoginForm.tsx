@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { setAuthState } from "../../redux/authSlice";
+import { useAppDispatch } from "../../redux/hooks";
 
 interface FormProps {
   // Define the interface for the form inputs
@@ -6,22 +8,16 @@ interface FormProps {
   password: string;
   signupOrLogin?: boolean;
   // If form is used for signup, set prop to true, if used for login, set it to false
-  onJwtChange?: (jwt: string | null) => void;
 }
 
-interface User {
-  _id: string;
-}
-
-const Form: React.FC<FormProps> = ({
-  signupOrLogin,
-  onJwtChange,
-}: FormProps) => {
+const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
   // Define state for the form inputs
   const [formInputs, setFormInputs] = useState<FormProps>({
     username: "",
     password: "",
   });
+
+  const dispatch = useAppDispatch();
 
   // Define a function to handle form input changes
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,9 +61,7 @@ const Form: React.FC<FormProps> = ({
       const data = await response.json();
       localStorage.setItem("user_sesh_JWT", data.token);
 
-      if (onJwtChange) {
-        onJwtChange(data.token);
-      }
+      dispatch(setAuthState({ isAuthenticated: true, jwt: data.token }));
 
       // Reset form inputs after submission
       setFormInputs({

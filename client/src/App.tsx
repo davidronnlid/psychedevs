@@ -1,19 +1,14 @@
-import { Counter } from "./features/counter/Counter";
+import { Counter } from "./redux/Counter";
 import "./App.css";
 import DataFetching from "./features/backendConnection";
 import VasForm from "./features/vas_form/vasForm";
 import { Link } from "react-router-dom";
 import UserProfileButton from "./components/navButton";
 import HandleLoginState from "./features/signupAndLoginForms/handleLoginState";
-import { useState } from "react";
+import { useJwt } from "./redux/authSlice";
 
-function App() {
-  const [jwt, setJwt] = useState<string | null>(null);
-
-  const handleJwtChange = (newJwt: string | null) => {
-    setJwt(newJwt); // update the jwt state in the parent component
-  };
-
+const App: React.FC = (): JSX.Element => {
+  const jwt = useJwt();
   return (
     <div className="App">
       <header className="App-header">
@@ -23,12 +18,12 @@ function App() {
         <Counter />
         <VasForm value={0} />
 
-        <HandleLoginState onJwtChange={handleJwtChange} />
+        <HandleLoginState jwt={jwt} />
 
         <p>Token available: {localStorage.getItem("user_sesh_JWT")}</p>
       </header>
     </div>
   );
-}
+};
 
 export default App;

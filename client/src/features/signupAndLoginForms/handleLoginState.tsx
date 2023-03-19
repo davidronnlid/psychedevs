@@ -1,56 +1,38 @@
-import { useState, useEffect } from "react";
 import Form from "./signupAndLoginForm";
+import { setAuthState, useJwt } from "../../redux/authSlice";
+import { useAppDispatch } from "../../redux/hooks";
 
-type HandleLoginStateProps = {
-  onJwtChange: (jwt: string | null) => void;
-};
+interface AuthedApp {
+  jwt: string | null;
+}
 
-const HandleLoginState = ({
-  onJwtChange,
-}: HandleLoginStateProps): JSX.Element => {
-  const [jwt, setJwt] = useState<string | null>(
-    localStorage.getItem("user_sesh_JWT")
-  );
+const HandleLoginState: React.FC<AuthedApp> = ({ jwt }): JSX.Element => {
+  const dispatch = useAppDispatch();
+
+  const updatedJwt = useJwt();
+  console.log(updatedJwt);
 
   const logOut = () => {
+    try {
+      dispatch(setAuthState({ isAuthenticated: false, jwt: null }));
+    } catch (error) {
+      console.error(error);
+    }
+
     console.log("registered log out click");
     localStorage.setItem("user_sesh_JWT", "");
-    setJwt("");
   };
-
-  const handleJwtChange = (newJwt: string | null) => {
-    setJwt(newJwt); // update the state with the new jwt
-
-    if (onJwtChange) {
-      onJwtChange(newJwt);
-    }
-  };
-
-  useEffect(() => {
-    setJwt(localStorage.getItem("user_sesh_JWT"));
-  }, []);
 
   return (
     <>
-      {!jwt || jwt === "" ? (
+      {updatedJwt ? (
         <>
-          {" "}
-          <Form
-            username=""
-            password=""
-            signupOrLogin={true}
-            onJwtChange={handleJwtChange}
-          />
-          <Form
-            username=""
-            password=""
-            signupOrLogin={false}
-            onJwtChange={handleJwtChange}
-          />
+          <button onClick={() => logOut()}>Log out</button>
         </>
       ) : (
         <>
-          <button onClick={() => logOut()}>Log out</button>
+          <Form username="" password="" signupOrLogin={true} />
+          <Form username="" password="" signupOrLogin={false} />
         </>
       )}
     </>
