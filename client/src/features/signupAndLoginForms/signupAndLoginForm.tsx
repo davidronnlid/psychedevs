@@ -77,7 +77,11 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
 
   return (
     <div>
-      {!jwtToken ? (
+      {!jwtToken || jwtToken === "" ? (
+        <div>
+          <button onClick={() => setJwtToken("")}>Log out</button>
+        </div>
+      ) : (
         <form onSubmit={handleSubmit}>
           {signupOrLogin ? <h3>Sign up:</h3> : <h3>Login</h3>}
           <div>
@@ -102,10 +106,6 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
           </div>
           <button type="submit">Submit</button>
         </form>
-      ) : (
-        <div>
-          <button onClick={() => setJwtToken("")}>Log out</button>
-        </div>
       )}
     </div>
   );

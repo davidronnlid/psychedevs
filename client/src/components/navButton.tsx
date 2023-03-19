@@ -20,22 +20,26 @@ const UserProfileButton: React.FC<Props> = ({ buttonText, linkTo }) => {
       try {
         const token = localStorage.getItem("user_sesh_JWT");
 
-        const baseUrl =
-          process.env.NODE_ENV === "development"
-            ? process.env.REACT_APP_BACKEND_LOCAL_URL
-            : process.env.REACT_APP_PROD_URL;
+        if (!token || token === "") {
+          console.log("Not logged in");
+        } else {
+          const baseUrl =
+            process.env.NODE_ENV === "development"
+              ? process.env.REACT_APP_BACKEND_LOCAL_URL
+              : process.env.REACT_APP_PROD_URL;
 
-        const response = await fetch(`${baseUrl}/users/user-id`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          const response = await fetch(`${baseUrl}/users/user-id`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-        const data = await response.json();
-        console.log(data);
-        setUserId(data);
+          const data = await response.json();
+          console.log(data);
+          setUserId(data);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -58,7 +62,7 @@ const UserProfileButton: React.FC<Props> = ({ buttonText, linkTo }) => {
           {buttonText}
         </Button>
       ) : (
-        <p>Loading...</p>
+        <p>Not logged in...</p>
       )}
     </>
   );

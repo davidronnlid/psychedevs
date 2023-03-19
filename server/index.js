@@ -2,11 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
-const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
-
-// Import ObjectId
-const { ObjectId } = mongoose.Types;
 
 const PORT = process.env.PORT || 5000;
 app.use(cors());
@@ -21,6 +16,8 @@ const connectToDB = require("./dbConnect");
 app.get("/express_backend", (req, res) => {
   res.json({ express: "YOUR EXPRESS BACKEND IS CONNECTED TO REACT" });
 });
+
+app.use("/uploads", express.static("uploads"));
 
 app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
