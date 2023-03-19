@@ -1,10 +1,10 @@
 import { Counter } from "./features/counter/Counter";
 import "./App.css";
 import DataFetching from "./features/backendConnection";
-import Form from "./features/signupAndLoginForms/signupAndLoginForm";
 import VasForm from "./features/vas_form/vasForm";
 import { Link } from "react-router-dom";
 import UserProfileButton from "./components/navButton";
+import HandleLoginState from "./features/signupAndLoginForms/handleLoginState";
 
 function App() {
   return (
@@ -18,8 +18,9 @@ function App() {
         <DataFetching />
         <Counter />
         <VasForm value={0} />
-        <Form username="" password="" signupOrLogin={true} />
-        <Form username="" password="" signupOrLogin={false} />
+
+        <HandleLoginState />
+
         <p>Token available: {localStorage.getItem("user_sesh_JWT")}</p>
       </header>
     </div>
