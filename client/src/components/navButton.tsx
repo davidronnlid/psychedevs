@@ -5,14 +5,13 @@ import { ObjectId } from "mongoose";
 
 type Props = {
   buttonText: string;
-  linkTo: string;
 };
 
 interface User {
   _id: ObjectId;
 }
 
-const UserProfileButton: React.FC<Props> = ({ buttonText, linkTo }) => {
+const UserProfileButton: React.FC<Props> = ({ buttonText }) => {
   const [userId, setUserId] = useState<User | null>(null);
 
   useEffect(() => {
