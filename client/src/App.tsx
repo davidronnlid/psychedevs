@@ -9,19 +9,21 @@ import { useJwt } from "./redux/authSlice";
 
 const App: React.FC = (): JSX.Element => {
   const jwt = useJwt();
+
+  const updatedJwt = useJwt();
+  console.log("Updated JWT: ", updatedJwt);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <UserProfileButton buttonText="Go to User Profile" />
-        <Link to="/logs">Logs Page</Link>
-        <DataFetching />
-        <Counter />
-        <VasForm value={0} />
+      <UserProfileButton buttonText="Go to User Profile" />
+      <Link to="/logs">Logs Page</Link>
+      <DataFetching />
+      <Counter />
+      <VasForm value={0} />
 
-        <HandleLoginState jwt={jwt} />
+      <HandleLoginState jwt={jwt} />
 
-        <p>Token available: {localStorage.getItem("user_sesh_JWT")}</p>
-      </header>
+      <p>Token available: {jwt}</p>
     </div>
   );
 };

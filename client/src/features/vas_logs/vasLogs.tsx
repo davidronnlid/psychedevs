@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Chart from "../../components/logsChart";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import Button from "@mui/material/Button";
+import { useJwt } from "../../redux/authSlice";
 
 interface MoodLog {
   date: Date;
@@ -15,6 +16,7 @@ type Props = {
 const LogsPage: React.FC<Props> = ({ MoodLogList }) => {
   const [openLogs, setOpenLogs] = useState<boolean[]>([]);
   const [moodLogList, setMoodLogList] = useState<MoodLog[]>([]);
+  const token = useJwt();
 
   const toggleLog = (index: number) => {
     const newOpenLogs = [...openLogs];
@@ -25,9 +27,6 @@ const LogsPage: React.FC<Props> = ({ MoodLogList }) => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const token = localStorage.getItem("user_sesh_JWT");
-        console.log("Token log", localStorage.getItem("user_sesh_JWT"));
-
         const baseUrl =
           process.env.NODE_ENV === "development"
             ? process.env.REACT_APP_BACKEND_LOCAL_URL
@@ -48,8 +47,8 @@ const LogsPage: React.FC<Props> = ({ MoodLogList }) => {
           // sort logs by date
           const sortLogsByDate = (logs: MoodLog[]): MoodLog[] => {
             return logs.sort((a, b) => {
-              const dateA = new Date(a.date).toISOString();
-              const dateB = new Date(b.date).toISOString();
+              const dateA: any = new Date(a.date).toISOString();
+              const dateB: any = new Date(b.date).toISOString();
               return dateA.localeCompare(dateB);
             });
           };
@@ -69,7 +68,7 @@ const LogsPage: React.FC<Props> = ({ MoodLogList }) => {
     };
 
     fetchLogs();
-  }, []);
+  }, [token]);
 
   return (
     <>

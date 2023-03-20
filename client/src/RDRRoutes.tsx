@@ -17,9 +17,21 @@ const RDRRoutes: React.FC = (): JSX.Element => {
     }
   }, [dispatch]);
 
+  const logOut = () => {
+    try {
+      dispatch(setAuthState({ isAuthenticated: false, jwt: null }));
+    } catch (error) {
+      console.error(error);
+    }
+
+    console.log("registered log out click");
+    localStorage.setItem("user_sesh_JWT", "");
+  };
+
   return (
     <>
       <BackButton />
+
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/logs" element={<LogsPage MoodLogList={[]} />} />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { ObjectId } from "mongoose";
+import { useJwt } from "../redux/authSlice";
 
 type Props = {
   buttonText: string;
@@ -13,12 +14,11 @@ interface User {
 
 const UserProfileButton: React.FC<Props> = ({ buttonText }) => {
   const [userId, setUserId] = useState<User | null>(null);
+  const token = useJwt();
 
   useEffect(() => {
     const getUserId = async () => {
       try {
-        const token = localStorage.getItem("user_sesh_JWT");
-
         if (!token || token === "") {
           console.log("Not logged in");
         } else {
@@ -47,11 +47,11 @@ const UserProfileButton: React.FC<Props> = ({ buttonText }) => {
     if (!userId) {
       getUserId();
     }
-  }, [userId]);
+  }, [userId, token]);
 
   return (
     <>
-      {userId ? (
+      {token ? (
         <Button
           component={Link}
           to={`/user-profile/${userId}`}

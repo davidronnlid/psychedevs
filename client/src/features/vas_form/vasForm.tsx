@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useJwt } from "../../redux/authSlice";
 
 interface VasFormProps {
   // Define the interface for the form inputs
@@ -13,6 +14,8 @@ const VasForm: React.FC<VasFormProps> = () => {
     value: 0,
   });
 
+  const token = useJwt();
+
   // Define a function to handle form input changes
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormInputs({
@@ -25,9 +28,6 @@ const VasForm: React.FC<VasFormProps> = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const token = localStorage.getItem("user_sesh_JWT");
-      console.log("Token log", localStorage.getItem("user_sesh_JWT"));
-
       const baseUrl =
         process.env.NODE_ENV === "development"
           ? process.env.REACT_APP_BACKEND_LOCAL_URL

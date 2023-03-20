@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useJwt } from "../../redux/authSlice";
 
 interface User {
   _id: string;
@@ -14,6 +15,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [uploaded, setUploaded] = useState<Boolean>(false);
+  const token = useJwt();
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -25,8 +27,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
     if (!selectedFile) {
       return;
     }
-
-    const token = localStorage.getItem("user_sesh_JWT");
 
     const baseUrl =
       process.env.NODE_ENV === "development"
@@ -55,8 +55,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const token = localStorage.getItem("user_sesh_JWT");
-
         const baseUrl =
           process.env.NODE_ENV === "development"
             ? process.env.REACT_APP_BACKEND_LOCAL_URL

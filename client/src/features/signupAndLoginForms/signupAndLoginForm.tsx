@@ -33,7 +33,7 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
     try {
       let endpoint;
       if (signupOrLogin) {
-        endpoint = "register";
+        endpoint = "signup";
       } else {
         endpoint = "login";
       }
@@ -57,11 +57,12 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
       }
       console.log("Form submitted successfully");
 
-      // Get the JWT token from the response and save it to state
+      // Get the JWT token from the response and save it to localStorage and app (Redux) state
       const data = await response.json();
       localStorage.setItem("user_sesh_JWT", data.token);
-
       dispatch(setAuthState({ isAuthenticated: true, jwt: data.token }));
+
+      console.log("data received in login/signup component: " + data.token);
 
       // Reset form inputs after submission
       setFormInputs({

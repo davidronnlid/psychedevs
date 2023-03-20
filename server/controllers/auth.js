@@ -9,23 +9,30 @@ module.exports = ({ client }) => {
   const users = database.collection("user_account_data");
 
   // User registration route
-  router.post("/register", async (req, res) => {
-    console.log("Req received at /auth/register");
+  router.post("/signup", async (req, res) => {
+    console.log("Req received at /auth/signup");
 
     const { username, password } = req.body;
     try {
       // Generate a salt value
       const salt = await bcrypt.genSalt(10);
       // Hash the password with the salt value
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPw = await bcrypt.hash(password, salt);
+
+      const newUser = {
+        username,
+        password: hashedPw,
+      };
 
       // Save the hashed password to the database
-      const result = await users.insertOne({
-        username,
-        password: hashedPassword,
-      });
+      const result = await users.insertOne(newUser);
       console.log("User registered successfully", result);
-      res.status(200).json({ message: "User registered successfully" });
+
+      const user = await users.findOne({ username: newUser.username });
+      // Generate a JWT token
+      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+      res.status(200).send({ token });
+      console.log("JWT was sent successfully to logged in user");
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Error registering user" });
@@ -54,7 +61,7 @@ module.exports = ({ client }) => {
       // Generate a JWT token
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
       res.status(200).send({ token });
-      console.log("JWT was sent successfully");
+      console.log("JWT was sent successfully to logged in user");
     } catch {
       res.status(500).send();
     }
