@@ -1,13 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "../typeModels/userModel";
 import { RootState } from "./store";
 
-interface UserState {
-  _id: string;
-  username: string;
-  profile_pic_filename: string;
-}
-
-const initialState: UserState = {
+const initialState: User = {
   _id: "",
   username: "",
   profile_pic_filename: "",
@@ -26,7 +21,7 @@ const userSlice = createSlice({
     setProfilePicFilename: (state, action: PayloadAction<string>) => {
       state.profile_pic_filename = action.payload;
     },
-    setUserState: (state, action: PayloadAction<UserState>) => {
+    setUserState: (state, action: PayloadAction<User>) => {
       state._id = action.payload._id;
       state.username = action.payload.username;
       state.profile_pic_filename = action.payload.profile_pic_filename;
