@@ -2,21 +2,16 @@ import { useState } from "react";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-
-import { User } from "../typeModels/userModel";
 import MenuContents from "./menuContents";
 
-interface HamburgerProps {
-  user?: User;
-}
-
-const Hamburger: React.FC<HamburgerProps> = ({ user }): JSX.Element => {
+const Hamburger: React.FC = (): JSX.Element => {
   const [open, setOpen] = useState(false);
-
-  console.log(user);
 
   const handleToggleMenu = () => {
     setOpen(!open);
+  };
+  const handleCloseMenu = () => {
+    setOpen(false);
   };
   const headerHeight = (50 * 239) / 714 + "vw";
 
@@ -28,8 +23,9 @@ const Hamburger: React.FC<HamburgerProps> = ({ user }): JSX.Element => {
           style={{
             top: headerHeight,
           }}
+          onClick={handleCloseMenu}
         >
-          <MenuContents user={user} />
+          <MenuContents />
         </div>
       )}
       {open ? (
