@@ -1,0 +1,29 @@
+@import "variables";
+
+header {
+  background-color: $color-1;
+}
+@keyframes slideIn {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+.fullScreenMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(38, 172, 226, 0.7);
+  z-index: 8;
+  transform: translateX(-100%);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3), 0 0 5px rgba(0, 0, 0, 0.2),
+    0 0 1px rgba(0, 0, 0, 0.1); // Uncomment this line for a noisy shadow effect
+
+  &.open {
+    animation: slideIn 0.1s forwards;
+  }
+}

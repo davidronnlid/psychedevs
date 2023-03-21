@@ -8,8 +8,10 @@ import UserProfile from "./features/users/userProfile";
 import LogsPage from "./features/vas_logs/vasLogs";
 import Hamburger from "./components/hamburger";
 import { selectUser } from "./redux/userSlice";
+import PDHeaderLogo from "./images/PDHeaderLogo.png";
+import "./styles/app.scss";
 
-const RDRRoutes: React.FC = (): JSX.Element => {
+const AppContainer: React.FC = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -19,33 +21,23 @@ const RDRRoutes: React.FC = (): JSX.Element => {
     }
   }, [dispatch]);
 
-  const logOut = () => {
-    try {
-      dispatch(setAuthState({ isAuthenticated: false, jwt: null }));
-
-      //Set hamburger openState here? Nah bro, but work on this
-    } catch (error) {
-      console.error(error);
-    }
-
-    console.log("registered log out click");
-    localStorage.setItem("user_sesh_JWT", "");
-  };
-
   const user = useAppSelector(selectUser);
 
   return (
-    <>
+    <div className="appContainer">
+      <header>
+        <img src={PDHeaderLogo} style={{ width: "50vw" }} />
+      </header>
       <BackButton />
-      <Hamburger logOutFunc={logOut} user={user} />
+      <Hamburger user={user} />
 
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/logs" element={<LogsPage MoodLogList={[]} />} />
         <Route path="/user-profile/:userId" element={<UserProfile />} />
       </Routes>
-    </>
+    </div>
   );
 };
 
-export default RDRRoutes;
+export default AppContainer;

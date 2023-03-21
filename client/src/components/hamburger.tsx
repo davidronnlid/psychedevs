@@ -1,40 +1,37 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { selectUsername, selectProfilePicFilename } from "../redux/userSlice";
 import { User } from "../typeModels/userModel";
+import MenuContents from "./menuContents";
 
 interface HamburgerProps {
-  logOutFunc: () => void;
   user?: User;
 }
 
-const Hamburger: React.FC<HamburgerProps> = ({
-  logOutFunc,
-  user,
-}): JSX.Element => {
+const Hamburger: React.FC<HamburgerProps> = ({ user }): JSX.Element => {
   const [open, setOpen] = useState(false);
-  const username = useSelector(selectUsername);
-  const profilePicFilename = useSelector(selectProfilePicFilename);
 
-  // Upon component loading, set imageUrl to a state variable which corresponds to:
-  const baseUrl =
-    process.env.NODE_ENV === "development"
-      ? process.env.REACT_APP_BACKEND_LOCAL_URL
-      : process.env.REACT_APP_PROD_URL;
-
-  const imageUrl = `${baseUrl}/uploads/profile-pics/${user?.profile_pic_filename}`;
+  console.log(user);
 
   const handleToggleMenu = () => {
     setOpen(!open);
-    // logOutFunc();
   };
+  const headerHeight = (50 * 239) / 714 + "vw";
 
   return (
     <>
+      {open && (
+        <div
+          className={`fullScreenMenu${open ? " open" : " close"}`}
+          style={{
+            top: headerHeight,
+          }}
+        >
+          <MenuContents user={user} />
+        </div>
+      )}
       {open ? (
         <div style={{ position: "fixed", top: "5vw", right: "3vw" }}>
           <IconButton
@@ -42,19 +39,9 @@ const Hamburger: React.FC<HamburgerProps> = ({
             color="inherit"
             aria-label="close"
             onClick={() => handleToggleMenu()}
-            style={{ marginTop: "10px" }}
           >
-            <CloseIcon />
+            <CloseIcon style={{ color: "white" }} />
           </IconButton>
-          {/* {user?.profile_pic_filename(
-                <img
-                  src={imageUrl}
-                  alt="Profile pic"
-                  style={{ height: "60px", marginBottom: "10px" }}
-                />
-              )
-            : null} */}
-          <span style={{ fontSize: "1.2rem" }}>{username}</span>
         </div>
       ) : (
         <IconButton
@@ -64,7 +51,7 @@ const Hamburger: React.FC<HamburgerProps> = ({
           onClick={() => handleToggleMenu()}
           style={{ position: "fixed", top: "5vw", right: "3vw" }}
         >
-          <MenuIcon />
+          <MenuIcon style={{ color: "white" }} />
         </IconButton>
       )}
     </>

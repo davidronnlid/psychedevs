@@ -5,7 +5,7 @@ import { store } from "./redux/store";
 import { BrowserRouter } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import "./index.css";
-import RDRRoutes from "./RDRRoutes";
+import AppContainer from "./AppContainer";
 
 const container = document.getElementById("root")!;
 const root = createRoot(container);
@@ -15,7 +15,7 @@ const App = () => {
     <React.StrictMode>
       <Provider store={store}>
         <BrowserRouter>
-          <RDRRoutes />
+          <AppContainer />
         </BrowserRouter>
       </Provider>
     </React.StrictMode>
