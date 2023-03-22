@@ -10,6 +10,8 @@ import Hamburger from "./components/hamburger";
 import PDHeaderLogo from "./images/PDHeaderLogo.png";
 import "./styles/app.scss";
 import ProfileMenu from "./components/profileMenu";
+import { fetchUserProfile } from "./functions/fetchUserProfile";
+import { setUserState } from "./redux/userSlice";
 
 const AppContainer: React.FC = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -18,6 +20,35 @@ const AppContainer: React.FC = (): JSX.Element => {
     const jwt = localStorage.getItem("user_sesh_JWT");
     if (jwt) {
       dispatch(setAuthState({ isAuthenticated: true, jwt }));
+
+      console.log("log 1");
+      // req to users/user-id is logged, but not req to users/user-profile, the below function doesn't see to get called
+
+      const fetchData = async () => {
+        console.log("log 2");
+
+        // Call function that gets user from server from db
+        const result = await fetchUserProfile(jwt);
+        const user = result.data;
+        console.log("log 4");
+        console.log(result);
+
+        // ask AI why it logs "not valid json" and also try to understand why it doesnt send a req at all as observed in server !logs
+
+        if (user) {
+          console.log("log 3");
+
+          dispatch(
+            setUserState({
+              _id: user._id,
+              username: user.username,
+              profile_pic_filename: user?.profile_pic_filename,
+            })
+          );
+        }
+      };
+
+      fetchData();
     }
   }, [dispatch]);
 
@@ -27,16 +58,20 @@ const AppContainer: React.FC = (): JSX.Element => {
         <Link to="/">
           <img src={PDHeaderLogo} style={{ width: "50vw" }} />
         </Link>
-        <ProfileMenu />
       </header>
       <BackButton />
-      <Hamburger />
 
+      <div className="headerRightSection">
+        <ProfileMenu />
+        <Hamburger />
+      </div>
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/logs" element={<LogsPage MoodLogList={[]} />} />
         <Route path="/user-profile/:userId" element={<UserProfile />} />
       </Routes>
+
+      <p>TESTING TESTING e bwpornqwprgqrwgwrg</p>
     </div>
   );
 };
