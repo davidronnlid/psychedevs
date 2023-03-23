@@ -57,6 +57,7 @@ const UserProfileButton: React.FC<Props> = ({ buttonText }) => {
           to={`/user-profile/${userId}`}
           variant="contained"
           color="primary"
+          sx={{ background: "$color-2" }}
         >
           {buttonText}
         </Button>

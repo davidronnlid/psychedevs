@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Link, Route, Routes } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "./redux/hooks";
+import { useAppDispatch } from "./redux/hooks";
 import { setAuthState } from "./redux/authSlice";
 import App from "./App";
 import BackButton from "./components/backButton";
@@ -21,23 +21,17 @@ const AppContainer: React.FC = (): JSX.Element => {
     if (jwt) {
       dispatch(setAuthState({ isAuthenticated: true, jwt }));
 
-      console.log("log 1");
       // req to users/user-id is logged, but not req to users/user-profile, the below function doesn't see to get called
 
       const fetchData = async () => {
-        console.log("log 2");
-
         // Call function that gets user from server from db
         const result = await fetchUserProfile(jwt);
         const user = result.data;
-        console.log("log 4");
         console.log(result);
 
         // ask AI why it logs "not valid json" and also try to understand why it doesnt send a req at all as observed in server !logs
 
         if (user) {
-          console.log("log 3");
-
           dispatch(
             setUserState({
               _id: user._id,
@@ -70,8 +64,6 @@ const AppContainer: React.FC = (): JSX.Element => {
         <Route path="/logs" element={<LogsPage MoodLogList={[]} />} />
         <Route path="/user-profile/:userId" element={<UserProfile />} />
       </Routes>
-
-      <p>TESTING TESTING e bwpornqwprgqrwgwrg</p>
     </div>
   );
 };
