@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { setAuthState } from "../../redux/authSlice";
-import { useAppDispatch } from "../../redux/hooks";
+import { setAuthState } from "../redux/authSlice";
+import { useAppDispatch } from "../redux/hooks";
 
 interface FormProps {
   // Define the interface for the form inputs
@@ -25,6 +25,26 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
       ...formInputs,
       [event.target.name]: event.target.value,
     });
+  };
+
+  const saveData = async (tempData: any) => {
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.REACT_APP_BACKEND_LOCAL_URL
+        : process.env.REACT_APP_PROD_URL;
+
+    const response = await fetch(`${baseUrl}/vas/logs`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("user_sesh_JWT")}`,
+      },
+      body: JSON.stringify(tempData),
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    console.log("Temporary data saved successfully");
   };
 
   // Define a function to handle form submission
@@ -63,6 +83,17 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
       dispatch(setAuthState({ isAuthenticated: true, jwt: data.token }));
 
       console.log("data received in login/signup component: " + data.token);
+
+      // Check if there's any temporary data in localStorage
+      const tempData = localStorage.getItem("tempData");
+      if (tempData) {
+        // Save the temporary data to the user's account
+        // (assuming you have a function to save data called `saveData`)
+        await saveData(JSON.parse(tempData));
+
+        // Remove temporary data from localStorage
+        localStorage.removeItem("tempData");
+      }
 
       // Reset form inputs after submission
       setFormInputs({

@@ -12,6 +12,8 @@ import "./styles/app.scss";
 import ProfileMenu from "./components/profileMenu";
 import { fetchUserProfile } from "./functions/fetchUserProfile";
 import { setUserState } from "./redux/userSlice";
+import SignUpPage from "./features/signupAndLoginForms/signUpPage";
+import LoginPage from "./features/signupAndLoginForms/loginPage";
 
 const AppContainer: React.FC = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -61,6 +63,8 @@ const AppContainer: React.FC = (): JSX.Element => {
       </div>
       <Routes>
         <Route path="/" element={<App />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/logs" element={<LogsPage MoodLogList={[]} />} />
         <Route path="/user-profile/:userId" element={<UserProfile />} />
       </Routes>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const useOnClickOutside = (
   // see profileDropdown.tsx for example on how to use
@@ -19,4 +19,19 @@ export const useOnClickOutside = (
       window.removeEventListener("mousedown", handleClickOutside);
     };
   }, [ref, handler]);
+};
+
+export const useVisitedFlag = () => {
+  const [visited, setVisited] = useState(false);
+
+  useEffect(() => {
+    const visitedFlag = localStorage.getItem("visited");
+    if (visitedFlag) {
+      setVisited(true);
+    } else {
+      localStorage.setItem("visited", "true");
+    }
+  }, []);
+
+  return visited;
 };

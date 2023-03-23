@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import DropdownMenu from "./profileDropdown";
 import { useIsAuthenticated } from "../redux/authSlice";
 import Tooltip from "@mui/material/Tooltip";
+import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
 
 const ProfileMenu: React.FC = () => {
   const [toggleState, setToggleState] = useState(false);
@@ -22,7 +24,35 @@ const ProfileMenu: React.FC = () => {
       </button>{" "}
       <DropdownMenu toggleState={toggleState} onToggle={handleToggle} />
     </div>
-  ) : null;
+  ) : (
+    <div className="profileMenu signupOrLoginMenu">
+      <Link to="/signup" style={{ textDecoration: "none" }}>
+        <Button
+          style={{
+            color: "white",
+          }}
+        >
+          Sign up
+        </Button>
+      </Link>
+      <span
+        style={{
+          color: "white",
+        }}
+      >
+        |
+      </span>
+      <Link to="/login" style={{ textDecoration: "none" }}>
+        <Button
+          style={{
+            color: "white",
+          }}
+        >
+          Login
+        </Button>
+      </Link>
+    </div>
+  );
 };
 
 export default ProfileMenu;

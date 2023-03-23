@@ -54,7 +54,7 @@ module.exports = () => {
     const submittedLog = req.body;
     const dateString = submittedLog.date;
 
-    const int64Value = Long.fromString(submittedLog.value);
+    const int64Value = Long.fromString(submittedLog.value.toString());
 
     console.log("turned into int64: ", int64Value);
 
