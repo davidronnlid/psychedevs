@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const MenuContents = () => {
   return (
-    <div style={{ backgroundColor: "green", padding: "10px" }}>
+    <div style={{ padding: "10px" }}>
       <ul>
         <li>
           <Link to="/logs">

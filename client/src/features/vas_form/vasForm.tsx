@@ -14,6 +14,29 @@ interface VasFormProps {
 const VasForm: React.FC<VasFormProps> = () => {
   const navigate = useNavigate();
 
+  const marks = [
+    {
+      value: 1,
+      label: "Terrible",
+    },
+    {
+      value: 2,
+      label: "Bad",
+    },
+    {
+      value: 3,
+      label: "Neutral",
+    },
+    {
+      value: 4,
+      label: "Good",
+    },
+    {
+      value: 5,
+      label: "Perfect",
+    },
+  ];
+
   // Define state for the form inputs
   const [formInputs, setFormInputs] = useState<VasFormProps>({
     date: new Date(Date.now()),
@@ -79,8 +102,8 @@ const VasForm: React.FC<VasFormProps> = () => {
 
   return (
     <form onSubmit={handleSave} className="vasForm">
-      <div>
-        <Typography id="value" gutterBottom>
+      <div className="formContent">
+        <Typography id="value" className="hAYFATPMTitle formItem" variant="h4">
           <b>How are you feeling at the present moment?</b>
         </Typography>
         <Slider
@@ -91,23 +114,25 @@ const VasForm: React.FC<VasFormProps> = () => {
           }}
           valueLabelDisplay="auto"
           step={1}
-          marks
+          marks={marks}
           min={1}
           max={5}
           color="primary"
+          className="formItem"
         />
+        <div className="formItem">
+          <Button
+            type="submit"
+            variant="contained"
+            style={{
+              backgroundColor: "green",
+              color: "white",
+            }}
+          >
+            Save log
+          </Button>
+        </div>
       </div>
-
-      <Button
-        type="submit"
-        variant="contained"
-        style={{
-          backgroundColor: "green", // Change the background color
-          color: "white", // Change the text color
-        }}
-      >
-        Save log
-      </Button>
     </form>
   );
 };
