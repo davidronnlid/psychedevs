@@ -103,8 +103,8 @@ const VasForm: React.FC<VasFormProps> = () => {
   return (
     <form onSubmit={handleSave} className="vasForm">
       <div className="formContent">
-        <Typography id="value" className="hAYFATPMTitle formItem" variant="h4">
-          <b>How are you feeling at the present moment?</b>
+        <Typography id="value" className="hDYFRNTitle formItem" variant="h4">
+          <b>How do you feel right now?</b>
         </Typography>
         <Slider
           name="current mood"

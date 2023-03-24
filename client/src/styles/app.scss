@@ -30,7 +30,7 @@ header {
 }
 
 .profileMenu {
-  position: fixed;
+  position: absolute;
   top: 3vw;
   right: 14vw;
   padding: 1vw;
@@ -88,7 +88,7 @@ header {
   background-color: rgba(0, 0, 0, 0);
 }
 
-.hAYFATPMTitle {
+.hDYFRNTitle {
   padding: 14vw 0;
   color: $color-1;
 }
