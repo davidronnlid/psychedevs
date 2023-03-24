@@ -17,7 +17,10 @@ const ProfileMenu: React.FC = () => {
 
   return userLoaded ? (
     <div className="profileMenu">
-      <button onClick={() => handleToggle(true)}>
+      <button
+        onClick={() => handleToggle(true)}
+        style={{ backgroundColor: "#001219", border: "none" }}
+      >
         <Tooltip title="Click to open profile menu" arrow>
           <ProfileAvatar />
         </Tooltip>

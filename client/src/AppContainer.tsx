@@ -3,7 +3,6 @@ import { Link, Route, Routes } from "react-router-dom";
 import { useAppDispatch } from "./redux/hooks";
 import { setAuthState } from "./redux/authSlice";
 import App from "./App";
-import BackButton from "./components/backButton";
 import UserProfile from "./features/users/userProfile";
 import LogsPage from "./features/vas_logs/vasLogs";
 import Hamburger from "./components/hamburger";
@@ -55,7 +54,6 @@ const AppContainer: React.FC = (): JSX.Element => {
           <img src={PDHeaderLogo} style={{ width: "50vw" }} />
         </Link>
       </header>
-      <BackButton />
 
       <div className="headerRightSection">
         <ProfileMenu />

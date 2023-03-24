@@ -1,28 +1,28 @@
+import { Button } from "@mui/material";
 import React, { useState } from "react";
-import { setAuthState } from "../redux/authSlice";
-import { useAppDispatch } from "../redux/hooks";
+import { setAuthState } from "../../redux/authSlice";
+import { useAppDispatch } from "../../redux/hooks";
+import styles from "./Form.module.css";
 
-interface FormProps {
-  // Define the interface for the form inputs
+interface LoginFormProps {
+  // Define the interface for the Loginform inputs
   username: string;
   password: string;
-  signupOrLogin?: boolean;
-  // If form is used for signup, set prop to true, if used for login, set it to false
 }
 
-const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
-  // Define state for the form inputs
-  const [formInputs, setFormInputs] = useState<FormProps>({
+const LoginForm: React.FC<LoginFormProps> = () => {
+  // Define state for the Loginform inputs
+  const [LoginformInputs, setLoginFormInputs] = useState<LoginFormProps>({
     username: "",
     password: "",
   });
 
   const dispatch = useAppDispatch();
 
-  // Define a function to handle form input changes
+  // Define a function to handle Loginform input changes
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormInputs({
-      ...formInputs,
+    setLoginFormInputs({
+      ...LoginformInputs,
       [event.target.name]: event.target.value,
     });
   };
@@ -47,35 +47,28 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
     console.log("Temporary data saved successfully");
   };
 
-  // Define a function to handle form submission
+  // Define a function to handle Loginform submission
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      let endpoint;
-      if (signupOrLogin) {
-        endpoint = "signup";
-      } else {
-        endpoint = "login";
-      }
-
       const baseUrl =
         process.env.NODE_ENV === "development"
           ? process.env.REACT_APP_BACKEND_LOCAL_URL
           : process.env.REACT_APP_PROD_URL;
 
-      const req_endpoint = `${baseUrl}/auth/` + endpoint;
+      const req_endpoint = `${baseUrl}/auth/login`;
 
       console.log(req_endpoint);
 
       const response = await fetch(req_endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formInputs),
+        body: JSON.stringify(LoginformInputs),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      console.log("Form submitted successfully");
+      console.log("LoginForm submitted successfully");
 
       // Get the JWT token from the response and save it to localStorage and app (Redux) state
       const data = await response.json();
@@ -95,42 +88,54 @@ const Form: React.FC<FormProps> = ({ signupOrLogin }: FormProps) => {
         localStorage.removeItem("tempData");
       }
 
-      // Reset form inputs after submission
-      setFormInputs({
+      // Reset Loginform inputs after submission
+      setLoginFormInputs({
         username: "",
         password: "",
       });
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error submitting Loginform:", error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {signupOrLogin ? <h3>Sign up:</h3> : <h3>Login</h3>}
-      <div>
-        <label htmlFor="username">Username:</label>
-        <input
-          type="text"
-          name="username"
-          value={formInputs.username}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="password">password:</label>
-        <input
-          type="password"
-          name="password"
-          value={formInputs.password}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
+    <div className={styles.formWrapper}>
+      <form onSubmit={handleSubmit}>
+        <h3 className={styles.title}>Login:</h3>
+        <div>
+          <label htmlFor="username">Username:</label>
+          <br />
+          <input
+            type="text"
+            name="username"
+            value={LoginformInputs.username}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <div style={{ marginTop: "0.5rem" }}>
+          <label htmlFor="password">Password:</label>
+          <br />
+          <input
+            type="password"
+            name="password"
+            value={LoginformInputs.password}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          className={styles.submitButton}
+          style={{ marginTop: "1.5rem" }}
+        >
+          Submit
+        </Button>
+      </form>
+    </div>
   );
 };
 
-export default Form;
+export default LoginForm;

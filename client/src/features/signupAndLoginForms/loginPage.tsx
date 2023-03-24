@@ -1,7 +1,7 @@
-import Form from "../../components/signupAndLoginForm";
+import LoginForm from "../../components/auth/loginForm";
 
 const LoginPage = () => {
-  return <Form username="" password="" signupOrLogin={false} />;
+  return <LoginForm username="" password="" />;
 };
 
 export default LoginPage;
