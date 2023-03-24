@@ -1,7 +1,7 @@
 import ProfileAvatar from "./profileAvatar";
 import React, { useState } from "react";
 import DropdownMenu from "./profileDropdown";
-import { useIsAuthenticated } from "../redux/authSlice";
+import { useIsAuthenticated } from "../../redux/authSlice";
 import Tooltip from "@mui/material/Tooltip";
 import { Link } from "react-router-dom";
 import { Button } from "@mui/material";

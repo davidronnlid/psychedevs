@@ -18,7 +18,7 @@ const MenuContents = () => {
             paddingBottom: "10px",
           }}
         >
-          <Link to="/logs" style={{ textDecoration: "none" }}>
+          <Link to="/" style={{ textDecoration: "none" }}>
             <h3 style={{ fontSize: "24px", fontWeight: "bold", color: "#fff" }}>
               Logger
             </h3>
@@ -31,7 +31,7 @@ const MenuContents = () => {
             paddingBottom: "10px",
           }}
         >
-          <Link to="/logs" style={{ textDecoration: "none" }}>
+          <Link to="/logs/analyzer" style={{ textDecoration: "none" }}>
             <h3 style={{ fontSize: "24px", fontWeight: "bold", color: "#fff" }}>
               Logs Analyzer
             </h3>
@@ -44,7 +44,7 @@ const MenuContents = () => {
             paddingBottom: "10px",
           }}
         >
-          <Link to="/logs" style={{ textDecoration: "none" }}>
+          <Link to="/logs/planner" style={{ textDecoration: "none" }}>
             <h3 style={{ fontSize: "24px", fontWeight: "bold", color: "#fff" }}>
               Logs Planner
             </h3>

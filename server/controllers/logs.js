@@ -16,7 +16,14 @@ module.exports = () => {
     console.log("GET Req received at /vas/logs");
 
     const token = req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    let decodedToken;
+    try {
+      decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      console.error(error);
+      res.status(401).json({ message: "Invalid token" });
+      return;
+    }
     const userId = new ObjectId(decodedToken.userId);
     console.log("decodedToken.userId:", decodedToken.userId);
     console.log("userId:", userId);

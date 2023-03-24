@@ -1,6 +1,6 @@
 import Avatar from "@mui/material/Avatar";
-import { useAppSelector } from "../redux/hooks";
-import { selectProfilePicFilename } from "../redux/userSlice";
+import { useAppSelector } from "../../redux/hooks";
+import { selectProfilePicFilename } from "../../redux/userSlice";
 
 const ProfileAvatar = () => {
   const profile_pic_file_name = useAppSelector(selectProfilePicFilename);

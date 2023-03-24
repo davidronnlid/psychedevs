@@ -1,5 +1,9 @@
 @import "variables";
 
+.nonHeaderContentContainer {
+  padding: 0 10vw;
+}
+
 header {
   background-color: $color-1;
   z-index: 9;

@@ -157,7 +157,7 @@ const SignupForm: React.FC<SignupFormProps> = () => {
       {submitSuccess === true ? (
         <>
           <h3>You are signed up and ready to go!</h3>
-          <Link to="/logs">Go to Logs Planner</Link>
+          <Link to="/logs/planner">Go to Logs Planner</Link>
         </>
       ) : null}
       {submitSuccess === false ? <>Hey false</> : null}

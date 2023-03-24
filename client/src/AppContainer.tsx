@@ -8,11 +8,12 @@ import LogsPage from "./features/vas_logs/vasLogs";
 import Hamburger from "./components/hamburger";
 import PDHeaderLogo from "./images/PDHeaderLogo.png";
 import "./styles/app.scss";
-import ProfileMenu from "./components/profileMenu";
+import ProfileMenu from "./components/profile/profileMenu";
 import { fetchUserProfile } from "./functions/fetchUserProfile";
 import { setUserState } from "./redux/userSlice";
 import SignUpPage from "./features/signupAndLoginForms/signUpPage";
 import LoginPage from "./features/signupAndLoginForms/loginPage";
+import PlanLogs from "./features/planner/plannerPage";
 
 const AppContainer: React.FC = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -54,18 +55,23 @@ const AppContainer: React.FC = (): JSX.Element => {
           <img src={PDHeaderLogo} style={{ width: "50vw" }} />
         </Link>
       </header>
-
-      <div className="headerRightSection">
-        <ProfileMenu />
-        <Hamburger />
+      <div className="nonHeaderContentContainer">
+        <div className="headerRightSection">
+          <ProfileMenu />
+          <Hamburger />
+        </div>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/logs/analyzer"
+            element={<LogsPage MoodLogList={[]} />}
+          />
+          <Route path="/logs/planner" element={<PlanLogs />} />
+          <Route path="/user-profile/:userId" element={<UserProfile />} />
+        </Routes>
       </div>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/logs" element={<LogsPage MoodLogList={[]} />} />
-        <Route path="/user-profile/:userId" element={<UserProfile />} />
-      </Routes>
     </div>
   );
 };

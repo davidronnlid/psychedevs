@@ -1,10 +1,10 @@
 import Button from "@mui/material/Button";
 import React from "react";
-import { useOnClickOutside } from "../functions/customHooks";
-import { setAuthState } from "../redux/authSlice";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { selectUser } from "../redux/userSlice";
-import UserProfileButton from "./navButton";
+import { useOnClickOutside } from "../../functions/customHooks";
+import { setAuthState } from "../../redux/authSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { selectUser } from "../../redux/userSlice";
+import UserProfileButton from "./../navButton";
 
 interface DropdownMenuProps {
   onToggle: (state: boolean) => void;

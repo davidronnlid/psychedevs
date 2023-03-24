@@ -1,4 +1,3 @@
-import "./styles/App.css";
 import VasForm from "./features/vas_form/vasForm";
 import { useJwt } from "./redux/authSlice";
 
