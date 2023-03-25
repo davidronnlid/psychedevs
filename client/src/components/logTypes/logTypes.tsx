@@ -1,5 +1,14 @@
 import { useAppSelector } from "../../redux/hooks";
 import { selectLogTypes } from "../../redux/logTypesSlice";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 
 const LogTypesData = () => {
   const logTypes = useAppSelector(selectLogTypes);
@@ -37,17 +46,24 @@ const LogTypesData = () => {
   //   };
 
   return (
-    <div>
-      <h1>Log Types</h1>
-      <ul>
-        {logTypes.map((logType) => (
-          <li key={logType.name}>
-            {logType.name} ({logType.answer_format})
-          </li>
-        ))}
-      </ul>
-    </div>
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Answer Format</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {logTypes.map((logType) => (
+            <TableRow key={logType.name}>
+              <TableCell>{logType.name}</TableCell>
+              <TableCell>{logType.answer_format}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
-
 export default LogTypesData;
