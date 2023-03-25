@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { useJwt } from "../../redux/authSlice";
 import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
-import { Button } from "@mui/material";
+import { Button, IconButton, Snackbar, SnackbarContent } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle } from "@mui/icons-material";
+import ConfirmationMessage from "../../components/confirmationMessage";
 
 interface VasFormProps {
   // Define the interface for the form inputs
@@ -13,6 +15,8 @@ interface VasFormProps {
 
 const VasForm: React.FC<VasFormProps> = () => {
   const navigate = useNavigate();
+
+  const [logSaveSuccess, setLogSaveSuccess] = useState<boolean>(false);
 
   const marks = [
     {
@@ -63,7 +67,6 @@ const VasForm: React.FC<VasFormProps> = () => {
 
     if (!token || token === "") {
       // Save formInputs in localStorage if the user is not logged in
-
       console.log(
         "setting tempData to: JSON.stringify(formInputs) " +
           JSON.stringify(formInputs)
@@ -91,49 +94,64 @@ const VasForm: React.FC<VasFormProps> = () => {
         // Reset form inputs after submission
         setFormInputs({
           date: new Date(Date.now()),
-          value: 0,
+          value: 3,
         });
       } catch (error) {
         console.error("Error submitting form:", error);
       }
     }
-    navigate("/signup");
+
+    if (!token || token === "") {
+      navigate("/signup");
+    }
+
+    setLogSaveSuccess(true);
+    setTimeout(() => {
+      setLogSaveSuccess(false);
+    }, 5000);
   };
 
   return (
-    <form onSubmit={handleSave} className="vasForm">
-      <div className="formContent">
-        <Typography id="value" className="hDYFRNTitle formItem" variant="h4">
-          <b>How do you feel right now?</b>
-        </Typography>
-        <Slider
-          name="current mood"
-          value={formInputs.value}
-          onChange={(event, newValue) => {
-            handleInputChange({ target: { name: "value", value: newValue } });
-          }}
-          valueLabelDisplay="auto"
-          step={1}
-          marks={marks}
-          min={1}
-          max={5}
-          color="primary"
-          className="formItem"
-        />
-        <div className="formItem">
-          <Button
-            type="submit"
-            variant="contained"
-            style={{
-              backgroundColor: "green",
-              color: "white",
+    <>
+      <form onSubmit={handleSave} className="vasForm">
+        <div className="formContent">
+          <Typography id="value" className="hDYFRNTitle formItem" variant="h4">
+            <b>How do you feel right now?</b>
+          </Typography>
+          <Slider
+            name="current mood"
+            value={formInputs.value}
+            onChange={(event, newValue) => {
+              handleInputChange({ target: { name: "value", value: newValue } });
             }}
-          >
-            Save log
-          </Button>
+            valueLabelDisplay="auto"
+            step={1}
+            marks={marks}
+            min={1}
+            max={5}
+            color="primary"
+            className="formItem"
+          />
+          <div className="formItem">
+            <Button
+              type="submit"
+              variant="contained"
+              style={{
+                backgroundColor: "green",
+                color: "white",
+              }}
+            >
+              Save log
+            </Button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+      <ConfirmationMessage
+        message="Log saved successfully"
+        state={logSaveSuccess}
+        stateSetter={setLogSaveSuccess}
+      />
+    </>
   );
 };
 

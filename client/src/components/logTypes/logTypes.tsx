@@ -15,7 +15,8 @@ import Box from "@mui/system/Box";
 import { useState } from "react";
 import { LogType } from "../../typeModels/logTypeModel";
 import { useJwt } from "../../redux/authSlice";
-import RemovedItemsMessage from "../removedItemsMessage";
+import RemovedItemsMessage from "../confirmationMessage";
+import ConfirmationMessage from "../confirmationMessage";
 
 const LogTypesData = () => {
   const [namesOfLogTypesToRemove, setNamesOfLogTypesToRemove] = useState<
@@ -119,7 +120,13 @@ const LogTypesData = () => {
         </>
       ) : null}
 
-      {deletedSuccess ? <RemovedItemsMessage itemType={"log types"} /> : null}
+      {deletedSuccess ? (
+        <ConfirmationMessage
+          message="Successfully deleted log types"
+          state={deletedSuccess}
+          stateSetter={setDeletedSuccess}
+        />
+      ) : null}
     </>
   );
 };

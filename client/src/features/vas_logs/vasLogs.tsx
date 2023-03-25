@@ -4,7 +4,8 @@ import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import { useJwt } from "../../redux/authSlice";
-import RemovedItemsMessage from "../../components/removedItemsMessage";
+import RemovedItemsMessage from "../../components/confirmationMessage";
+import ConfirmationMessage from "../../components/confirmationMessage";
 
 interface MoodLog {
   date: Date;
@@ -170,7 +171,13 @@ const LogsPage: React.FC<Props> = () => {
         </>
       ) : null}
 
-      {deletedSuccess ? <RemovedItemsMessage itemType={"logs"} /> : null}
+      {deletedSuccess ? (
+        <ConfirmationMessage
+          message="Successfully deleted logs"
+          state={deletedSuccess}
+          stateSetter={setDeletedSuccess}
+        />
+      ) : null}
 
       <h2>Your logs in a line chart</h2>
       {moodLogList.length > 0 ? (
