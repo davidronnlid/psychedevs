@@ -1,18 +1,13 @@
-import { useState } from "react";
-
-import { LogType } from "../../typeModels/logTypeModel";
 import { useFetchLogTypes } from "../../functions/logTypesHooks";
 import LogTypesData from "../../components/logTypes/logTypes";
 import Typography from "@mui/material/Typography";
+import AddLogTypeForm from "../../components/logTypes/addLogTypes";
 
 const Planner = () => {
-  const [logTypes, setLogTypes] = useState<LogType[]>([]);
-
   const [inProcessOfLoading, err] = useFetchLogTypes();
 
   return (
     <>
-      {logTypes}
       <Typography variant="h4" gutterBottom>
         Logs Planner
       </Typography>
@@ -23,6 +18,8 @@ const Planner = () => {
         {inProcessOfLoading && <p>Loading...</p>}
         {err && <p>Error: {err}</p>}
         {!inProcessOfLoading && !err && <LogTypesData />}
+
+        <AddLogTypeForm />
       </div>
     </>
   );

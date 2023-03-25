@@ -46,7 +46,7 @@ export const useFetchLogTypes = (): [boolean, string | null] => {
       }
     };
     fetchLogTypesData();
-  }, [token]);
+  }, [token, dispatch]);
 
   return [isLoading, error];
 };
@@ -59,6 +59,7 @@ export const useAddLogType = (): [
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const token = useJwt();
+  const dispatch = useAppDispatch();
 
   const handleAddLogType = async (newLogType: LogType) => {
     setIsLoading(true);
@@ -80,6 +81,10 @@ export const useAddLogType = (): [
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
       }
+
+      const data = await response.json();
+      dispatch(setLogTypes(data));
+      setIsLoading(false);
 
       setIsLoading(false);
     } catch (error) {

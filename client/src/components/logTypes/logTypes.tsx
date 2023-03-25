@@ -1,5 +1,5 @@
 import { useAppSelector } from "../../redux/hooks";
-import { selectLogTypes } from "../../redux/logTypesSlice";
+import { selectLogTypes, setLogTypes } from "../../redux/logTypesSlice";
 import {
   Table,
   TableBody,
@@ -8,62 +8,114 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Box from "@mui/system/Box";
+import { useState } from "react";
+import { LogType } from "../../typeModels/logTypeModel";
+import { useJwt } from "../../redux/authSlice";
 
 const LogTypesData = () => {
+  const [namesOfLogTypesToRemove, setNamesOfLogTypesToRemove] = useState<
+    string[]
+  >([]);
+
   const logTypes = useAppSelector(selectLogTypes);
-  //   const [addLogType, isLoading, error] = useAddLogType();
-  //   // The case of users adding logs should be handled more
 
-  //   const handleAddLogType = async () => {
-  //     try {
-  //       const result = await addLogType(newLogType);
-  //       setLogTypes((prevLogTypes) => {
-  //         if (typeof result !== "undefined") {
-  //           return [...prevLogTypes, result];
-  //         } else {
-  //           return prevLogTypes;
-  //         }
-  //       });
+  const token = useJwt();
 
-  //       setNewLogType({ name: "", answer_format: "" });
-  //     } catch (error) {
-  //       console.error("Error adding log type: ", error);
-  //     }
-  //   };
+  const filteredLogTypes = logTypes.filter(
+    (logType: LogType) => !namesOfLogTypesToRemove.includes(logType.name)
+  );
 
-  //   const handleRemoveLogType = async (name: string) => {
-  //     try {
-  //       await fetch(`/api/log-types/${name}`, {
-  //         method: "DELETE",
-  //       });
-  //       setLogTypes((prevLogTypes) =>
-  //         prevLogTypes.filter((logType) => logType.name !== name)
-  //       );
-  //     } catch (error) {
-  //       console.error("Error removing log type: ", error);
-  //     }
-  //   };
+  const handleRemoveWorkInProgress = (logTypeName: string) => {
+    setNamesOfLogTypesToRemove([...namesOfLogTypesToRemove, logTypeName]);
+  };
+
+  const removeNamesOflogTypesToRemove = () => {
+    setNamesOfLogTypesToRemove([]);
+  };
+
+  const confirmRemoval = async () => {
+    console.log("removal confirmation func activated", namesOfLogTypesToRemove);
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.REACT_APP_BACKEND_LOCAL_URL
+        : process.env.REACT_APP_PROD_URL;
+
+    try {
+      const namesString = namesOfLogTypesToRemove.join(",,");
+
+      const response = await fetch(
+        `${baseUrl}/logs/log-types?names=${namesString}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      setLogTypes(data);
+    } catch (error) {
+      console.error("Error removing log type: ", error);
+    }
+
+    setNamesOfLogTypesToRemove([]);
+  };
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Answer Format</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {logTypes.map((logType) => (
-            <TableRow key={logType.name}>
-              <TableCell>{logType.name}</TableCell>
-              <TableCell>{logType.answer_format}</TableCell>
+    <>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell style={{ borderRight: "1px solid gray" }}>
+                Log type name
+              </TableCell>
+              <TableCell style={{ borderRight: "1px solid gray" }}>
+                Answer format
+              </TableCell>
+              <TableCell></TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {filteredLogTypes.map((logType) => (
+              <>
+                <TableRow key={logType.name}>
+                  <TableCell style={{ borderRight: "1px solid gray" }}>
+                    {logType.name}
+                  </TableCell>
+                  <TableCell style={{ borderRight: "1px solid gray" }}>
+                    {logType.answer_format}
+                  </TableCell>
+                  <TableCell style={{ borderRight: "1px solid gray" }}>
+                    <DeleteIcon
+                      onClick={() => handleRemoveWorkInProgress(logType.name)}
+                    />
+                  </TableCell>
+                </TableRow>
+                <Box borderBottom={1} mx={3} />
+              </>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {namesOfLogTypesToRemove.length > 0 ? (
+        <>
+          <Button onClick={() => confirmRemoval()}>Confirm removal</Button>
+          <Button onClick={() => removeNamesOflogTypesToRemove()}>
+            Cancel
+          </Button>
+        </>
+      ) : null}
+    </>
   );
 };
 export default LogTypesData;

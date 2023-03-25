@@ -15,7 +15,7 @@ const logTypesSlice = createSlice({
   initialState,
   reducers: {
     setLogTypes: (state, action: PayloadAction<LogType[]>) => {
-      state.logTypes = action.payload;
+      state.logTypes = [...action.payload];
     },
   },
 });

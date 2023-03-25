@@ -15,12 +15,9 @@ router.get("/log-types", async (req, res) => {
 
     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
-    console.log("TOKEN 2 IN Backend", userId);
-    let logTypes = await collection.findOne({ userId: new ObjectId(userId) });
+    const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
 
     const logTypesToSend = logTypes.logTypes;
-
-    console.log("LOGTYPES FROM DB IN Backend", logTypesToSend);
 
     res.status(200).send(logTypesToSend);
   } catch (error) {
@@ -34,40 +31,59 @@ router.post("/log-types", async (req, res) => {
   const db = req.app.locals.db;
   const collection = db.collection("log_types");
 
-  console.log("post req received at /log-types");
+  console.log("post req received at /logs/log-types");
 
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
-  } catch (e) {
-    console.error(e);
+
+    const result = await collection.updateOne(
+      { userId: new ObjectId(userId) },
+      { $push: { logTypes: req.body } }
+    );
+
+    if (result.modifiedCount !== 1) {
+      console.log("Error adding item to array");
+      res.sendStatus(500);
+      return;
+    }
+
+    const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
+
+    const logTypesToSend = logTypes.logTypes;
+
+    res.status(200).send({ logTypes: logTypesToSend });
+  } catch (err) {
+    console.error(err);
   }
-
-  const newLogType = {
-    userId: new ObjectId(userId),
-    name: req.body.name,
-    question: req.body.question,
-    answer_type: req.body.answer,
-  };
-
-  const result = await collection.insertOne(newLogType);
-  res.status(201).send(result.ops[0]);
 });
 
 // Delete a log type
-router.delete("/log-types/:id", async (req, res) => {
+router.delete("/log-types", async (req, res) => {
   const db = req.app.locals.db;
   const collection = db.collection("log_types");
-  const id = req.params.id;
 
-  // Make sure user is authorized to do delete by checking JWT here
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decodedToken.userId;
 
-  const result = await collection.deleteOne({ _id: new ObjectId(id) });
-  if (result.deletedCount === 1) {
-    res.status(204).send();
-  } else {
-    res.status(404).send();
+    const namesOfLogTypesToRemove = req.query.names.split(",,");
+
+    const result = await collection.updateOne(
+      { userId: new ObjectId(userId) },
+      { $pull: { logTypes: { name: { $in: namesOfLogTypesToRemove } } } }
+    );
+    console.log(result);
+
+    const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
+
+    const logTypesToSend = logTypes.logTypes;
+
+    res.status(200).json(logTypesToSend);
+  } catch (error) {
+    console.log(error);
   }
 });
 
