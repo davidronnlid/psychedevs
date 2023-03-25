@@ -46,29 +46,24 @@ module.exports = () => {
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    console.log("token", token, "decodedtoken", decodedToken);
-
     const userId = new ObjectId(decodedToken.userId);
-
-    console.log("JWT userId is " + userId);
 
     try {
       const foundUser = await user_account_data_collection.findOne({
         _id: userId,
       });
 
-      console.log("Found user", foundUser);
-
       const userToSend = {
         _id: foundUser._id,
         username: foundUser.username,
-        profile_pic_filename: foundUser.profile_pic.filename,
+        profile_pic_filename: foundUser.profile_pic
+          ? foundUser.profile_pic.filename
+          : null,
       };
 
       if (userToSend) {
         res.status(200).json(userToSend);
       } else {
-        console.log("No found for this user", foundUser);
         res.status(404).json({ message: "No found for this user" });
       }
     } catch (error) {

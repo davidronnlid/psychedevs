@@ -1,27 +1,31 @@
-import React from "react";
+import { useState } from "react";
 
-const logTypes = [
-  "Mood",
-  "Energy",
-  "Sleep",
-  "Diet",
-  "Exercise",
-  "Productivity",
-  "Stress",
-];
+import { LogType } from "../../typeModels/logTypeModel";
+import { useFetchLogTypes } from "../../functions/logTypesHooks";
+import LogTypesData from "../../components/logTypes/logTypes";
+import Typography from "@mui/material/Typography";
 
-const PlanLogs: React.FC = () => {
+const Planner = () => {
+  const [logTypes, setLogTypes] = useState<LogType[]>([]);
+
+  const [inProcessOfLoading, err] = useFetchLogTypes();
+
   return (
-    <div>
-      <h1>Plan what to log and when to log</h1>
-      <h2>Current log types:</h2>
-      <ul>
-        {logTypes.map((logType) => (
-          <li key={logType}>{logType}</li>
-        ))}
-      </ul>
-    </div>
+    <>
+      {logTypes}
+      <Typography variant="h4" gutterBottom>
+        Logs Planner
+      </Typography>
+      <Typography variant="h5" gutterBottom>
+        What's planned
+      </Typography>
+      <div>
+        {inProcessOfLoading && <p>Loading...</p>}
+        {err && <p>Error: {err}</p>}
+        {!inProcessOfLoading && !err && <LogTypesData />}
+      </div>
+    </>
   );
 };
 
-export default PlanLogs;
+export default Planner;

@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
 const usersRouter = require("./controllers/users");
+const logsRouter = require("./controllers/logTypes");
 
 const connectToDB = require("./dbConnect");
 
@@ -21,6 +22,7 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
+app.use("/logs", logsRouter);
 
 (async () => {
   try {
@@ -38,13 +40,14 @@ app.use("/vas", vasRouter());
 
 const path = require("path");
 
-// Serve static files from the React frontend app
-app.use(express.static(path.join(__dirname, "../client/build")));
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
 
-// AFTER defining routes: Anything that doesn't match what's above, send back index.html; (the beginning slash ('/') in the string is important!)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname + "/../client/build/index.html"));
-});
+  // AFTER defining routes: Anything that doesn't match what's above, send back index.html; (the beginning slash ('/') in the string is important!)
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/build/index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);

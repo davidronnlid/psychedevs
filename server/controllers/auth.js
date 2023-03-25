@@ -70,7 +70,7 @@ module.exports = ({ client }) => {
   // User logout route
   router.post("/logout", async (req, res) => {
     // Implement logout logic here
-    // As user logs out, their JWT should be deleted - not sure if this should be implemented in the front or backend tho
+    // As user logs out, their JWT should be deleted - not sure yet if this should be implemented in the front or backend tho
   });
 
   return router;

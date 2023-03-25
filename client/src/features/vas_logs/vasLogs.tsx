@@ -13,7 +13,7 @@ type Props = {
   MoodLogList: MoodLog[];
 };
 
-const LogsPage: React.FC<Props> = ({ MoodLogList }) => {
+const LogsPage: React.FC<Props> = () => {
   const [openLogs, setOpenLogs] = useState<boolean[]>([]);
   const [moodLogList, setMoodLogList] = useState<MoodLog[]>([]);
   const token = useJwt();
