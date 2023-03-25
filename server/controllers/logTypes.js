@@ -16,14 +16,13 @@ router.get("/log-types", async (req, res) => {
     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
     console.log("TOKEN 2 IN Backend", userId);
-    let logTypes = await collection
-      .find({ userId: new ObjectId(userId) })
-      .project({ name: 1, answer_format: 1, _id: 0 }) // include only name and answer_format, exclude _id and userId
-      .toArray();
+    let logTypes = await collection.findOne({ userId: new ObjectId(userId) });
 
-    console.log("LOGTYPES FROM DB IN Backend", logTypes);
+    const logTypesToSend = logTypes.logTypes;
 
-    res.status(200).send(logTypes);
+    console.log("LOGTYPES FROM DB IN Backend", logTypesToSend);
+
+    res.status(200).send(logTypesToSend);
   } catch (error) {
     console.error("Error fetching log types data: ", error);
     res.status(500).send({ message: "Internal server error" });
