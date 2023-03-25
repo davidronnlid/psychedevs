@@ -31,12 +31,12 @@ const MenuContents = () => {
             paddingBottom: "10px",
           }}
         >
-          <Link to="/logs/analyzer" style={{ textDecoration: "none" }}>
+          <Link to="/logs/planner" style={{ textDecoration: "none" }}>
             <h3 style={{ fontSize: "24px", fontWeight: "bold", color: "#fff" }}>
-              Logs Analyzer
+              Logs Planner
             </h3>
           </Link>
-        </li>
+        </li>{" "}
         <li
           style={{
             marginBottom: "10px",
@@ -44,9 +44,9 @@ const MenuContents = () => {
             paddingBottom: "10px",
           }}
         >
-          <Link to="/logs/planner" style={{ textDecoration: "none" }}>
+          <Link to="/logs/analyzer" style={{ textDecoration: "none" }}>
             <h3 style={{ fontSize: "24px", fontWeight: "bold", color: "#fff" }}>
-              Logs Planner
+              Logs Analyzer
             </h3>
           </Link>
         </li>
