@@ -89,10 +89,7 @@ const SignupForm: React.FC<SignupFormProps> = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(SignupformInputs),
       });
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-        setSubmitSuccess(false);
-      }
+
       console.log("SignupForm submitted successfully");
 
       // Get the JWT token from the response and save it to localStorage and app (Redux) state

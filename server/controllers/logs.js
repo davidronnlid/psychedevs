@@ -70,7 +70,11 @@ module.exports = () => {
     const date = moment(dateString, "YYYY-MM-DD").toDate();
 
     // create the log object with the date string converted to a date Date object
-    const datifiedSubmittedLog = { date: date, value: int64Value };
+    const datifiedSubmittedLog = {
+      date: date,
+      value: int64Value,
+      _id: new ObjectId(),
+    };
     // the submitted log object will be inserted into the database below
 
     const token = req.headers.authorization.split(" ")[1];
@@ -118,5 +122,45 @@ module.exports = () => {
       res.status(500).json({ message: "Error finding user logs" });
     }
   });
+
+  // Delete a log type
+  router.delete("/logs", async (req, res) => {
+    const db = req.app.locals.db;
+    const collection = db.collection("vas_mood_logs");
+
+    try {
+      const token = req.headers.authorization.split(" ")[1];
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const userId = decodedToken.userId;
+
+      const idsOfLogsToRemove = req.query.ids.split(",,");
+      console.log(
+        "🚀 ~ file: logs.js:137 ~ router.delete ~ idsOfLogsToRemove:",
+        idsOfLogsToRemove
+      );
+
+      const objectIdsOfLogsToRemove = idsOfLogsToRemove.map(
+        (id) => new ObjectId(id)
+      );
+
+      const result = await collection.updateOne(
+        { user_id: new ObjectId(userId) },
+        { $pull: { logs: { _id: { $in: objectIdsOfLogsToRemove } } } }
+      );
+      console.log(result);
+
+      const logs = await collection.findOne({
+        user_id: new ObjectId(userId),
+      });
+      console.log("🚀 ~ file: logs.js:151 ~ router.delete ~ logs:", logs);
+
+      const logsToSend = logs.logs;
+
+      res.status(200).json(logsToSend);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   return router;
 };

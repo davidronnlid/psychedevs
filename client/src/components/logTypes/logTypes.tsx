@@ -15,11 +15,13 @@ import Box from "@mui/system/Box";
 import { useState } from "react";
 import { LogType } from "../../typeModels/logTypeModel";
 import { useJwt } from "../../redux/authSlice";
+import RemovedItemsMessage from "../removedItemsMessage";
 
 const LogTypesData = () => {
   const [namesOfLogTypesToRemove, setNamesOfLogTypesToRemove] = useState<
     string[]
   >([]);
+  const [deletedSuccess, setDeletedSuccess] = useState<boolean>(false);
 
   const logTypes = useAppSelector(selectLogTypes);
 
@@ -63,6 +65,7 @@ const LogTypesData = () => {
       const data = await response.json();
 
       setLogTypes(data);
+      setDeletedSuccess(true);
     } catch (error) {
       console.error("Error removing log type: ", error);
     }
@@ -115,6 +118,8 @@ const LogTypesData = () => {
           </Button>
         </>
       ) : null}
+
+      {deletedSuccess ? <RemovedItemsMessage itemType={"log types"} /> : null}
     </>
   );
 };
