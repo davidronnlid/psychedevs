@@ -9,7 +9,7 @@ const Planner = () => {
   return (
     <>
       <Typography variant="h4" gutterBottom>
-        Logs Planner
+        Logs planner
       </Typography>
       <Typography variant="h5" gutterBottom>
         What's planned

@@ -5,6 +5,10 @@ export interface LogType {
   weekdays: boolean[];
 }
 
+export interface logTypeId {
+  logType_id: string;
+}
+
 export type FetchLogTypesResult = {
   success: boolean;
   data: LogType[] | null;
