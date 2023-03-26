@@ -43,12 +43,14 @@ const AddLogTypeForm = () => {
         answer_format: answerFormat,
         name,
         weekdays: selectedWeekdays,
+        logType_id: "",
       })
     );
     addLogTypeToDB({
       answer_format: answerFormat,
       name,
       weekdays: selectedWeekdays,
+      logType_id: "",
     });
     setName("");
     setAnswerFormat("");

@@ -5,27 +5,25 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import { useJwt } from "../../../redux/authSlice";
 import ConfirmationMessage from "../../../components/confirmationMessage";
-
-interface MoodLog {
-  date: Date;
-  value: number;
-  _id: string;
-}
+import { Log } from "../../../typeModels/logTypeModel";
 
 type Props = {
-  MoodLogList: MoodLog[];
+  logList: Log[];
+  logType_id: string;
+  name: string;
 };
 
-const LogsPage: React.FC<Props> = () => {
+const LogsOfALogType: React.FC<Props> = ({ logType_id, logList, name }) => {
   const [openLogs, setOpenLogs] = useState<boolean[]>([]);
-  const [moodLogList, setMoodLogList] = useState<MoodLog[]>([]);
+  const [logListLocalState, setlogListLocalState] = useState<Log[]>([]);
   const [deletedSuccess, setDeletedSuccess] = useState<boolean>(false);
 
   const [idsOfLogsToRemove, setIdsOfLogsToRemove] = useState<string[]>([]);
   const token = useJwt();
 
-  const filteredLogs = moodLogList.filter(
-    (log: MoodLog) => !idsOfLogsToRemove.includes(log._id)
+  const filteredLogs = logList.filter(
+    (log: Log) =>
+      log.logType_id === logType_id && !idsOfLogsToRemove.includes(log._id)
   );
 
   const handleRemoveWorkInProgress = (logId: string) => {
@@ -58,7 +56,7 @@ const LogsPage: React.FC<Props> = () => {
 
       const data = await response.json();
 
-      setMoodLogList(data);
+      setlogListLocalState(data);
     } catch (error) {
       console.error("Error removing log type: ", error);
     }
@@ -67,7 +65,7 @@ const LogsPage: React.FC<Props> = () => {
     setDeletedSuccess(true);
     setTimeout(() => {
       setDeletedSuccess(false);
-    }, 10000);
+    }, 5000);
   };
 
   const toggleLog = (index: number) => {
@@ -76,42 +74,14 @@ const LogsPage: React.FC<Props> = () => {
     setOpenLogs(newOpenLogs);
   };
 
-  useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const baseUrl =
-          process.env.NODE_ENV === "development"
-            ? process.env.REACT_APP_BACKEND_LOCAL_URL
-            : process.env.REACT_APP_PROD_URL;
-
-        const response = await fetch(`${baseUrl}/vas/logs`, {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        console.log("sending req");
-        if (response.ok) {
-          console.log("awaiting response");
-          const data = await response.json();
-          console.log("received data: ", data);
-
-          setMoodLogList(data);
-          setOpenLogs(new Array(data.length).fill(false));
-
-          throw new Error("Error fetching user logs");
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchLogs();
-    // This code ensures user will not see the success message regarding deleted logs again next time they come back to this page
-  }, [token]);
-
   return (
     <>
-      <h2>Your logs listed</h2>
+      <h2>Your "{name}" logs</h2>
+      {logList.length > 0 ? (
+        <Chart logs={logList} />
+      ) : (
+        <p>No mood logs found.</p>
+      )}
       <div>
         {filteredLogs
           .sort((a, b) => {
@@ -119,7 +89,7 @@ const LogsPage: React.FC<Props> = () => {
             const dateB: any = new Date(b.date).toISOString();
             return dateA.localeCompare(dateB);
           })
-          .map((elm: MoodLog, index: number) => {
+          .map((elm: Log, index: number) => {
             const logsWithSameDate = filteredLogs.filter(
               (log) =>
                 log.date.toString().slice(0, 10) ===
@@ -137,7 +107,7 @@ const LogsPage: React.FC<Props> = () => {
                 {openLogs[index] && (
                   <ul>
                     {logsWithSameDate.map((log, index) => (
-                      // if logs of this date have already been rendered, skip, else render it - this comment is trying to say this should be implemented in the future
+                      // if logs of this date have already been rendered, skip, else render it - this comment is trying to say skipping of duplicate ul's should be implemented in the future
                       <>
                         <li
                           key={index}
@@ -177,15 +147,8 @@ const LogsPage: React.FC<Props> = () => {
           stateSetter={setDeletedSuccess}
         />
       ) : null}
-
-      <h2>Your logs in a line chart</h2>
-      {moodLogList.length > 0 ? (
-        <Chart logs={moodLogList} />
-      ) : (
-        <p>No mood logs found.</p>
-      )}
     </>
   );
 };
 
-export default LogsPage;
+export default LogsOfALogType;

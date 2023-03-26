@@ -3,6 +3,7 @@ import authReducer from "./authSlice";
 import userReducer from "./userSlice";
 import logTypesReducer from "./logTypesSlice";
 import answerFormatsReducer from "./answerFormatsSlice";
+import { logsAPI } from "./logsAPI/logsAPI";
 
 export const store = configureStore({
   reducer: {
@@ -10,7 +11,10 @@ export const store = configureStore({
     user: userReducer,
     logTypes: logTypesReducer,
     answerFormats: answerFormatsReducer,
+    logsAPI: logsAPI.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(logsAPI.middleware),
 });
 
 export type AppDispatch = typeof store.dispatch;

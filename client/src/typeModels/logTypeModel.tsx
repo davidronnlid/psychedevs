@@ -1,7 +1,7 @@
 export interface LogType {
   name: string;
   answer_format: string;
-  logType_id?: string;
+  logType_id: string;
   weekdays: boolean[];
 }
 
@@ -12,3 +12,10 @@ export type FetchLogTypesResult = {
 };
 
 export interface AnswerFormat extends Pick<LogType, "answer_format"> {}
+
+export interface Log {
+  date: Date;
+  value: number;
+  _id: string;
+  logType_id: string;
+}

@@ -51,14 +51,6 @@ const Logger = () => {
             answer_format={logType.answer_format}
           />
         ))}
-        {/* {containsOriginalLogType ? (
-          <VasForm
-            value={3}
-            name="How do you feel right now?"
-            answer_format="1-5 scale"
-          />
-        ) : null} */}
-        You are logged in tho
       </>
     </div>
   );

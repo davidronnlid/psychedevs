@@ -14,7 +14,9 @@ module.exports = () => {
   router.get("/logs", async (req, res) => {
     const db = req.app.locals.db;
     const vas_mood_logs = db.collection("vas_mood_logs");
+    // vas_mood_logs is now the collection for logs of ALL log types, not just VAS's for mood
     console.log("GET Req received at /vas/logs");
+    console.log("Request headers:", req.headers);
 
     const token = req.headers.authorization.split(" ")[1];
     let decodedToken;
