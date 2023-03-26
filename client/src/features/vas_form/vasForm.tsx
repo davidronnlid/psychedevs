@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { useJwt } from "../../redux/authSlice";
 import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
-import { Button, IconButton, Snackbar, SnackbarContent } from "@mui/material";
+import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle } from "@mui/icons-material";
 import ConfirmationMessage from "../../components/confirmationMessage";
 
 interface VasFormProps {

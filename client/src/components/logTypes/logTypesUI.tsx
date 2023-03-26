@@ -15,7 +15,6 @@ import Box from "@mui/system/Box";
 import { useState } from "react";
 import { LogType } from "../../typeModels/logTypeModel";
 import { useJwt } from "../../redux/authSlice";
-import RemovedItemsMessage from "../confirmationMessage";
 import ConfirmationMessage from "../confirmationMessage";
 
 const LogTypesData = () => {

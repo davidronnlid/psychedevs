@@ -19,32 +19,39 @@ export const useFetchLogTypes = (): [boolean, string | null] => {
           : process.env.REACT_APP_PROD_URL;
 
       console.log("TOKEN IN FetchLogTypes", token);
+      if (!token || token === "") {
+        return;
+      } else {
+        try {
+          const response = await fetch(`${baseUrl}/logs/log-types`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-      try {
-        const response = await fetch(`${baseUrl}/logs/log-types`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          if (response.ok) {
+            const data: LogType[] = await response.json();
 
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
+            console.log(
+              "About to set this logTypes data into redux state ",
+              data
+            );
+
+            dispatch(setLogTypes(data));
+            setIsLoading(false);
+          } else {
+            throw new Error(`HTTP error ${response.status}`);
+          }
+        } catch (error) {
+          console.error("Error fetching log types data: ", error);
+          setError("Error fetching log types data");
+          setIsLoading(false);
         }
-
-        const data: LogType[] = await response.json();
-
-        console.log("About to set this logTypes data into redux state ", data);
-
-        dispatch(setLogTypes(data));
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching log types data: ", error);
-        setError("Error fetching log types data");
-        setIsLoading(false);
       }
     };
+
     fetchLogTypesData();
   }, [token, dispatch]);
 
@@ -84,7 +91,6 @@ export const useAddLogType = (): [
 
       const data = await response.json();
       dispatch(setLogTypes(data));
-      setIsLoading(false);
 
       setIsLoading(false);
     } catch (error) {

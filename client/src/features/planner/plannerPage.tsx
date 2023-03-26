@@ -1,5 +1,5 @@
 import { useFetchLogTypes } from "../../functions/logTypesHooks";
-import LogTypesData from "../../components/logTypes/logTypes";
+import LogTypesData from "../../components/logTypes/logTypesUI";
 import Typography from "@mui/material/Typography";
 import AddLogTypeForm from "../../components/logTypes/addLogTypes";
 

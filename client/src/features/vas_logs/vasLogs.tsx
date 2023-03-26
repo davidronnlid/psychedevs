@@ -4,7 +4,6 @@ import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import { useJwt } from "../../redux/authSlice";
-import RemovedItemsMessage from "../../components/confirmationMessage";
 import ConfirmationMessage from "../../components/confirmationMessage";
 
 interface MoodLog {
