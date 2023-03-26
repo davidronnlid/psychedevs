@@ -40,8 +40,6 @@ router.post("/log-types", async (req, res) => {
 
     console.log("req.body", req.body);
 
-    // Also add logic to handle case where name of log type is already in the collection
-
     const updateResult = await collection.updateOne(
       { userId: new ObjectId(userId) },
       { $push: { logTypes: req.body } }
@@ -65,6 +63,7 @@ router.post("/log-types", async (req, res) => {
               name: "How do you feel right now?",
               answer_format: "1-5 Visual Analogue Scale for mood",
               logType_id: "1-5 Visual Analogue Scale for current mood",
+              weekdays: [true, true, true, true, true, true, true],
             },
           ],
         });

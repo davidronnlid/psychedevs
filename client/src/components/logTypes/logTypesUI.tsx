@@ -32,6 +32,29 @@ const LogTypesData = () => {
     (logType: LogType) => !namesOfLogTypesToRemove.includes(logType.name)
   );
 
+  const boolArrToWeekdays = (boolArr: boolean[]): string[] => {
+    const weekdays = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+    return boolArr.reduce((acc: string[], curr, index) => {
+      if (curr) {
+        acc.push(weekdays[index]);
+      }
+      return acc;
+    }, []);
+  };
+
+  const weekdayedLogTypes = filteredLogTypes.map((logType) => ({
+    ...logType,
+    weekdays: boolArrToWeekdays(logType.weekdays),
+  }));
+
   const handleRemoveWorkInProgress = (logTypeName: string) => {
     setNamesOfLogTypesToRemove([...namesOfLogTypesToRemove, logTypeName]);
   };
@@ -85,12 +108,15 @@ const LogTypesData = () => {
               </TableCell>
               <TableCell style={{ borderRight: "1px solid gray" }}>
                 Answer format
+              </TableCell>{" "}
+              <TableCell style={{ borderRight: "1px solid gray" }}>
+                Weekdays to log
               </TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredLogTypes.map((logType) => (
+            {weekdayedLogTypes.map((logType) => (
               <>
                 <TableRow key={logType.name}>
                   <TableCell style={{ borderRight: "1px solid gray" }}>
@@ -98,6 +124,9 @@ const LogTypesData = () => {
                   </TableCell>
                   <TableCell style={{ borderRight: "1px solid gray" }}>
                     {logType.answer_format}
+                  </TableCell>
+                  <TableCell style={{ borderRight: "1px solid gray" }}>
+                    {logType.weekdays.join(", ")}
                   </TableCell>
                   <TableCell style={{ borderRight: "1px solid gray" }}>
                     <DeleteIcon
