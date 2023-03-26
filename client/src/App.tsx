@@ -12,7 +12,7 @@ const App: React.FC = (): JSX.Element => {
     <div className="App">
       <VasForm
         value={3}
-        answer_format="1-5_scale"
+        answer_format="1-5 scale"
         name="How do you feel right now?"
       />
     </div>

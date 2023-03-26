@@ -8,8 +8,8 @@ interface AnswerFormatsState {
 
 const initialState: AnswerFormatsState = {
   answerFormats: [
-    { answer_format: "1-5_scale" },
-    { answer_format: "1-10_scale" },
+    { answer_format: "1-5 scale" },
+    { answer_format: "1-10 scale" },
   ],
 };
 

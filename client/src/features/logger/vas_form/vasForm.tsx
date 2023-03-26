@@ -46,7 +46,7 @@ const VasForm: React.FC<VasFormProps> = () => {
   const [formInputs, setFormInputs] = useState<VasFormProps>({
     date: new Date(Date.now()),
     value: 3,
-    answer_format: "1-5_scale",
+    answer_format: "1-5 scale",
     name: "How do you feel right now?",
   });
 
@@ -98,7 +98,7 @@ const VasForm: React.FC<VasFormProps> = () => {
         setFormInputs({
           date: new Date(Date.now()),
           value: 3,
-          answer_format: "1-5_scale",
+          answer_format: "1-5 scale",
           name: "How do you feel right now?",
         });
       } catch (error) {
@@ -124,7 +124,7 @@ const VasForm: React.FC<VasFormProps> = () => {
             <b>How do you feel right now?</b>
           </Typography>
           <Slider
-            name="1-5_scale"
+            name="1-5 scale"
             value={formInputs.value}
             onChange={(event, newValue) => {
               handleInputChange({ target: { name: "value", value: newValue } });

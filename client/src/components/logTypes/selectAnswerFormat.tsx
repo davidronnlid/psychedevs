@@ -22,17 +22,11 @@ const SelectAnswerFormat: React.FC<Props> = ({ setParentAnswerFormat }) => {
   function capitalizeFirstLetter(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
-
   const formattedAnswerFormats = answerFormats.map((answerFormat) => {
-    if (answerFormat.answer_format.includes("_")) {
-      return {
-        ...answerFormat,
-        answer_format: capitalizeFirstLetter(
-          answerFormat.answer_format.replace(/_/g, " ")
-        ),
-      };
-    }
-    return answerFormat;
+    return {
+      ...answerFormat,
+      answer_format: capitalizeFirstLetter(answerFormat.answer_format),
+    };
   });
 
   const [selectedValue, setSelectedValue] = useState<string>("");

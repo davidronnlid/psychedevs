@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
@@ -16,7 +15,7 @@ router.get("/log-types", async (req, res) => {
 
     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
-    const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
+    const logTypes = await collection.findOne({ userId: userId });
     console.log("🚀 ~ file: logTypes.js:19 ~ router.get ~ logTypes:", logTypes);
 
     const logTypesToSend = logTypes.logTypes;
@@ -58,8 +57,7 @@ router.post("/log-types", async (req, res) => {
     );
 
     const logTypeToSave = {
-      _id: new ObjectId(),
-      userId: new ObjectId(userId),
+      logType_id: mergedId,
       logTypes: [
         {
           answer_format: req.body.answer_format,
@@ -71,31 +69,23 @@ router.post("/log-types", async (req, res) => {
     };
 
     const updateResult = await collection.updateOne(
-      { userId: new ObjectId(userId) },
+      { userId: userId },
       {
         $push: {
-          logTypes: logTypeToSave,
+          logTypes: {
+            ...logTypeToSave.logTypes[0],
+          },
         },
-      }
+        $setOnInsert: {
+          userId: userId,
+        },
+      },
+      { upsert: true }
     );
 
-    console.log("Tried update-adding log type to db; ", updateResult);
+    console.log("Upserted log type to db; ", updateResult);
 
-    if (updateResult.modifiedCount !== 1) {
-      console.log("Error updating array, trying to insert instead: ");
-
-      console.log(req.body.logType_id);
-
-      const insertedResult = await collection.insertOne(logTypeToSave);
-      console.log(
-        "🚀 ~ file: logTypes.js:62 ~ router.post ~ insertedResult:",
-        insertedResult
-      );
-
-      console.log("Inserted! ", insertedResult);
-    }
-
-    const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
+    const logTypes = await collection.findOne({ userId: userId });
 
     const logTypesToSend = logTypes.logTypes;
 
@@ -118,12 +108,12 @@ router.delete("/log-types", async (req, res) => {
     const namesOfLogTypesToRemove = req.query.names.split(",,");
 
     const result = await collection.updateOne(
-      { userId: new ObjectId(userId) },
+      { userId: userId },
       { $pull: { logTypes: { name: { $in: namesOfLogTypesToRemove } } } }
     );
     console.log("Removed log type from db, ", result);
 
-    const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
+    const logTypes = await collection.findOne({ userId: userId });
 
     const logTypesToSend = logTypes.logTypes;
 

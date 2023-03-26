@@ -11,24 +11,20 @@ const Logger = () => {
   const today = new Date();
   let dayOfWeek = today.getDay(); // Returns a number between 0 and 6 representing the day of the week
 
+  // These below lines are to set dayOfWeek to 0-6 : monday-sunday since today.getDay() starts at 0=sunday
   if (dayOfWeek === 0) {
     dayOfWeek = 6;
   } else {
     dayOfWeek--;
   }
-  // These lines are to set dayOfWeek to 0-6 : monday-sunday since today.getDay() starts at 0=sunday
 
   const filteredLogTypesData = logTypesData.filter(
     (logType) => logType.weekdays[dayOfWeek] === true
   );
 
   console.log("filteredLogTypesData ", dayOfWeek, filteredLogTypesData); // will log an array of logType objects with true for the current dayOfWeek
-  console.log(
-    "🚀 ~ file: logger.tsx:26 ~ Logger ~ filteredLogTypesData:",
-    filteredLogTypesData
-  );
 
-  const originalLogType = "1-5_scale";
+  const originalLogType = "1-5 scale";
 
   const containsOriginalLogType = logTypesData.filter(
     (logTypeData) => logTypeData.logType_id === originalLogType
@@ -48,7 +44,7 @@ const Logger = () => {
         <VasForm
           value={3}
           name="How do you feel right now?"
-          answer_format="1-5_scale"
+          answer_format="1-5 scale"
         />
       ) : null}
       You are logged in tho
