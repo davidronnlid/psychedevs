@@ -42,13 +42,14 @@ module.exports = () => {
     const user_account_data_collection = db.collection("user_account_data");
 
     console.log("Received req at /users/user-profile");
-    const token = req.headers.authorization.split(" ")[1];
-
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
-    const userId = new ObjectId(decodedToken.userId);
 
     try {
+      const token = req.headers.authorization.split(" ")[1];
+
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+      const userId = new ObjectId(decodedToken.userId);
+
       const foundUser = await user_account_data_collection.findOne({
         _id: userId,
       });

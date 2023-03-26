@@ -38,15 +38,41 @@ router.post("/log-types", async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
 
-    const result = await collection.updateOne(
+    console.log("req.body", req.body);
+
+    // Also add logic to handle case where name of log type is already in the collection
+
+    const updateResult = await collection.updateOne(
       { userId: new ObjectId(userId) },
       { $push: { logTypes: req.body } }
     );
 
-    if (result.modifiedCount !== 1) {
-      console.log("Error adding item to array");
-      res.sendStatus(500);
-      return;
+    console.log("Tried update-adding log type to db; ", updateResult);
+
+    if (updateResult.modifiedCount !== 1) {
+      console.log("Error updating array, trying to insert instead: ");
+
+      console.log(req.body.logType_id);
+
+      if (
+        req.body.logType_id === "1-5 Visual Analogue Scale for current mood"
+      ) {
+        const insertedResult = await collection.insertOne({
+          _id: new ObjectId(),
+          userId: new ObjectId(userId),
+          logTypes: [
+            {
+              name: "How do you feel right now?",
+              answer_format: "1-5 Visual Analogue Scale for mood",
+              logType_id: "1-5 Visual Analogue Scale for current mood",
+            },
+          ],
+        });
+        console.log(
+          "🚀 ~ file: logTypes.js:62 ~ router.post ~ insertedResult:",
+          insertedResult
+        );
+      }
     }
 
     const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
@@ -75,7 +101,7 @@ router.delete("/log-types", async (req, res) => {
       { userId: new ObjectId(userId) },
       { $pull: { logTypes: { name: { $in: namesOfLogTypesToRemove } } } }
     );
-    console.log(result);
+    console.log("Removed log type from db, ", result);
 
     const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
 

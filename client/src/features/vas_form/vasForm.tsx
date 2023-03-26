@@ -10,6 +10,7 @@ interface VasFormProps {
   // Define the interface for the form inputs
   date?: Date;
   value: number;
+  logType_id?: string;
 }
 
 const VasForm: React.FC<VasFormProps> = () => {
@@ -44,6 +45,7 @@ const VasForm: React.FC<VasFormProps> = () => {
   const [formInputs, setFormInputs] = useState<VasFormProps>({
     date: new Date(Date.now()),
     value: 3,
+    logType_id: "1-5 Visual Analogue Scale for current mood",
   });
 
   const token = useJwt();
@@ -94,6 +96,7 @@ const VasForm: React.FC<VasFormProps> = () => {
         setFormInputs({
           date: new Date(Date.now()),
           value: 3,
+          logType_id: "1-5 Visual Analogue Scale for current mood",
         });
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -118,7 +121,7 @@ const VasForm: React.FC<VasFormProps> = () => {
             <b>How do you feel right now?</b>
           </Typography>
           <Slider
-            name="current mood"
+            name="1-5 Visual Analogue Scale for current mood"
             value={formInputs.value}
             onChange={(event, newValue) => {
               handleInputChange({ target: { name: "value", value: newValue } });

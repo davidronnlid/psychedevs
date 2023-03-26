@@ -1,10 +1,14 @@
 import { Button } from "@mui/material";
 import React, { useState } from "react";
 import { useAddLogType } from "../../functions/logTypesHooks";
+import { useAppDispatch } from "../../redux/hooks";
+import { addLogType } from "../../redux/logTypesSlice";
 import ConfirmationMessage from "../confirmationMessage";
 
 const AddLogTypeForm = () => {
-  const [addLogType, isLoading, error] = useAddLogType();
+  const dispatch = useAppDispatch();
+
+  const [addLogTypeToDB, isLoading, error] = useAddLogType();
 
   const [name, setName] = useState("");
   const [answerFormat, setAnswerFormat] = useState("");
@@ -13,7 +17,8 @@ const AddLogTypeForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addLogType({ answer_format: answerFormat, name });
+    dispatch(addLogType({ answer_format: answerFormat, name }));
+    addLogTypeToDB({ answer_format: answerFormat, name });
     setName("");
     setAnswerFormat("");
     setIsSaved(true);

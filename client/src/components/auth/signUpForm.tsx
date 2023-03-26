@@ -6,6 +6,7 @@ import UsernameValidation from "./usernameValidation";
 import styles from "./Form.module.css";
 import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
+import { LogType } from "../../typeModels/logTypeModel";
 
 interface SignupFormProps {
   // Define the interface for the Signupform inputs
@@ -51,7 +52,7 @@ const SignupForm: React.FC<SignupFormProps> = () => {
     });
   };
 
-  const saveData = async (tempData: any) => {
+  const saveData = async (tempData: LogType) => {
     const baseUrl =
       process.env.NODE_ENV === "development"
         ? process.env.REACT_APP_BACKEND_LOCAL_URL
@@ -68,7 +69,20 @@ const SignupForm: React.FC<SignupFormProps> = () => {
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-    console.log("Temporary data saved successfully");
+    console.log("Saved log to vas_mood_logs successfully");
+
+    const responseFromLogTypes = await fetch(`${baseUrl}/logs/log-types`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("user_sesh_JWT")}`,
+      },
+      body: JSON.stringify(tempData),
+    });
+    if (!responseFromLogTypes.ok) {
+      throw new Error("Network response was not ok");
+    }
+    console.log("Saved log type to log_types successfully");
   };
 
   // Define a function to handle Signupform submission
@@ -156,8 +170,11 @@ const SignupForm: React.FC<SignupFormProps> = () => {
           <h3>You are signed up and ready to go!</h3>
           <Link to="/logs/planner">Go to Logs Planner</Link>
         </>
-      ) : null}
-      {submitSuccess === false ? <>Hey false</> : null}
+      ) : null
+      // <>
+      //   Error signing up, please <Link to="/signup">try again</Link>
+      // </>
+      }
     </div>
   );
 };

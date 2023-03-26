@@ -1,4 +1,4 @@
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectLogTypes, setLogTypes } from "../../redux/logTypesSlice";
 import {
   Table,
@@ -22,6 +22,7 @@ const LogTypesData = () => {
     string[]
   >([]);
   const [deletedSuccess, setDeletedSuccess] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   const logTypes = useAppSelector(selectLogTypes);
 
@@ -64,7 +65,7 @@ const LogTypesData = () => {
 
       const data = await response.json();
 
-      setLogTypes(data);
+      dispatch(setLogTypes(data));
       setDeletedSuccess(true);
     } catch (error) {
       console.error("Error removing log type: ", error);

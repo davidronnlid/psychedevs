@@ -9,7 +9,6 @@ interface LogTypesState {
 const initialState: LogTypesState = {
   logTypes: [],
 };
-
 const logTypesSlice = createSlice({
   name: "logTypes",
   initialState,
@@ -17,10 +16,12 @@ const logTypesSlice = createSlice({
     setLogTypes: (state, action: PayloadAction<LogType[]>) => {
       state.logTypes = [...action.payload];
     },
+    addLogType: (state, action: PayloadAction<LogType>) => {
+      state.logTypes.push(action.payload);
+    },
   },
 });
-
 export const selectLogTypes = (state: RootState) => state.logTypes.logTypes;
 
-export const { setLogTypes } = logTypesSlice.actions;
+export const { setLogTypes, addLogType } = logTypesSlice.actions;
 export default logTypesSlice.reducer;
