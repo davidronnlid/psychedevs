@@ -2,12 +2,14 @@ import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
 import userReducer from "./userSlice";
 import logTypesReducer from "./logTypesSlice";
+import answerFormatsReducer from "./answerFormatsSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     user: userReducer,
     logTypes: logTypesReducer,
+    answerFormats: answerFormatsReducer,
   },
 });
 

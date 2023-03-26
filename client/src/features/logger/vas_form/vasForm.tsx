@@ -10,7 +10,8 @@ interface VasFormProps {
   // Define the interface for the form inputs
   date?: Date;
   value: number;
-  logType_id?: string;
+  answer_format: string;
+  name: string;
 }
 
 const VasForm: React.FC<VasFormProps> = () => {
@@ -45,7 +46,8 @@ const VasForm: React.FC<VasFormProps> = () => {
   const [formInputs, setFormInputs] = useState<VasFormProps>({
     date: new Date(Date.now()),
     value: 3,
-    logType_id: "1-5_scale",
+    answer_format: "1-5_scale",
+    name: "How do you feel right now?",
   });
 
   const token = useJwt();
@@ -96,7 +98,8 @@ const VasForm: React.FC<VasFormProps> = () => {
         setFormInputs({
           date: new Date(Date.now()),
           value: 3,
-          logType_id: "1-5_scale",
+          answer_format: "1-5_scale",
+          name: "How do you feel right now?",
         });
       } catch (error) {
         console.error("Error submitting form:", error);

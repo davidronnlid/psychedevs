@@ -4,6 +4,7 @@ import { useAddLogType } from "../../functions/logTypesHooks";
 import { useAppDispatch } from "../../redux/hooks";
 import { addLogType } from "../../redux/logTypesSlice";
 import ConfirmationMessage from "../confirmationMessage";
+import SelectAnswerFormat from "./selectAnswerFormat";
 
 const AddLogTypeForm = () => {
   const dispatch = useAppDispatch();
@@ -89,17 +90,9 @@ const AddLogTypeForm = () => {
             marginBottom: "10px",
           }}
         >
-          <label style={{ marginBottom: "5px" }}>Answer Format:</label>
-          <input
-            type="text"
-            value={answerFormat}
-            onChange={(e) => setAnswerFormat(e.target.value)}
-            style={{
-              padding: "5px",
-              borderRadius: "5px",
-              border: "1px solid gray",
-            }}
-          />
+          <p style={{ marginBottom: "5px" }}>Answer Format:</p>
+
+          <SelectAnswerFormat setParentAnswerFormat={setAnswerFormat} />
         </div>
         {name.length > 0 || answerFormat.length > 0 ? (
           <div

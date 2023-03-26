@@ -10,3 +10,5 @@ export type FetchLogTypesResult = {
   data: LogType[] | null;
   error: string | null;
 };
+
+export interface AnswerFormat extends Pick<LogType, "answer_format"> {}

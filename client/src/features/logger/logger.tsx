@@ -23,6 +23,10 @@ const Logger = () => {
   );
 
   console.log("filteredLogTypesData ", dayOfWeek, filteredLogTypesData); // will log an array of logType objects with true for the current dayOfWeek
+  console.log(
+    "🚀 ~ file: logger.tsx:26 ~ Logger ~ filteredLogTypesData:",
+    filteredLogTypesData
+  );
 
   const originalLogType = "1-5_scale";
 
@@ -40,7 +44,13 @@ const Logger = () => {
     <div>
       {inProcessOfLoading && <p>Loading...</p>}
       {err && <p>Error: {err}</p>}
-      {containsOriginalLogType ? <VasForm value={3} /> : null}
+      {containsOriginalLogType ? (
+        <VasForm
+          value={3}
+          name="How do you feel right now?"
+          answer_format="1-5_scale"
+        />
+      ) : null}
       You are logged in tho
     </div>
   );

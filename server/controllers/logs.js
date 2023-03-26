@@ -5,6 +5,7 @@ const { ObjectId } = require("mongodb");
 const Logs = require("../models/logs");
 const moment = require("moment");
 const { Long } = require("bson");
+const crypto = require("crypto");
 
 module.exports = () => {
   console.log("Router for /logs set up");
@@ -60,7 +61,6 @@ module.exports = () => {
     const vas_mood_logs = db.collection("vas_mood_logs");
     const submittedLog = req.body;
     const dateString = submittedLog.date;
-
     const int64Value = Long.fromString(submittedLog.value.toString());
 
     console.log("turned into int64: ", int64Value);
@@ -69,11 +69,28 @@ module.exports = () => {
     // convert the date string to a Date object
     const date = moment(dateString, "YYYY-MM-DD").toDate();
 
+    const generateId = (answerFormat, name) => {
+      const hash = crypto.createHash("sha256");
+      const data = answerFormat + name;
+      hash.update(data);
+      return hash.digest("hex");
+    };
+
+    console.log(
+      "Generating id: ",
+      req.body.answer_format,
+      req.body.name,
+      generateId(req.body.answer_format, req.body.name)
+    );
+
+    const mergedId = generateId(req.body.answer_format, req.body.name);
+
     // create the log object with the date string converted to a date Date object
     const datifiedSubmittedLog = {
+      _id: new ObjectId(),
       date: date,
       value: int64Value,
-      _id: new ObjectId(),
+      logType_id: mergedId.toString(),
     };
     // the submitted log object will be inserted into the database below
 

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 // GET existing log types
 router.get("/log-types", async (req, res) => {
@@ -39,11 +40,43 @@ router.post("/log-types", async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
 
+    const generateId = (answerFormat, name) => {
+      const hash = crypto.createHash("sha256");
+      const data = answerFormat + name;
+      hash.update(data);
+      return hash.digest("hex");
+    };
+
     console.log("req.body", req.body);
+
+    // If the generateId is already present in collection, then tell user they cannot add log with same name and answer_format as they have already added
+
+    const mergedId = generateId(req.body.answer_format, req.body.name);
+    console.log(
+      "🚀 ~ file: logTypes.js:55 ~ router.post ~ mergedId:",
+      mergedId
+    );
+
+    const logTypeToSave = {
+      _id: new ObjectId(),
+      userId: new ObjectId(userId),
+      logTypes: [
+        {
+          answer_format: req.body.answer_format,
+          name: req.body.name,
+          logType_id: mergedId.toString(),
+          weekdays: [true, true, true, true, true, true, true],
+        },
+      ],
+    };
 
     const updateResult = await collection.updateOne(
       { userId: new ObjectId(userId) },
-      { $push: { logTypes: req.body } }
+      {
+        $push: {
+          logTypes: logTypeToSave,
+        },
+      }
     );
 
     console.log("Tried update-adding log type to db; ", updateResult);
@@ -53,24 +86,13 @@ router.post("/log-types", async (req, res) => {
 
       console.log(req.body.logType_id);
 
-      if (req.body.logType_id === "1-5_scale") {
-        const insertedResult = await collection.insertOne({
-          _id: new ObjectId(),
-          userId: new ObjectId(userId),
-          logTypes: [
-            {
-              name: "How do you feel right now?",
-              answer_format: "1-5_scale",
-              logType_id: "1-5_scale",
-              weekdays: [true, true, true, true, true, true, true],
-            },
-          ],
-        });
-        console.log(
-          "🚀 ~ file: logTypes.js:62 ~ router.post ~ insertedResult:",
-          insertedResult
-        );
-      }
+      const insertedResult = await collection.insertOne(logTypeToSave);
+      console.log(
+        "🚀 ~ file: logTypes.js:62 ~ router.post ~ insertedResult:",
+        insertedResult
+      );
+
+      console.log("Inserted! ", insertedResult);
     }
 
     const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
