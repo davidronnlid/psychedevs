@@ -141,7 +141,7 @@ const SignupForm: React.FC<SignupFormProps> = () => {
       {typeof submitSuccess === "undefined" ? (
         <form onSubmit={handleSubmit}>
           <h3 className={styles.title}>
-            Join the PsycheDevs community to start saving your data!
+            Join the PsycheDevs community to start saving your logs!
           </h3>
           <UsernameValidation
             onUsernameValid={handleUsernameValidChange}
@@ -165,15 +165,16 @@ const SignupForm: React.FC<SignupFormProps> = () => {
           </Button>
         </form>
       ) : null}
-      {submitSuccess === true ? (
-        <>
-          <h3>You are signed up and ready to go!</h3>
-          <Link to="/logs/planner">Go to Logs Planner</Link>
-        </>
-      ) : null
-      // <>
-      //   Error signing up, please <Link to="/signup">try again</Link>
-      // </>
+      {
+        submitSuccess === true ? (
+          <>
+            <h3>You are signed up and ready to go!</h3>
+            <Link to="/logs/planner">Go to Logs Planner</Link>
+          </>
+        ) : null
+        // <>
+        //   Error signing up, please <Link to="/signup">try again</Link>
+        // </>
       }
     </div>
   );

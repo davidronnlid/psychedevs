@@ -14,12 +14,12 @@ interface VasFormProps {
   name: string;
 }
 
-const VasForm: React.FC<VasFormProps> = () => {
+const VasForm: React.FC<VasFormProps> = ({ name, answer_format, value }) => {
   const navigate = useNavigate();
 
   const [logSaveSuccess, setLogSaveSuccess] = useState<boolean>(false);
 
-  const marks = [
+  const marksFor1To5 = [
     {
       value: 1,
       label: "Terrible",
@@ -42,12 +42,31 @@ const VasForm: React.FC<VasFormProps> = () => {
     },
   ];
 
+  const marksFor1To10 = [
+    {
+      value: 1,
+      label: "Terrible",
+    },
+    {
+      value: 3,
+      label: "Bad",
+    },
+    {
+      value: 8,
+      label: "Good",
+    },
+    {
+      value: 10,
+      label: "Perfect",
+    },
+  ];
+
   // Define state for the form inputs
   const [formInputs, setFormInputs] = useState<VasFormProps>({
     date: new Date(Date.now()),
-    value: 3,
-    answer_format: "1-5 scale",
-    name: "How do you feel right now?",
+    value: value,
+    answer_format: answer_format,
+    name: name,
   });
 
   const token = useJwt();
@@ -98,8 +117,8 @@ const VasForm: React.FC<VasFormProps> = () => {
         setFormInputs({
           date: new Date(Date.now()),
           value: 3,
-          answer_format: "1-5 scale",
-          name: "How do you feel right now?",
+          answer_format: answer_format,
+          name: name,
         });
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -121,7 +140,7 @@ const VasForm: React.FC<VasFormProps> = () => {
       <form onSubmit={handleSave} className="vasForm">
         <div className="formContent">
           <Typography id="value" className="hDYFRNTitle formItem" variant="h4">
-            <b>How do you feel right now?</b>
+            <b>{name}</b>
           </Typography>
           <Slider
             name="1-5 scale"
@@ -131,9 +150,9 @@ const VasForm: React.FC<VasFormProps> = () => {
             }}
             valueLabelDisplay="auto"
             step={1}
-            marks={marks}
+            marks={answer_format === "1-5 scale" ? marksFor1To5 : marksFor1To10}
             min={1}
-            max={5}
+            max={answer_format === "1-5 scale" ? 5 : 10}
             color="primary"
             className="formItem"
           />

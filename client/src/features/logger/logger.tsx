@@ -1,6 +1,7 @@
 import { useFetchLogTypes } from "../../functions/logTypesHooks";
 import { useAppSelector } from "../../redux/hooks";
 import { selectLogTypes } from "../../redux/logTypesSlice";
+import { LogType } from "../../typeModels/logTypeModel";
 import VasForm from "./vas_form/vasForm";
 
 const Logger = () => {
@@ -36,18 +37,29 @@ const Logger = () => {
 
   //   When other log formats have been implemented, then USBAT log those too
 
+  // For each logType obj, if weekdays has boolean of today set to true, then render that logTypes Form
+
   return (
     <div>
-      {inProcessOfLoading && <p>Loading...</p>}
-      {err && <p>Error: {err}</p>}
-      {containsOriginalLogType ? (
-        <VasForm
-          value={3}
-          name="How do you feel right now?"
-          answer_format="1-5 scale"
-        />
-      ) : null}
-      You are logged in tho
+      <>
+        {inProcessOfLoading && <p>Loading...</p>}
+        {err && <p>Error: {err}</p>}
+        {filteredLogTypesData.map((logType: LogType) => (
+          <VasForm
+            value={3}
+            name={logType.name}
+            answer_format={logType.answer_format}
+          />
+        ))}
+        {/* {containsOriginalLogType ? (
+          <VasForm
+            value={3}
+            name="How do you feel right now?"
+            answer_format="1-5 scale"
+          />
+        ) : null} */}
+        You are logged in tho
+      </>
     </div>
   );
 };
