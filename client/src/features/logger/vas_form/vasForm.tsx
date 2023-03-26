@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useJwt } from "../../redux/authSlice";
+import { useJwt } from "../../../redux/authSlice";
 import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import ConfirmationMessage from "../../components/confirmationMessage";
+import ConfirmationMessage from "../../../components/confirmationMessage";
 
 interface VasFormProps {
   // Define the interface for the form inputs
@@ -45,7 +45,7 @@ const VasForm: React.FC<VasFormProps> = () => {
   const [formInputs, setFormInputs] = useState<VasFormProps>({
     date: new Date(Date.now()),
     value: 3,
-    logType_id: "1-5 Visual Analogue Scale for current mood",
+    logType_id: "1-5_scale",
   });
 
   const token = useJwt();
@@ -96,7 +96,7 @@ const VasForm: React.FC<VasFormProps> = () => {
         setFormInputs({
           date: new Date(Date.now()),
           value: 3,
-          logType_id: "1-5 Visual Analogue Scale for current mood",
+          logType_id: "1-5_scale",
         });
       } catch (error) {
         console.error("Error submitting form:", error);
@@ -121,7 +121,7 @@ const VasForm: React.FC<VasFormProps> = () => {
             <b>How do you feel right now?</b>
           </Typography>
           <Slider
-            name="1-5 Visual Analogue Scale for current mood"
+            name="1-5_scale"
             value={formInputs.value}
             onChange={(event, newValue) => {
               handleInputChange({ target: { name: "value", value: newValue } });

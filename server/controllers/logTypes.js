@@ -16,6 +16,7 @@ router.get("/log-types", async (req, res) => {
     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
     const logTypes = await collection.findOne({ userId: new ObjectId(userId) });
+    console.log("🚀 ~ file: logTypes.js:19 ~ router.get ~ logTypes:", logTypes);
 
     const logTypesToSend = logTypes.logTypes;
 
@@ -52,17 +53,15 @@ router.post("/log-types", async (req, res) => {
 
       console.log(req.body.logType_id);
 
-      if (
-        req.body.logType_id === "1-5 Visual Analogue Scale for current mood"
-      ) {
+      if (req.body.logType_id === "1-5_scale") {
         const insertedResult = await collection.insertOne({
           _id: new ObjectId(),
           userId: new ObjectId(userId),
           logTypes: [
             {
               name: "How do you feel right now?",
-              answer_format: "1-5 Visual Analogue Scale for mood",
-              logType_id: "1-5 Visual Analogue Scale for current mood",
+              answer_format: "1-5_scale",
+              logType_id: "1-5_scale",
               weekdays: [true, true, true, true, true, true, true],
             },
           ],

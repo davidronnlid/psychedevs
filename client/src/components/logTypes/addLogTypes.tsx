@@ -51,7 +51,7 @@ const AddLogTypeForm = () => {
     });
     setName("");
     setAnswerFormat("");
-    setSelectedWeekdays([]);
+    setSelectedWeekdays([true, true, true, true, true, true, true]);
     setIsSaved(true);
   };
 

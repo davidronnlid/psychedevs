@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Chart from "../../components/logsChart";
+import Chart from "../../../components/logsChart";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
-import { useJwt } from "../../redux/authSlice";
-import ConfirmationMessage from "../../components/confirmationMessage";
+import { useJwt } from "../../../redux/authSlice";
+import ConfirmationMessage from "../../../components/confirmationMessage";
 
 interface MoodLog {
   date: Date;

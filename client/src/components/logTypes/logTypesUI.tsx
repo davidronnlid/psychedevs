@@ -32,6 +32,16 @@ const LogTypesData = () => {
     (logType: LogType) => !namesOfLogTypesToRemove.includes(logType.name)
   );
 
+  const formattedLogTypes = filteredLogTypes.map((logType) => {
+    if (logType.answer_format.includes("_")) {
+      return {
+        ...logType,
+        answer_format: logType.answer_format.replace(/_/g, " "),
+      };
+    }
+    return logType;
+  });
+
   const boolArrToWeekdays = (boolArr: boolean[]): string[] => {
     const weekdays = [
       "Monday",
@@ -50,7 +60,7 @@ const LogTypesData = () => {
     }, []);
   };
 
-  const weekdayedLogTypes = filteredLogTypes.map((logType) => ({
+  const weekdayedLogTypes = formattedLogTypes.map((logType) => ({
     ...logType,
     weekdays: boolArrToWeekdays(logType.weekdays),
   }));

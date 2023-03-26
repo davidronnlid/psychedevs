@@ -4,7 +4,7 @@ import { useAppDispatch } from "./redux/hooks";
 import { setAuthState } from "./redux/authSlice";
 import App from "./App";
 import UserProfile from "./features/users/userProfile";
-import LogsPage from "./features/vas_logs/vasLogs";
+import LogsPage from "./features/analyzer/vas_logs/vasLogs";
 import Hamburger from "./components/hamburger";
 import PDHeaderLogo from "./images/PDHeaderLogo.png";
 import "./styles/app.scss";
@@ -52,7 +52,11 @@ const AppContainer: React.FC = (): JSX.Element => {
     <div className="appContainer">
       <header>
         <Link to="/">
-          <img src={PDHeaderLogo} style={{ width: "50vw" }} />
+          <img
+            src={PDHeaderLogo}
+            style={{ width: "50vw" }}
+            alt="PsycheDevs header logo"
+          />
         </Link>
       </header>
       <div className="nonHeaderContentContainer">
