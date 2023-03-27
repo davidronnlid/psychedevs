@@ -44,6 +44,8 @@ const PasswordValidation: React.FC<PasswordValidationProps> = ({
         title="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., !@#$%^&amp;*())."
         arrow
         placement="top-start"
+        disableTouchListener={false}
+        enterTouchDelay={0}
       >
         <IconButton>
           <InfoIcon />

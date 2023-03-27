@@ -38,6 +38,8 @@ const UsernameValidation: React.FC<UsernameValidationProps> = ({
         title="Username must be 3-30 characters long and can only include letters, numbers, hyphens, and underscores."
         arrow
         placement="top-start"
+        disableTouchListener={false}
+        enterTouchDelay={0}
       >
         <IconButton>
           <InfoIcon />

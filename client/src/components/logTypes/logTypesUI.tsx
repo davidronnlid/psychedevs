@@ -33,15 +33,7 @@ const LogTypesData = () => {
   );
 
   const boolArrToWeekdays = (boolArr: boolean[]): string[] => {
-    const weekdays = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ];
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     return boolArr.reduce((acc: string[], curr, index) => {
       if (curr) {
         acc.push(weekdays[index]);

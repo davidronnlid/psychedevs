@@ -1,13 +1,33 @@
 import { Button, Checkbox, FormControlLabel } from "@mui/material";
 import React, { useState } from "react";
 import { useAddLogType } from "../../functions/logTypesHooks";
-import { useAppDispatch } from "../../redux/hooks";
-import { addLogType } from "../../redux/logTypesSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { addLogType, selectLogTypes } from "../../redux/logTypesSlice";
 import ConfirmationMessage from "../confirmationMessage";
 import SelectAnswerFormat from "./selectAnswerFormat";
 
 const AddLogTypeForm = () => {
   const dispatch = useAppDispatch();
+
+  const logTypesOfUser = useAppSelector(selectLogTypes);
+  const nameExists = (name: string) => {
+    return logTypesOfUser.some(
+      (logType) => logType.name.toLowerCase() === name.toLowerCase()
+    );
+  };
+
+  const [nameError, setNameError] = useState<string>("");
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setName(newName);
+
+    if (nameExists(newName)) {
+      setNameError("Name already exists. Please make some change to the name.");
+    } else {
+      setNameError("");
+    }
+  };
 
   const [addLogTypeToDB] = useAddLogType();
 
@@ -24,15 +44,7 @@ const AddLogTypeForm = () => {
     true,
   ]);
 
-  const weekdays = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
+  const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
@@ -77,13 +89,18 @@ const AddLogTypeForm = () => {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
             style={{
               padding: "5px",
               borderRadius: "5px",
-              border: "1px solid gray",
+              border: nameError ? "1px solid red" : "1px solid gray",
             }}
           />
+          {nameError && (
+            <p style={{ color: "red", fontSize: "0.8em", marginTop: "2px" }}>
+              {nameError}
+            </p>
+          )}
         </div>
         <div
           style={{
@@ -136,6 +153,7 @@ const AddLogTypeForm = () => {
           color="primary"
           type="submit"
           style={{ marginBottom: "10px" }}
+          disabled={nameError.length > 0}
         >
           Add Log Type
         </Button>
