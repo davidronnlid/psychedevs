@@ -16,6 +16,7 @@ import { useState } from "react";
 import { LogType } from "../../typeModels/logTypeModel";
 import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../confirmationMessage";
+import { NONAME } from "dns";
 
 const LogTypesData = () => {
   const [namesOfLogTypesToRemove, setNamesOfLogTypesToRemove] = useState<
@@ -91,17 +92,37 @@ const LogTypesData = () => {
 
   return (
     <>
-      <TableContainer component={Paper}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+        }}
+      >
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell style={{ borderRight: "1px solid gray" }}>
+            <TableRow sx={{ "&:hover": { backgroundColor: "transparent" } }}>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid gray",
+                }}
+              >
                 Log type name
               </TableCell>
-              <TableCell style={{ borderRight: "1px solid gray" }}>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid gray",
+                }}
+              >
                 Answer format
-              </TableCell>{" "}
-              <TableCell style={{ borderRight: "1px solid gray" }}>
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid gray",
+                }}
+              >
                 Weekdays to log
               </TableCell>
               <TableCell></TableCell>
@@ -110,7 +131,18 @@ const LogTypesData = () => {
           <TableBody>
             {weekdayedLogTypes.map((logType) => (
               <>
-                <TableRow key={logType.name}>
+                <TableRow
+                  key={logType.name}
+                  sx={{
+                    "&:nth-of-type(odd)": {
+                      backgroundColor: "rgba(0, 0, 0, 0.01)",
+                    },
+                    "&.MuiBox-root": {
+                      // Add your custom styles here
+                      border: "none",
+                    },
+                  }}
+                >
                   <TableCell style={{ borderRight: "1px solid gray" }}>
                     {logType.name}
                   </TableCell>
@@ -120,13 +152,13 @@ const LogTypesData = () => {
                   <TableCell style={{ borderRight: "1px solid gray" }}>
                     {logType.weekdays.join(", ")}
                   </TableCell>
-                  <TableCell style={{ borderRight: "1px solid gray" }}>
+                  <TableCell>
                     <DeleteIcon
                       onClick={() => handleRemoveWorkInProgress(logType.name)}
+                      sx={{ cursor: "pointer" }}
                     />
                   </TableCell>
                 </TableRow>
-                <Box borderBottom={1} mx={3} />
               </>
             ))}
           </TableBody>
