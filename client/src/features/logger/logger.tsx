@@ -193,7 +193,7 @@ const Logger = () => {
             <Link to="/logs/analyzer" style={{ color: "#fff" }}>
               Analyze
             </Link>{" "}
-            your existing logs or{" "}
+            your past logs or{" "}
             <Link to="/logs/planner" style={{ color: "#fff" }}>
               plan
             </Link>{" "}

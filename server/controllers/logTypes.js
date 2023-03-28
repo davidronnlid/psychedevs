@@ -6,9 +6,15 @@ const crypto = require("crypto");
 // GET existing log types
 router.get("/log-types", async (req, res) => {
   const db = req.app.locals.db;
-  const collection = db.collection("log_types");
 
   console.log("get req received at /logs/log-types");
+
+  if (!db) {
+    res.status(500).send("Database connection not established");
+    return;
+  }
+
+  const collection = db.collection("log_types");
 
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -63,7 +69,7 @@ router.post("/log-types", async (req, res) => {
           answer_format: req.body.answer_format,
           name: req.body.name,
           logType_id: mergedId.toString(),
-          weekdays: [true, true, true, true, true, true, true],
+          weekdays: [...req.body.weekdays],
         },
       ],
     };
