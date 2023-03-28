@@ -143,7 +143,7 @@ const VasForm: React.FC<VasFormProps> = ({ name, answer_format, value }) => {
             <b>{name}</b>
           </Typography>
           <Slider
-            name="1-5 scale"
+            name={answer_format === "1-5 scale" ? "1-5 scale" : "1-10 scale"}
             value={formInputs.value}
             onChange={(event, newValue) => {
               handleInputChange({ target: { name: "value", value: newValue } });

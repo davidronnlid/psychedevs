@@ -1,5 +1,9 @@
 @import "variables";
 
+body {
+  overflow-x: hidden;
+}
+
 .nonHeaderContentContainer {
   padding: 0 10vw;
 }

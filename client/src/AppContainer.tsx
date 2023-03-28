@@ -50,7 +50,12 @@ const AppContainer: React.FC = (): JSX.Element => {
 
   return (
     <div className="appContainer">
-      <header>
+      <header
+        style={{
+          boxShadow:
+            "0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 2px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14)",
+        }}
+      >
         <Link to="/">
           <img
             src={PDHeaderLogo}
