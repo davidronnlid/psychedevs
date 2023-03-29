@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import {
   TextField,
   Button,
@@ -22,6 +22,7 @@ interface LogTypeEditFormProps {
   onCancel: () => void;
   editMode: boolean;
   logType?: LogType | null;
+  setEditMode: Dispatch<SetStateAction<boolean>>;
 }
 
 const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
@@ -29,6 +30,7 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
   onCancel,
   editMode,
   logType,
+  setEditMode,
 }) => {
   const [name, setName] = useState(editMode ? logType?.name || "" : "");
   const [answerFormat, setAnswerFormat] = useState(
@@ -53,6 +55,7 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
       weekdays: selectedWeekdays,
     };
     onSubmit(logType);
+    setEditMode(false);
   };
 
   const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

@@ -219,6 +219,7 @@ const LogTypesData = () => {
             }}
             logType={editingLogType}
             editMode
+            setEditMode={setEditMode}
           />
         </Box>
       ) : null}
