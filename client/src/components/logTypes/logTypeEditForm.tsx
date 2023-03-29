@@ -64,8 +64,8 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
     <Dialog open={editMode} onClose={onCancel}>
       <DialogTitle>{editMode ? "Edit Log Type" : null}</DialogTitle>
       <VerticalSpacer size={"3rem"} />
-      <DialogContent>
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <TextField
               label="Log Type Name"
@@ -93,14 +93,14 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
               </FormGroup>
             </FormControl>
           </Box>
-        </form>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => onCancel()}>Cancel</Button>
-        <Button type="submit" variant="contained">
-          {editMode ? "Save" : null}
-        </Button>
-      </DialogActions>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => onCancel()}>Cancel</Button>
+          <Button type="submit" variant="contained">
+            {editMode ? "Save" : null}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };

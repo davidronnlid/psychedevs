@@ -24,6 +24,7 @@ const LogTypesData = () => {
     string[]
   >([]);
   const [deletedSuccess, setDeletedSuccess] = useState<boolean>(false);
+  const [editedSuccess, setEditedSuccess] = useState<boolean>(false);
   const [editMode, setEditMode] = useState(false);
   const [editingLogType, setEditingLogType] = useState<LogType | null>(null);
 
@@ -42,8 +43,13 @@ const LogTypesData = () => {
     setEditMode(true);
   };
 
-  const handleSaveLogType = async (updatedLogType: LogType) => {
-    const response = await fetch("/logs/log-types", {
+  const handleSaveEditedLogType = async (updatedLogType: LogType) => {
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.REACT_APP_BACKEND_LOCAL_URL
+        : process.env.REACT_APP_PROD_URL;
+
+    const response = await fetch(`${baseUrl}/logs/log-types`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -56,6 +62,7 @@ const LogTypesData = () => {
     dispatch(setLogTypes(updatedLogTypes));
     setEditMode(false);
     setEditingLogType(null);
+    setEditedSuccess(true);
   };
 
   const boolArrToWeekdays = (boolArr: boolean[]): string[] => {
@@ -209,10 +216,17 @@ const LogTypesData = () => {
           stateSetter={setDeletedSuccess}
         />
       ) : null}
+      {editedSuccess ? (
+        <ConfirmationMessage
+          message="Successfully edited log types"
+          state={editedSuccess}
+          stateSetter={setEditedSuccess}
+        />
+      ) : null}
       {editMode ? (
         <Box>
           <LogTypeEditForm
-            onSubmit={handleSaveLogType}
+            onSubmit={handleSaveEditedLogType}
             onCancel={() => {
               setEditMode(false);
               setEditingLogType(null);

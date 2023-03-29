@@ -113,6 +113,35 @@ router.delete("/log-types", async (req, res) => {
 
     const namesOfLogTypesToRemove = req.query.names.split(",,");
 
+    const generateId = (answerFormat, name) => {
+      const hash = crypto.createHash("sha256");
+      const data = answerFormat + name;
+      hash.update(data);
+      return hash.digest("hex");
+    };
+
+    console.log("req.body", req.body);
+
+    // If the generateId is already present in collection, then tell user they cannot add log with same name and answer_format as they have already added
+
+    const mergedId = generateId(req.body.answer_format, req.body.name);
+    console.log(
+      "🚀 ~ file: logTypes.js:55 ~ router.post ~ mergedId:",
+      mergedId
+    );
+
+    const logTypeToSave = {
+      logType_id: mergedId,
+      logTypes: [
+        {
+          answer_format: req.body.answer_format,
+          name: req.body.name,
+          logType_id: mergedId.toString(),
+          weekdays: [...req.body.weekdays],
+        },
+      ],
+    };
+
     const result = await collection.updateOne(
       { userId: userId },
       { $pull: { logTypes: { name: { $in: namesOfLogTypesToRemove } } } }
@@ -129,8 +158,9 @@ router.delete("/log-types", async (req, res) => {
   }
 });
 
-// Update a log type
+// Update a log type - corresponds to log type editing UI in frontend
 router.put("/log-types", async (req, res) => {
+  console.log("/logs/log-types is where the req is at yoo");
   const db = req.app.locals.db;
   const collection = db.collection("log_types");
 
