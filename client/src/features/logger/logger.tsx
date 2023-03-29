@@ -20,8 +20,8 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import ConfirmationMessage from "../../components/confirmationMessage";
 import { Link } from "react-router-dom";
+import VerticalSpacer from "../../components/VerticalSpacer";
 
 const Logger = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -89,6 +89,7 @@ const Logger = () => {
   const completedLogtypes = logTypesData.filter((logType) =>
     hasLogTypeToday(data, logType.logType_id)
   );
+
   console.log(
     "🚀 ~ file: logger.tsx:35 ~ Logger ~ completedLogs:",
     completedLogtypes
@@ -112,11 +113,15 @@ const Logger = () => {
             backgroundColor: "#001219",
             color: "#7acde9",
             border: "none",
-            width: "300px",
-            margin: "-0.5rem auto 5rem auto",
+            width: "100vw",
+            margin: "-0.2rem -10vw",
             boxShadow:
               "0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 2px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14)",
-            borderRadius: "0.5rem",
+            "@media (max-width: 480px)": {
+              "& *": {
+                fontSize: ".6rem",
+              },
+            },
           }}
         >
           <Tabs value={tabValue} onChange={handleChange}>
@@ -153,7 +158,7 @@ const Logger = () => {
           </Tabs>
         </AppBar>
       )}
-
+      <VerticalSpacer size="3rem" />
       <TabPanel value={tabValue} index={completedAll ? 1 : 0}>
         <Typography variant="h4" component="h1" gutterBottom>
           Logs <b>to complete</b> for today,{dateToDisplay}

@@ -39,8 +39,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   };
 
   return (
-    <div ref={menuRef} tabIndex={0}>
-      {" "}
+    <div ref={menuRef} tabIndex={0} className="dropdownMenuContainer">
       {toggleState && (
         <div className="dropdownMenu">
           <div className="dropdownMenuItem" id="usernameInDropDown">

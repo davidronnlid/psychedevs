@@ -10,9 +10,11 @@ import {
   FormControl,
   SelectChangeEvent,
   Box,
+  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { calculateCorrelation } from "../../functions/correlations";
+import VerticalSpacer from "../../components/VerticalSpacer";
 // import { calculateCorrelation } from "../../functions/correlations";
 
 function groupLogsByLogTypeId(logs: Log[]): Record<string, Log[]> {
@@ -87,50 +89,52 @@ const LogsAnalyzerPage = () => {
 
   return (
     <>
-      <div>
-        <h2>Logs</h2>
-        {Object.entries(groupedLogs).map(([logTypeId, logs]) => (
-          <LogsOfALogType
-            key={logTypeId}
-            logType_id={logTypeId}
-            logList={logs}
-            name={findMatchingName(logTypeId)}
-          />
-        ))}
-        <h3>Find correlations</h3>
-        <p>Please select two log types to analyze</p>
-        <FormControl>
-          <Select
-            labelId="select-log-type-label"
-            id="select-log-type"
-            value={selectedLogTypeName}
-            onChange={handleChange}
-            inputProps={{ "aria-label": "select log type" }}
-          >
-            {logTypes.map((logType) => (
-              <MenuItem key={logType.logType_id} value={logType.name}>
-                {logType.name}
-              </MenuItem>
-            ))}
-          </Select>
-          <br />
-          <Select
-            labelId="select-log-type-label-two"
-            id="select-log-type-two"
-            value={selectedLogTypeNameTwo}
-            onChange={handleChangeTwo}
-            inputProps={{ "aria-label": "select log type" }}
-          >
-            {logTypes.map((logType) => (
-              <MenuItem key={logType.logType_id} value={logType.name}>
-                {logType.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <p>{correlation}</p>
-        <Box padding="100px" />
-      </div>
+      <VerticalSpacer size="3rem" />
+
+      <Typography variant="h4" gutterBottom>
+        Logs
+      </Typography>
+      {Object.entries(groupedLogs).map(([logTypeId, logs]) => (
+        <LogsOfALogType
+          key={logTypeId}
+          logType_id={logTypeId}
+          logList={logs}
+          name={findMatchingName(logTypeId)}
+        />
+      ))}
+      <h3>Find correlations</h3>
+      <p>Please select two log types to analyze</p>
+      <FormControl>
+        <Select
+          labelId="select-log-type-label"
+          id="select-log-type"
+          value={selectedLogTypeName}
+          onChange={handleChange}
+          inputProps={{ "aria-label": "select log type" }}
+        >
+          {logTypes.map((logType) => (
+            <MenuItem key={logType.logType_id} value={logType.name}>
+              {logType.name}
+            </MenuItem>
+          ))}
+        </Select>
+        <br />
+        <Select
+          labelId="select-log-type-label-two"
+          id="select-log-type-two"
+          value={selectedLogTypeNameTwo}
+          onChange={handleChangeTwo}
+          inputProps={{ "aria-label": "select log type" }}
+        >
+          {logTypes.map((logType) => (
+            <MenuItem key={logType.logType_id} value={logType.name}>
+              {logType.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <p>{correlation}</p>
+      <Box padding="100px" />
     </>
   );
 };

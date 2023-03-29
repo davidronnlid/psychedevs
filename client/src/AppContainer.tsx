@@ -50,25 +50,20 @@ const AppContainer: React.FC = (): JSX.Element => {
 
   return (
     <div className="appContainer">
-      <header
-        style={{
-          boxShadow:
-            "0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 2px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14)",
-        }}
-      >
+      <header>
         <Link to="/">
           <img
+            className="header-logo"
             src={PDHeaderLogo}
-            style={{ width: "50vw" }}
             alt="PsycheDevs header logo"
           />
         </Link>
-      </header>
-      <div className="nonHeaderContentContainer">
         <div className="headerRightSection">
           <ProfileMenu />
           <Hamburger />
         </div>
+      </header>
+      <div className="nonHeaderContentContainer">
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/signup" element={<SignUpPage />} />
