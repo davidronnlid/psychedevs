@@ -7,19 +7,26 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Box,
 } from "@mui/material";
 import { LogType } from "../../typeModels/logTypeModel";
+import SelectAnswerFormat from "./selectAnswerFormat";
+import VerticalSpacer from "../VerticalSpacer";
 
-interface LogTypeFormProps {
+interface LogTypeEditFormProps {
   onSubmit: (updatedLogType: LogType) => Promise<void>;
   onCancel: () => void;
   editMode: boolean;
   logType?: LogType | null;
 }
 
-const LogTypeForm: React.FC<LogTypeFormProps> = ({
+const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
   onSubmit,
+  onCancel,
   editMode,
   logType,
 }) => {
@@ -27,14 +34,15 @@ const LogTypeForm: React.FC<LogTypeFormProps> = ({
   const [answerFormat, setAnswerFormat] = useState(
     editMode ? logType?.answer_format || "" : ""
   );
-  const [weekdays, setWeekdays] = useState(
-    editMode ? logType?.weekdays || Array(7).fill(false) : Array(7).fill(false)
+  const [selectedWeekdays, setSelectedWeekdays] = useState(
+    editMode
+      ? logType?.weekdays || [true, true, true, true, true, true, true]
+      : [true, true, true, true, true, true, true]
   );
-
-  const handleWeekdayChange = (index: number) => {
-    const newWeekdays = [...weekdays];
-    newWeekdays[index] = !newWeekdays[index];
-    setWeekdays(newWeekdays);
+  const handleWeekdayChange = (weekdayIndex: number) => {
+    const newSelectedWeekdays = [...selectedWeekdays];
+    newSelectedWeekdays[weekdayIndex] = !newSelectedWeekdays[weekdayIndex];
+    setSelectedWeekdays(newSelectedWeekdays);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,51 +50,56 @@ const LogTypeForm: React.FC<LogTypeFormProps> = ({
     const logType: LogType = {
       name,
       answer_format: answerFormat,
-      weekdays,
+      weekdays: selectedWeekdays,
     };
     onSubmit(logType);
   };
 
-  const weekdaysLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const weekdayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <TextField
-          label="Log Type Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <TextField
-          label="Answer Format"
-          value={answerFormat}
-          onChange={(e) => setAnswerFormat(e.target.value)}
-          required
-        />
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Weekdays to log</FormLabel>
-          <FormGroup row>
-            {weekdaysLabels.map((label, index) => (
-              <FormControlLabel
-                key={label}
-                control={
-                  <Checkbox
-                    checked={weekdays[index]}
-                    onChange={() => handleWeekdayChange(index)}
+    <Dialog open={editMode} onClose={onCancel}>
+      <DialogTitle>{editMode ? "Edit Log Type" : null}</DialogTitle>
+      <VerticalSpacer size={"3rem"} />
+      <DialogContent>
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <TextField
+              label="Log Type Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <SelectAnswerFormat setParentAnswerFormat={setAnswerFormat} />
+
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Weekdays to log</FormLabel>
+              <FormGroup row>
+                {weekdayLabels.map((label, index) => (
+                  <FormControlLabel
+                    key={index}
+                    control={
+                      <Checkbox
+                        checked={selectedWeekdays[index]}
+                        onChange={() => handleWeekdayChange(index)}
+                      />
+                    }
+                    label={label}
                   />
-                }
-                label={label}
-              />
-            ))}
-          </FormGroup>
-        </FormControl>
+                ))}
+              </FormGroup>
+            </FormControl>
+          </Box>
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => onCancel()}>Cancel</Button>
         <Button type="submit" variant="contained">
-          {editMode ? "Edit Log Type" : "Add Log Type"}
+          {editMode ? "Save" : null}
         </Button>
-      </Box>
-    </form>
+      </DialogActions>
+    </Dialog>
   );
 };
 
-export default LogTypeForm;
+export default LogTypeEditForm;

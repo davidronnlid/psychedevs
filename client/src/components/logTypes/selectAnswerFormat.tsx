@@ -37,9 +37,14 @@ const SelectAnswerFormat: React.FC<Props> = ({ setParentAnswerFormat }) => {
   };
 
   return (
-    <FormControl sx={{ minWidth: 120 }}>
+    <FormControl sx={{ minWidth: 120 }} variant="standard" required>
       <InputLabel id="select-answer-format-label">Answer Format</InputLabel>
-      <Select value={selectedValue} onChange={handleChange}>
+      <Select
+        labelId="select-answer-format-label"
+        id="select-answer-format"
+        value={selectedValue}
+        onChange={handleChange}
+      >
         {Array.isArray(formattedAnswerFormats)
           ? formattedAnswerFormats.map((answerFormat: AnswerFormat) => (
               <MenuItem

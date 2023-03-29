@@ -178,13 +178,13 @@ const LogTypesData = () => {
                     {logType.weekdays.join(", ")}
                   </TableCell>
                   <TableCell>
-                    <DeleteIcon
-                      onClick={() => handleRemoveWorkInProgress(logType.name)}
-                      sx={{ cursor: "pointer" }}
-                    />
                     <EditIcon
                       onClick={() => handleEditLogType(logType)}
                       sx={{ cursor: "pointer", marginLeft: 1 }}
+                    />
+                    <DeleteIcon
+                      onClick={() => handleRemoveWorkInProgress(logType.name)}
+                      sx={{ cursor: "pointer" }}
                     />
                   </TableCell>
                 </TableRow>

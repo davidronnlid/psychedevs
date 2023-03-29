@@ -2,7 +2,7 @@ export interface LogType {
   name: string;
   answer_format: string;
   logType_id?: string;
-  weekdays: string[];
+  weekdays: boolean[];
 }
 
 export interface logTypeId {

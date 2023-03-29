@@ -85,16 +85,7 @@ const Logger = () => {
       (logType) =>
         !hasLogTypeToday(data, logType.logType_id ? logType.logType_id : "")
     )
-    .filter(
-      (logType) =>
-        logType.weekdays[dayOfWeek] === "Mon" ||
-        logType.weekdays[dayOfWeek] === "Tue" ||
-        logType.weekdays[dayOfWeek] === "Wed" ||
-        logType.weekdays[dayOfWeek] === "Thu" ||
-        logType.weekdays[dayOfWeek] === "Fri" ||
-        logType.weekdays[dayOfWeek] === "Sat" ||
-        logType.weekdays[dayOfWeek] === "Sun"
-    );
+    .filter((logType) => logType.weekdays[dayOfWeek] === true);
 
   console.log("filteredLogTypesData ", dayOfWeek, filteredLogTypesData); // will log an array of logType objects with true for the current dayOfWeek
 
