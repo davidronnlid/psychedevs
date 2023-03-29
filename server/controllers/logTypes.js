@@ -129,4 +129,37 @@ router.delete("/log-types", async (req, res) => {
   }
 });
 
+// Update a log type
+router.put("/log-types", async (req, res) => {
+  const db = req.app.locals.db;
+  const collection = db.collection("log_types");
+
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decodedToken.userId;
+
+    const logTypeToUpdate = req.body;
+
+    const result = await collection.updateOne(
+      { userId: userId, "logTypes.logType_id": logTypeToUpdate.logType_id },
+      {
+        $set: {
+          "logTypes.$": logTypeToUpdate,
+        },
+      }
+    );
+
+    console.log("Updated log type in db, ", result);
+
+    const logTypes = await collection.findOne({ userId: userId });
+
+    const logTypesToSend = logTypes.logTypes;
+
+    res.status(200).json(logTypesToSend);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = router;

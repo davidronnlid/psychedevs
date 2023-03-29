@@ -9,20 +9,24 @@ import {
   TableRow,
   Paper,
   Button,
+  Box,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Box from "@mui/system/Box";
 import { useState } from "react";
 import { LogType } from "../../typeModels/logTypeModel";
 import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../confirmationMessage";
-import { NONAME } from "dns";
+import EditIcon from "@mui/icons-material/Edit";
+import LogTypeEditForm from "./logTypeEditForm";
 
 const LogTypesData = () => {
   const [namesOfLogTypesToRemove, setNamesOfLogTypesToRemove] = useState<
     string[]
   >([]);
   const [deletedSuccess, setDeletedSuccess] = useState<boolean>(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingLogType, setEditingLogType] = useState<LogType | null>(null);
+
   const dispatch = useAppDispatch();
 
   const logTypes = useAppSelector(selectLogTypes);
@@ -32,6 +36,27 @@ const LogTypesData = () => {
   const filteredLogTypes = logTypes.filter(
     (logType: LogType) => !namesOfLogTypesToRemove.includes(logType.name)
   );
+
+  const handleEditLogType = (logType: any) => {
+    setEditingLogType(logType);
+    setEditMode(true);
+  };
+
+  const handleSaveLogType = async (updatedLogType: LogType) => {
+    const response = await fetch("/logs/log-types", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updatedLogType),
+    });
+
+    const updatedLogTypes = await response.json();
+    dispatch(setLogTypes(updatedLogTypes));
+    setEditMode(false);
+    setEditingLogType(null);
+  };
 
   const boolArrToWeekdays = (boolArr: boolean[]): string[] => {
     const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -43,7 +68,7 @@ const LogTypesData = () => {
     }, []);
   };
 
-  const weekdayedLogTypes = filteredLogTypes.map((logType) => ({
+  const weekdayedLogTypes = filteredLogTypes.map((logType: any) => ({
     ...logType,
     weekdays: boolArrToWeekdays(logType.weekdays),
   }));
@@ -157,6 +182,10 @@ const LogTypesData = () => {
                       onClick={() => handleRemoveWorkInProgress(logType.name)}
                       sx={{ cursor: "pointer" }}
                     />
+                    <EditIcon
+                      onClick={() => handleEditLogType(logType)}
+                      sx={{ cursor: "pointer", marginLeft: 1 }}
+                    />
                   </TableCell>
                 </TableRow>
               </>
@@ -179,6 +208,19 @@ const LogTypesData = () => {
           state={deletedSuccess}
           stateSetter={setDeletedSuccess}
         />
+      ) : null}
+      {editMode ? (
+        <Box>
+          <LogTypeEditForm
+            onSubmit={handleSaveLogType}
+            onCancel={() => {
+              setEditMode(false);
+              setEditingLogType(null);
+            }}
+            logType={editingLogType}
+            editMode
+          />
+        </Box>
       ) : null}
     </>
   );

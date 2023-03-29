@@ -64,7 +64,7 @@ const LogsAnalyzerPage = () => {
   const findMatchingLogTypeIds = (
     name1: string,
     name2: string
-  ): [string, string] => {
+  ): [string | undefined, string | undefined] => {
     const logType1 = logTypes.find((lt: LogType) => lt.name === name1);
     const logType2 = logTypes.find((lt: LogType) => lt.name === name2);
 

@@ -34,14 +34,14 @@ const AddLogTypeForm = () => {
   const [name, setName] = useState("");
   const [answerFormat, setAnswerFormat] = useState("");
 
-  const [selectedWeekdays, setSelectedWeekdays] = useState<boolean[]>([
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
+  const [selectedWeekdays, setSelectedWeekdays] = useState<string[]>([
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun",
   ]);
 
   const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -66,7 +66,7 @@ const AddLogTypeForm = () => {
     });
     setName("");
     setAnswerFormat("");
-    setSelectedWeekdays([true, true, true, true, true, true, true]);
+    setSelectedWeekdays(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
     setIsSaved(true);
   };
 
@@ -130,14 +130,16 @@ const AddLogTypeForm = () => {
                   key={weekday}
                   control={
                     <Checkbox
-                      checked={selectedWeekdays[index]}
+                      checked={selectedWeekdays.includes(weekday)}
                       onChange={(e) => {
                         const { checked } = e.target;
-                        setSelectedWeekdays((prev) =>
-                          prev.map((value, i) =>
-                            i === index ? checked : value
-                          )
-                        );
+                        setSelectedWeekdays((prev) => {
+                          if (checked) {
+                            return [...prev, weekday];
+                          } else {
+                            return prev.filter((item) => item !== weekday);
+                          }
+                        });
                       }}
                     />
                   }
