@@ -38,12 +38,20 @@ const LogTypesData = () => {
     (logType: LogType) => !namesOfLogTypesToRemove.includes(logType.name)
   );
 
-  const handleEditLogType = (logType: any) => {
-    setEditingLogType(logType);
+  const handleEditLogType = (logTypeToUpdate: LogType) => {
+    setEditingLogType(logTypeToUpdate);
     setEditMode(true);
   };
 
-  const handleSaveEditedLogType = async (updatedLogType: LogType) => {
+  const handleSaveEditedLogType = async (
+    logTypeToUpdate: LogType,
+    updatedLogType: LogType
+  ) => {
+    console.log(
+      "received log type to update: ",
+      logTypeToUpdate,
+      updatedLogType
+    );
     const baseUrl =
       process.env.NODE_ENV === "development"
         ? process.env.REACT_APP_BACKEND_LOCAL_URL
@@ -55,7 +63,10 @@ const LogTypesData = () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(updatedLogType),
+      body: JSON.stringify({
+        oldLogType: logTypeToUpdate,
+        newLogType: updatedLogType,
+      }),
     });
 
     const updatedLogTypes = await response.json();
@@ -73,6 +84,11 @@ const LogTypesData = () => {
       }
       return acc;
     }, []);
+  };
+
+  const weekdaysToBoolArr = (weekdaysArr: string[]): boolean[] => {
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return weekdays.map((weekday) => weekdaysArr.includes(weekday));
   };
 
   const weekdayedLogTypes = filteredLogTypes.map((logType: any) => ({
@@ -170,7 +186,6 @@ const LogTypesData = () => {
                       backgroundColor: "rgba(0, 0, 0, 0.01)",
                     },
                     "&.MuiBox-root": {
-                      // Add your custom styles here
                       border: "none",
                     },
                   }}
@@ -186,7 +201,12 @@ const LogTypesData = () => {
                   </TableCell>
                   <TableCell>
                     <EditIcon
-                      onClick={() => handleEditLogType(logType)}
+                      onClick={() =>
+                        handleEditLogType({
+                          ...logType,
+                          weekdays: weekdaysToBoolArr(logType.weekdays),
+                        })
+                      }
                       sx={{ cursor: "pointer", marginLeft: 1 }}
                     />
                     <DeleteIcon

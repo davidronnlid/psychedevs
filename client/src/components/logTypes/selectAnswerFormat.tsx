@@ -12,9 +12,13 @@ import { AnswerFormat } from "../../typeModels/logTypeModel";
 
 interface Props {
   setParentAnswerFormat: Dispatch<SetStateAction<string>>;
+  defaultAnswerFormat: string;
 }
 
-const SelectAnswerFormat: React.FC<Props> = ({ setParentAnswerFormat }) => {
+const SelectAnswerFormat: React.FC<Props> = ({
+  setParentAnswerFormat,
+  defaultAnswerFormat,
+}) => {
   const answerFormats = useAppSelector(
     (state) => selectAnswerFormats(state).answerFormats
   );
@@ -38,12 +42,14 @@ const SelectAnswerFormat: React.FC<Props> = ({ setParentAnswerFormat }) => {
 
   return (
     <FormControl sx={{ minWidth: 120 }} variant="standard" required>
-      <InputLabel id="select-answer-format-label">Answer Format</InputLabel>
+      <p style={{ marginBottom: "5px" }}>Answer Format:</p>
+
       <Select
         labelId="select-answer-format-label"
         id="select-answer-format"
-        value={selectedValue}
+        value={selectedValue === "" ? defaultAnswerFormat : selectedValue}
         onChange={handleChange}
+        required
       >
         {Array.isArray(formattedAnswerFormats)
           ? formattedAnswerFormats.map((answerFormat: AnswerFormat) => (

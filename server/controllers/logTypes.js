@@ -54,8 +54,6 @@ router.post("/log-types", async (req, res) => {
 
     console.log("req.body", req.body);
 
-    // If the generateId is already present in collection, then tell user they cannot add log with same name and answer_format as they have already added
-
     const mergedId = generateId(req.body.answer_format, req.body.name);
     console.log(
       "🚀 ~ file: logTypes.js:55 ~ router.post ~ mergedId:",
@@ -122,8 +120,6 @@ router.delete("/log-types", async (req, res) => {
 
     console.log("req.body", req.body);
 
-    // If the generateId is already present in collection, then tell user they cannot add log with same name and answer_format as they have already added
-
     const mergedId = generateId(req.body.answer_format, req.body.name);
     console.log(
       "🚀 ~ file: logTypes.js:55 ~ router.post ~ mergedId:",
@@ -169,10 +165,23 @@ router.put("/log-types", async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
 
-    const logTypeToUpdate = req.body;
+    console.log("req.body", req.body);
+
+    const oldLogType = req.body.oldLogType;
+    const newLogType = req.body.newLogType;
+
+    const logTypeToUpdate = {
+      ...newLogType,
+      logType_id: oldLogType.logType_id,
+    };
+
+    console.log(
+      "🚀 ~ file: logTypes.js:173 ~ router.put ~ logTypeToUpdate:",
+      logTypeToUpdate
+    );
 
     const result = await collection.updateOne(
-      { userId: userId, "logTypes.logType_id": logTypeToUpdate.logType_id },
+      { userId: userId, "logTypes.logType_id": oldLogType.logType_id },
       {
         $set: {
           "logTypes.$": logTypeToUpdate,

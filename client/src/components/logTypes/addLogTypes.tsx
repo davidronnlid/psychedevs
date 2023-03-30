@@ -5,6 +5,8 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { addLogType, selectLogTypes } from "../../redux/logTypesSlice";
 import ConfirmationMessage from "../confirmationMessage";
 import SelectAnswerFormat from "./selectAnswerFormat";
+import { selectAnswerFormats } from "../../redux/answerFormatsSlice";
+import SelectName from "./selectName";
 
 interface Props {}
 
@@ -62,6 +64,13 @@ const AddLogTypeForm: React.FC<Props> = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    addLogTypeToDB({
+      answer_format: answerFormat,
+      name,
+      weekdays: selectedWeekdays,
+      logType_id: "",
+    });
+
     dispatch(
       addLogType({
         answer_format: answerFormat,
@@ -71,18 +80,13 @@ const AddLogTypeForm: React.FC<Props> = () => {
       })
     );
 
-    addLogTypeToDB({
-      answer_format: answerFormat,
-      name,
-      weekdays: selectedWeekdays,
-      logType_id: "",
-    });
-
     setName("");
     setAnswerFormat("");
     setSelectedWeekdays([true, true, true, true, true, true, true]);
     setIsSaved(true);
   };
+
+  const answerFormats = useAppSelector(selectAnswerFormats);
 
   return (
     <>
@@ -98,22 +102,12 @@ const AddLogTypeForm: React.FC<Props> = () => {
             marginBottom: "10px",
           }}
         >
-          <label style={{ marginBottom: "5px" }}>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={handleNameChange}
-            style={{
-              padding: "5px",
-              borderRadius: "5px",
-              border: nameError ? "1px solid red" : "1px solid gray",
-            }}
+          <SelectName
+            handleNameChange={handleNameChange}
+            nameError={nameError}
+            name={name}
           />
-          {nameError && (
-            <p style={{ color: "red", fontSize: "0.8em", marginTop: "2px" }}>
-              {nameError}
-            </p>
-          )}
+
           <div
             style={{
               display: "flex",
@@ -121,8 +115,10 @@ const AddLogTypeForm: React.FC<Props> = () => {
               marginBottom: "10px",
             }}
           >
-            <p style={{ marginBottom: "5px" }}>Answer Format:</p>
-            <SelectAnswerFormat setParentAnswerFormat={setAnswerFormat} />
+            <SelectAnswerFormat
+              setParentAnswerFormat={setAnswerFormat}
+              defaultAnswerFormat={answerFormats.answerFormats[0].answer_format}
+            />
           </div>
           {name.length > 0 || answerFormat.length > 0 ? (
             <div
