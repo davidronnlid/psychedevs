@@ -5,19 +5,28 @@ import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ConfirmationMessage from "../../../components/confirmationMessage";
+import { useAppDispatch } from "../../../redux/hooks";
+import { addLog } from "../../../redux/logsAPI/logsSlice";
+import { v4 as uuidv4 } from "uuid";
 
 interface VasFormProps {
-  // Define the interface for the form inputs
   date?: Date;
   value: number;
   answer_format: string;
   name: string;
+  logType_id: string;
 }
 
-const VasForm: React.FC<VasFormProps> = ({ name, answer_format, value }) => {
+const VasForm: React.FC<VasFormProps> = ({
+  name,
+  answer_format,
+  value,
+  logType_id,
+}) => {
   const navigate = useNavigate();
 
   const [logSaveSuccess, setLogSaveSuccess] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   const marksFor1To5 = [
     {
@@ -67,6 +76,7 @@ const VasForm: React.FC<VasFormProps> = ({ name, answer_format, value }) => {
     value: value,
     answer_format: answer_format,
     name: name,
+    logType_id,
   });
 
   const token = useJwt();
@@ -114,11 +124,31 @@ const VasForm: React.FC<VasFormProps> = ({ name, answer_format, value }) => {
         }
         console.log("Form submitted successfully");
         // Reset form inputs after submission
+        const _id = uuidv4();
+        // This will only be for the temporary redux state log so that the user gets instant updates in the UI, a separate _id will be generated serverside and it will overwrite this temporary _id
+
+        console.log("adding this to app log state: ", {
+          date: formInputs.date ? formInputs.date : new Date(Date.now()),
+          value: formInputs.value,
+          _id: _id.toString(),
+          logType_id: logType_id,
+        });
+
+        dispatch(
+          addLog({
+            date: formInputs.date ? formInputs.date : new Date(Date.now()),
+            value: formInputs.value,
+            _id: _id.toString(),
+            logType_id: logType_id,
+          })
+        );
+
         setFormInputs({
           date: new Date(Date.now()),
           value: 3,
           answer_format: answer_format,
           name: name,
+          logType_id,
         });
       } catch (error) {
         console.error("Error submitting form:", error);

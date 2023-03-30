@@ -99,7 +99,7 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
 
   return (
     <Dialog open={editMode} onClose={onCancel}>
-      <DialogTitle>{editMode ? "Edit Log Type" : null}</DialogTitle>
+      <DialogTitle>{editMode ? "Log type editor" : null}</DialogTitle>
       <VerticalSpacer size={"1rem"} />
       <form
         onSubmit={(event) => {

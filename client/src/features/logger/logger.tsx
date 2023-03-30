@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import VerticalSpacer from "../../components/VerticalSpacer";
+import { selectLogs } from "../../redux/logsAPI/logsSlice";
 
 const Logger = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -39,7 +40,7 @@ const Logger = () => {
   const today = getToday();
 
   const [inProcessOfLoading, err] = useFetchLogTypes();
-  const { data, error, isLoading } = useFetchLogsQuery();
+  const logs = useAppSelector(selectLogs);
 
   const logTypesData = useAppSelector(selectLogTypes);
   console.log("logTypesData ", logTypesData);
@@ -83,14 +84,14 @@ const Logger = () => {
   const filteredLogTypesData = logTypesData
     .filter(
       (logType) =>
-        !hasLogTypeToday(data, logType.logType_id ? logType.logType_id : "")
+        !hasLogTypeToday(logs, logType.logType_id ? logType.logType_id : "")
     )
     .filter((logType) => logType.weekdays[dayOfWeek] === true);
 
   console.log("filteredLogTypesData ", dayOfWeek, filteredLogTypesData); // will log an array of logType objects with true for the current dayOfWeek
 
   const completedLogtypes = logTypesData.filter((logType) =>
-    hasLogTypeToday(data, logType.logType_id ? logType.logType_id : "")
+    hasLogTypeToday(logs, logType.logType_id ? logType.logType_id : "")
   );
 
   console.log(
@@ -173,6 +174,7 @@ const Logger = () => {
             value={3}
             name={logType.name}
             answer_format={logType.answer_format}
+            logType_id={logType.logType_id ? logType.logType_id : ""}
           />
         ))}
       </TabPanel>
@@ -225,7 +227,7 @@ const Logger = () => {
             </TableHead>
             <TableBody>
               {completedLogtypes.map((logType: LogType) => {
-                const log = data?.find(
+                const log = logs?.find(
                   (log) => log.logType_id === logType.logType_id
                 );
                 return (

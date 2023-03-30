@@ -90,7 +90,7 @@ const AddLogTypeForm: React.FC<Props> = () => {
 
   return (
     <>
-      <h2>Add new log type</h2>
+      <h2>Log type creator</h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column" }}

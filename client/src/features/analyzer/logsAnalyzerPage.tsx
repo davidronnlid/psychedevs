@@ -1,6 +1,5 @@
 import { useFetchLogTypes } from "../../functions/logTypesHooks";
 import { useAppSelector } from "../../redux/hooks";
-import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
 import { selectLogTypes } from "../../redux/logTypesSlice";
 import { Log, LogType } from "../../typeModels/logTypeModel";
 import LogsOfALogType from "./vas_logs/logsOfALogType";
@@ -15,6 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { calculateCorrelation } from "../../functions/correlations";
 import VerticalSpacer from "../../components/VerticalSpacer";
+import { selectLogs } from "../../redux/logsAPI/logsSlice";
 // import { calculateCorrelation } from "../../functions/correlations";
 
 function groupLogsByLogTypeId(logs: Log[]): Record<string, Log[]> {
@@ -29,7 +29,8 @@ function groupLogsByLogTypeId(logs: Log[]): Record<string, Log[]> {
 }
 
 const LogsAnalyzerPage = () => {
-  const { data, error, isLoading } = useFetchLogsQuery();
+  const data = useAppSelector(selectLogs);
+
   const groupedLogs = groupLogsByLogTypeId(data || []);
   const [inProcessOfLoading, err] = useFetchLogTypes();
   const logTypes = useAppSelector(selectLogTypes);

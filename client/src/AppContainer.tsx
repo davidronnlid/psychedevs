@@ -14,14 +14,22 @@ import SignUpPage from "./features/signupAndLoginForms/signUpPage";
 import LoginPage from "./features/signupAndLoginForms/loginPage";
 import PlanLogs from "./features/planner/plannerPage";
 import LogsAnalyzerPage from "./features/analyzer/logsAnalyzerPage";
+import { useFetchLogsQuery } from "./redux/logsAPI/logsAPI";
+import { setLogs } from "./redux/logsAPI/logsSlice";
 
 const AppContainer: React.FC = (): JSX.Element => {
+  const { data, error, isLoading } = useFetchLogsQuery();
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     const jwt = localStorage.getItem("user_sesh_JWT");
     if (jwt) {
       dispatch(setAuthState({ isAuthenticated: true, jwt }));
+
+      if (data) {
+        dispatch(setLogs(data));
+      }
 
       // req to users/user-id is logged, but not req to users/user-profile, the below function doesn't see to get called
 

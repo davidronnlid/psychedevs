@@ -3,6 +3,7 @@ import authReducer from "./authSlice";
 import userReducer from "./userSlice";
 import logTypesReducer from "./logTypesSlice";
 import answerFormatsReducer from "./answerFormatsSlice";
+import logsReducer from "./logsAPI/logsSlice";
 import { logsAPI } from "./logsAPI/logsAPI";
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     logTypes: logTypesReducer,
     answerFormats: answerFormatsReducer,
     logsAPI: logsAPI.reducer,
+    logs: logsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(logsAPI.middleware),
