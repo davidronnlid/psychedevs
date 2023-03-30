@@ -3,7 +3,7 @@ import { Button, Checkbox, FormControlLabel } from "@mui/material";
 import { useAddLogType } from "../../functions/logTypesHooks";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { addLogType, selectLogTypes } from "../../redux/logTypesSlice";
-import ConfirmationMessage from "../confirmationMessage";
+import ConfirmationMessage from "../alerts/confirmationMessage";
 import SelectAnswerFormat from "./selectAnswerFormat";
 import { selectAnswerFormats } from "../../redux/answerFormatsSlice";
 import SelectName from "./selectName";

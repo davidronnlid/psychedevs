@@ -60,6 +60,10 @@ router.post("/log-types", async (req, res) => {
       mergedId
     );
 
+    const weekdays = req.body.weekdays
+      ? [...req.body.weekdays]
+      : [true, true, true, true, true, true, true];
+
     const logTypeToSave = {
       logType_id: mergedId,
       logTypes: [
@@ -67,7 +71,7 @@ router.post("/log-types", async (req, res) => {
           answer_format: req.body.answer_format,
           name: req.body.name,
           logType_id: mergedId.toString(),
-          weekdays: [...req.body.weekdays],
+          weekdays: weekdays,
         },
       ],
     };

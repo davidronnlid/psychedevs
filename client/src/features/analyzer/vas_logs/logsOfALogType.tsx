@@ -4,7 +4,7 @@ import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import { useJwt } from "../../../redux/authSlice";
-import ConfirmationMessage from "../../../components/confirmationMessage";
+import ConfirmationMessage from "../../../components/alerts/confirmationMessage";
 import { Log } from "../../../typeModels/logTypeModel";
 
 type Props = {

@@ -15,7 +15,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { LogType } from "../../typeModels/logTypeModel";
 import { useJwt } from "../../redux/authSlice";
-import ConfirmationMessage from "../confirmationMessage";
+import ConfirmationMessage from "../alerts/confirmationMessage";
 import EditIcon from "@mui/icons-material/Edit";
 import LogTypeEditForm from "./logTypeEditForm";
 

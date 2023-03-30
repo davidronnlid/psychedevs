@@ -4,7 +4,7 @@ import Slider from "@mui/material/Slider";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import ConfirmationMessage from "../../../components/confirmationMessage";
+import ConfirmationMessage from "../../../components/alerts/confirmationMessage";
 import { useAppDispatch } from "../../../redux/hooks";
 import { addLog } from "../../../redux/logsAPI/logsSlice";
 import { v4 as uuidv4 } from "uuid";
@@ -74,8 +74,8 @@ const VasForm: React.FC<VasFormProps> = ({
   const [formInputs, setFormInputs] = useState<VasFormProps>({
     date: new Date(Date.now()),
     value: value,
-    answer_format: answer_format,
-    name: name,
+    answer_format: answer_format ? answer_format : "1-5 scale",
+    name: name ? name : "How do you feel right now?",
     logType_id,
   });
 
@@ -106,6 +106,8 @@ const VasForm: React.FC<VasFormProps> = ({
       localStorage.setItem("tempData", JSON.stringify(formInputs));
     } else {
       try {
+        const _id = uuidv4();
+
         const baseUrl =
           process.env.NODE_ENV === "development"
             ? process.env.REACT_APP_BACKEND_LOCAL_URL
@@ -117,14 +119,18 @@ const VasForm: React.FC<VasFormProps> = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formInputs),
+          body: JSON.stringify({
+            date: formInputs.date ? formInputs.date : new Date(Date.now()),
+            value: formInputs.value,
+            _id: _id.toString(),
+            logType_id: logType_id,
+          }),
         });
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         console.log("Form submitted successfully");
         // Reset form inputs after submission
-        const _id = uuidv4();
         // This will only be for the temporary redux state log so that the user gets instant updates in the UI, a separate _id will be generated serverside and it will overwrite this temporary _id
 
         console.log("adding this to app log state: ", {
