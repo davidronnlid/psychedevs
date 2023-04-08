@@ -56,7 +56,12 @@ const Logger = () => {
 
     // Send PUT request to server to update the logs in the database
     try {
-      const response = await fetch("/api/logs", {
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.REACT_APP_BACKEND_LOCAL_URL
+          : process.env.REACT_APP_PROD_URL;
+
+      const response = await fetch(`${baseUrl}/vas/logs`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

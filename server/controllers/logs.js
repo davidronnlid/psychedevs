@@ -66,8 +66,6 @@ module.exports = () => {
 
     const int64Value = Long.fromString(submittedLog.value.toString());
 
-    // console.log("turned into int64: ", int64Value);
-
     // // assuming that the date string is in the format "YYYY-MM-DD"
     // // convert the date string to a Date object
     const date = moment(dateString, "YYYY-MM-DD").toDate();
@@ -78,13 +76,6 @@ module.exports = () => {
       hash.update(data);
       return hash.digest("hex");
     };
-
-    // console.log(
-    //   "Generating id: ",
-    //   req.body.answer_format,
-    //   req.body.name,
-    //   generateId(req.body.answer_format, req.body.name)
-    // );
 
     console.log("NEW LOG:!", req.body.answer_format, req.body.name);
 
@@ -190,6 +181,11 @@ module.exports = () => {
   });
 
   router.put("/logs", async (req, res) => {
+    console.log(
+      "Received PUT req at /logs/logs with the following req body: ",
+      req.body
+    );
+
     const db = req.app.locals.db;
     const collection = db.collection("vas_mood_logs");
 
@@ -213,6 +209,8 @@ module.exports = () => {
       });
 
       const result = await collection.bulkWrite(updateOperations);
+
+      console.log("Updated ", result.modifiedCount, " logs of today");
 
       res.status(200).json(result);
     } catch (error) {

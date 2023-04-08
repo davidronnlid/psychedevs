@@ -28,26 +28,30 @@ const VasForm: React.FC<VasFormProps> = ({
   const [logSaveSuccess, setLogSaveSuccess] = useState<boolean>(false);
   const dispatch = useAppDispatch();
 
+  const markLabelStyle = {
+    fontSize: "2.8rem",
+  };
+
   const marksFor1To5 = [
     {
       value: 1,
-      label: "Terrible",
+      label: <span style={markLabelStyle}>😩</span>,
     },
     {
       value: 2,
-      label: "Bad",
+      label: <span style={markLabelStyle}>😕</span>,
     },
     {
       value: 3,
-      label: "Neutral",
+      label: <span style={markLabelStyle}>🆗</span>,
     },
     {
       value: 4,
-      label: "Good",
+      label: <span style={markLabelStyle}>🙂</span>,
     },
     {
       value: 5,
-      label: "Perfect",
+      label: <span style={markLabelStyle}>😍</span>,
     },
   ];
 
