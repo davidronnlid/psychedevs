@@ -1,17 +1,27 @@
 import { Log } from "../typeModels/logTypeModel";
 
 export const calculateCorrelation = (logs: Log[][]) => {
-  // Sort logs by date
-  logs[0].sort((a, b) => a.date.getTime() - b.date.getTime());
-  logs[1].sort((a, b) => a.date.getTime() - b.date.getTime());
+  // Filter logs with matching dates
+  const filteredLogs0 = logs[0].filter((log0) =>
+    logs[1].some((log1) => log1.date === log0.date)
+  );
 
-  // Get arrays of dates and values
-  const dates1 = logs[0].map((log) => log.date);
-  const values1 = logs[0].map((log) => log.value);
-  const values2 = logs[1].map((log) => log.value);
+  const filteredLogs1 = logs[1].filter((log1) =>
+    logs[0].some((log0) => log0.date === log1.date)
+  );
+
+  // Get arrays of values
+  const values1 = filteredLogs0.map((log) => log.value);
+  const values2 = filteredLogs1.map((log) => log.value);
+
+  // Ensure both value arrays have the same length
+  if (values1.length !== values2.length) {
+    console.error("The value arrays must have the same length.");
+    return NaN;
+  }
 
   // Calculate correlation using Pearson correlation coefficient
-  const n = dates1.length;
+  const n = values1.length;
   let sumX = 0;
   let sumY = 0;
   let sumXY = 0;
