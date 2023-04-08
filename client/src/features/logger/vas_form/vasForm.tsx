@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import ConfirmationMessage from "../../../components/alerts/confirmationMessage";
 import { useAppDispatch } from "../../../redux/hooks";
 import { addLog } from "../../../redux/logsAPI/logsSlice";
-import { v4 as uuidv4 } from "uuid";
+import { nanoid } from "nanoid";
 
 interface VasFormProps {
   date?: Date;
@@ -110,7 +110,7 @@ const VasForm: React.FC<VasFormProps> = ({
       localStorage.setItem("tempData", JSON.stringify(formInputs));
     } else {
       try {
-        const _id = uuidv4();
+        const _id = nanoid();
 
         const baseUrl =
           process.env.NODE_ENV === "development"
