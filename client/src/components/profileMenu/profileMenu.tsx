@@ -22,13 +22,13 @@ const ProfileMenu: React.FC = () => {
         style={{ backgroundColor: "#001219", border: "none" }}
       >
         <Tooltip title="Click to open profile menu" arrow>
-          <ProfileAvatar />
+          <ProfileAvatar size="large" />
         </Tooltip>
       </button>{" "}
       <DropdownMenu toggleState={toggleState} onToggle={handleToggle} />
     </div>
   ) : (
-    <div className="profileMenu signupOrLoginMenu">
+    <div className="profileMenu signupOrLoginMenu ">
       <Link to="/signup" style={{ textDecoration: "none" }}>
         <Button
           style={{

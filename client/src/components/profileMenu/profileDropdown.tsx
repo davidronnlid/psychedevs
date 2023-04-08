@@ -1,10 +1,12 @@
 import Button from "@mui/material/Button";
-import React from "react";
+import React, { useState } from "react";
 import { useOnClickOutside } from "../../functions/customHooks";
 import { setAuthState } from "../../redux/authSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectUser } from "../../redux/userSlice";
-import UserProfileButton from "./../navButton";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import UserProfileButton from "../navButton";
+import ProfileAvatar from "./profileAvatar";
 
 interface DropdownMenuProps {
   onToggle: (state: boolean) => void;
@@ -25,11 +27,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   });
 
   const logOut = () => {
-    console.log("registered log out clic k");
-
     try {
-      console.log("registered log out cl ick");
-
       dispatch(setAuthState({ isAuthenticated: false, jwt: null }));
       localStorage.setItem("user_sesh_JWT", "");
       return;
@@ -37,22 +35,31 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       console.error(error);
     }
   };
-
   return (
     <div ref={menuRef} tabIndex={0} className="dropdownMenuContainer">
       {toggleState && (
         <div className="dropdownMenu">
-          <div className="dropdownMenuItem" id="usernameInDropDown">
-            <p style={{ fontSize: "1.2rem" }}>
-              Logged in as: <b>{user.username}</b>.
-            </p>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontSize: "1.2rem",
+            }}
+            className="dropdownMenuItem"
+          >
+            <ProfileAvatar size="small" />
+            {user.username.toLocaleUpperCase()}
           </div>
           <div className="dropdownMenuItem" onClick={() => onToggle(false)}>
-            <UserProfileButton buttonText="manage account" />
+            <UserProfileButton buttonText="MANAGE ACCOUNT" />
           </div>
           <div className="dropdownMenuItem" onClick={() => onToggle(false)}>
-            <Button color="warning" onClick={() => logOut()}>
-              Log out
+            <Button
+              className="logoutButton"
+              sx={{ color: "red" }}
+              onClick={() => logOut()}
+            >
+              <ExitToAppIcon /> Log out
             </Button>
           </div>
         </div>

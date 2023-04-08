@@ -19,22 +19,19 @@ import {
   Tab,
   Tabs,
   Typography,
-  IconButton,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import VerticalSpacer from "../../components/VerticalSpacer";
 import { selectLogs, updateLog } from "../../redux/logsAPI/logsSlice";
 import { Button } from "@mui/material";
 import { useJwt } from "../../redux/authSlice";
-import WarningMessage from "../../components/alerts/warningMessage";
-import InfoMessage from "../../components/alerts/infoMessage";
+import ConfirmationMessage from "../../components/alerts/confirmationMessage";
 
 const Logger = () => {
   const [editable, setEditable] = useState(false);
 
   const dispatch = useAppDispatch();
-  const [warningMessageOpen, setWarningMessageOpen] = useState(false);
-  const [infoMessageOpen, setInfoMessageOpen] = useState(false);
+  const [confirmationMessageOpen, setConfirmationMessageOpen] = useState(false);
 
   const [tabValue, setTabValue] = useState<number>(0);
   const [updatedLogsIds, setUpdatedLogsIds] = useState<string[]>([]);
@@ -42,12 +39,15 @@ const Logger = () => {
   const token = useJwt();
   const handleStartEditing = () => {
     setEditable(true);
-    setInfoMessageOpen(true);
   };
 
   const handleSaveUpdatedLogs = async () => {
     setEditable(false);
     const updatedLogs = logs.filter((log) => updatedLogsIds.includes(log._id));
+    console.log(
+      "🚀 ~ file: logger.tsx:53 ~ handleSaveUpdatedLogs ~ updatedLogs:",
+      updatedLogs
+    );
 
     // Dispatch updateLog action for each updated log
     updatedLogs.forEach((log) => {
@@ -67,6 +67,10 @@ const Logger = () => {
 
       if (!response.ok) {
         throw new Error("Failed to update logs");
+      }
+
+      if (response.ok) {
+        setConfirmationMessageOpen(true);
       }
     } catch (error) {
       console.error("Error updating logs:", error);
@@ -347,8 +351,6 @@ const Logger = () => {
                                   setUpdatedLogsIds([...updatedLogsIds, logId]);
                                 }
                               } else {
-                                setWarningMessageOpen(true);
-
                                 // Reset the input value to the original log value if it's not within the allowed range
                                 e.target.textContent =
                                   log?.value !== undefined
@@ -371,7 +373,12 @@ const Logger = () => {
           </TableContainer>
         </TabPanel>
       </div>
-      <WarningMessage
+      <ConfirmationMessage
+        message="Success! Your new logs for today were saved."
+        state={confirmationMessageOpen}
+        stateSetter={setConfirmationMessageOpen}
+      />
+      {/* <WarningMessage
         message="Please enter an allowed value for the answer format of the log type you are editing."
         state={warningMessageOpen}
         stateSetter={setWarningMessageOpen}
@@ -380,7 +387,7 @@ const Logger = () => {
         message="Please enter an allowed value for the answer format of the log type you are editing."
         state={infoMessageOpen}
         stateSetter={setInfoMessageOpen}
-      />
+      /> */}
     </>
   );
 };

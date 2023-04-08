@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Button from "@mui/material/Button";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { ObjectId } from "mongoose";
 import { useJwt } from "../redux/authSlice";
 
@@ -52,15 +52,9 @@ const UserProfileButton: React.FC<Props> = ({ buttonText }) => {
   return (
     <>
       {token ? (
-        <Button
-          component={Link}
-          to={`/user-profile/${userId}`}
-          variant="contained"
-          color="primary"
-          sx={{ background: "$color-2" }}
-        >
+        <Link to={`/user-profile/${userId}`} style={{ textDecoration: "none" }}>
           {buttonText}
-        </Button>
+        </Link>
       ) : (
         <p>Not logged in...</p>
       )}

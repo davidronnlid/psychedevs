@@ -7,7 +7,7 @@ import UserProfile from "./features/users/userProfile";
 import Hamburger from "./components/hamburger";
 import PDHeaderLogo from "./images/PDHeaderLogo.png";
 import "./styles/app.scss";
-import ProfileMenu from "./components/profile/profileMenu";
+import ProfileMenu from "./components/profileMenu/profileMenu";
 import { fetchUserProfile } from "./functions/fetchUserProfile";
 import { setUserState } from "./redux/userSlice";
 import SignUpPage from "./features/signupAndLoginForms/signUpPage";

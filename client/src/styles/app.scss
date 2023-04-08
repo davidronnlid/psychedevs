@@ -10,8 +10,8 @@ body {
 
 header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 0 1rem;
   background-color: $color-1;
   z-index: 9;
@@ -33,6 +33,7 @@ header {
 .headerRightSection {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 @keyframes slideIn {
@@ -61,11 +62,13 @@ header {
 }
 
 .profileMenu {
-  position: relative;
-  right: 14vw;
-  padding: 1vw;
+  display: flex;
+  align-items: center;
   border-radius: 0.3vw;
   z-index: 99;
+  display: flex;
+  align-items: center;
+  margin-right: 8vw;
 
   & .avatar {
     @media (min-width: 1025px) {
@@ -100,7 +103,7 @@ header {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 12px 28px rgba(0, 0, 0, 0.15);
   padding: 1rem;
   max-width: 280px;
 }
@@ -111,74 +114,9 @@ header {
   align-items: center;
   justify-content: flex-start;
   transition: background-color 0.2s;
+  font-size: 14px;
+  color: #4b4f56;
 }
-
-.dropdownMenuItem:hover {
-  background-color: #f1f1f1;
-  cursor: pointer;
-}
-
-#usernameInDropDown {
-  font-size: 1.2rem;
-  font-weight: normal;
-  color: #333333;
-  background-color: transparent;
-  cursor: default;
-}
-
-.dropdownMenuItem b {
-  font-weight: 600;
-  margin-left: 0.25rem;
-}
-
-.UserProfileButton,
-.Button {
-  margin-left: 0.5rem;
-  border-radius: 8px;
-  background-color: #007bff;
-  color: #ffffff;
-  padding: 0.5rem 1.5rem;
-  font-weight: 600;
-  text-transform: none;
-}
-
-.UserProfileButton:hover,
-.Button:hover {
-  background-color: #0056b3;
-  color: #ffffff;
-}
-
-// .dropdownMenu {
-//   border-radius: 4px;
-//   position: absolute;
-//   top: 100%;
-//   right: 0;
-//   width: 250%;
-//   background-color: white;
-//   z-index: 1000;
-//   display: flex;
-//   flex-direction: column;
-//   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.32);
-// }
-
-// .dropdownMenuItem {
-//   padding: 8px 16px;
-//   border-radius: 4px;
-// }
-
-// .dropdownMenuItem:hover {
-//   background-color: rgba(0, 0, 0, 0.1);
-//   cursor: pointer;
-// }
-
-// #usernameInDropDown {
-//   cursor: auto;
-//   border-radius: 4px;
-// }
-
-// #usernameInDropDown:hover {
-//   background-color: white;
-// }
 
 .vasForm {
   width: 70vw;
