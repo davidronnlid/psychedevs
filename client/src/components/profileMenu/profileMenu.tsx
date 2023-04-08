@@ -17,14 +17,24 @@ const ProfileMenu: React.FC = () => {
 
   return userLoaded ? (
     <div className="profileMenu">
-      <button
-        onClick={() => handleToggle(true)}
-        style={{ backgroundColor: "#001219", border: "none" }}
-      >
+      {!toggleState ? (
         <Tooltip title="Click to open profile menu" arrow>
-          <ProfileAvatar size="large" />
+          <button
+            onClick={() => handleToggle(true)}
+            style={{ backgroundColor: "#001219", border: "none" }}
+          >
+            <ProfileAvatar size="large" />
+          </button>
         </Tooltip>
-      </button>{" "}
+      ) : (
+        <button
+          onClick={() => handleToggle(true)}
+          style={{ backgroundColor: "#001219", border: "none" }}
+        >
+          <ProfileAvatar size="large" />
+        </button>
+      )}
+
       <DropdownMenu toggleState={toggleState} onToggle={handleToggle} />
     </div>
   ) : (
