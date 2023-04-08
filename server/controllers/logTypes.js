@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const logs = require("./logs");
+const { ObjectId } = require("mongodb");
 
 // GET existing log types
 router.get("/log-types", async (req, res) => {
@@ -162,7 +164,8 @@ router.delete("/log-types", async (req, res) => {
 router.put("/log-types", async (req, res) => {
   console.log("/logs/log-types is where the req is at yoo");
   const db = req.app.locals.db;
-  const collection = db.collection("log_types");
+  const logTypesCollection = db.collection("log_types");
+  const logsCollection = db.collection("vas_mood_logs");
 
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -171,12 +174,23 @@ router.put("/log-types", async (req, res) => {
 
     console.log("req.body", req.body);
 
-    const oldLogType = req.body.oldLogType;
     const newLogType = req.body.newLogType;
+
+    const generateId = (answerFormat, name) => {
+      const hash = crypto.createHash("sha256");
+      const data = answerFormat + name;
+      hash.update(data);
+      return hash.digest("hex");
+    };
+
+    const updatedLogType_id = generateId(
+      newLogType.answer_format,
+      newLogType.name
+    );
 
     const logTypeToUpdate = {
       ...newLogType,
-      logType_id: oldLogType.logType_id,
+      logType_id: updatedLogType_id,
     };
 
     console.log(
@@ -184,8 +198,10 @@ router.put("/log-types", async (req, res) => {
       logTypeToUpdate
     );
 
-    const result = await collection.updateOne(
-      { userId: userId, "logTypes.logType_id": oldLogType.logType_id },
+    const oldLogType_id = req.body.oldLogType.logType_id;
+
+    const logTypesUpdateResult = await logTypesCollection.updateOne(
+      { userId: userId, "logTypes.logType_id": oldLogType_id },
       {
         $set: {
           "logTypes.$": logTypeToUpdate,
@@ -193,9 +209,39 @@ router.put("/log-types", async (req, res) => {
       }
     );
 
-    console.log("Updated log type in db, ", result);
+    console.log(
+      "updatedLogType_id",
+      updatedLogType_id,
+      "oldLogType_id",
+      oldLogType_id,
+      "userId",
+      userId
+    );
 
-    const logTypes = await collection.findOne({ userId: userId });
+    const logsUpdateResult = await logsCollection.updateMany(
+      {
+        user_id: new ObjectId(userId),
+      },
+      {
+        $set: {
+          "logs.$[elem].logType_id": updatedLogType_id,
+        },
+      },
+      {
+        arrayFilters: [{ "elem.logType_id": oldLogType_id }],
+      }
+    );
+
+    console.log("Updated log type in db, ", logTypesUpdateResult);
+
+    if (logsUpdateResult) {
+      const logDocument = await logsCollection.findOne({
+        user_id: new ObjectId(userId),
+      });
+      console.log("Updated logs in db, ", logDocument);
+    }
+
+    const logTypes = await logTypesCollection.findOne({ userId: userId });
 
     const logTypesToSend = logTypes.logTypes;
 

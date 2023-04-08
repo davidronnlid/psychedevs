@@ -52,7 +52,7 @@ const SignupForm: React.FC<SignupFormProps> = () => {
     });
   };
 
-  const saveData = async (tempData: LogType) => {
+  const saveLogData = async (tempData: LogType) => {
     const baseUrl =
       process.env.NODE_ENV === "development"
         ? process.env.REACT_APP_BACKEND_LOCAL_URL
@@ -117,8 +117,7 @@ const SignupForm: React.FC<SignupFormProps> = () => {
       const tempData = localStorage.getItem("tempData");
       if (tempData) {
         // Save the temporary data to the user's account
-        // (assuming you have a function to save data called `saveData`)
-        await saveData(JSON.parse(tempData));
+        await saveLogData(JSON.parse(tempData));
 
         // Remove temporary data from localStorage
         localStorage.removeItem("tempData");

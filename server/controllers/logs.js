@@ -33,10 +33,9 @@ module.exports = () => {
     try {
       const logsQuery = { user_id: new ObjectId(userId) };
       const foundUserLogs = await vas_mood_logs.findOne(logsQuery);
-      console.log("foundUserLogs:", foundUserLogs);
 
       if (foundUserLogs) {
-        console.log("Found some user logs: " + foundUserLogs.logs);
+        console.log("Found some user logs: ", foundUserLogs.logs);
         res.status(200).json(foundUserLogs.logs);
       } else {
         console.log(
@@ -73,12 +72,12 @@ module.exports = () => {
     // // convert the date string to a Date object
     const date = moment(dateString, "YYYY-MM-DD").toDate();
 
-    // const generateId = (answerFormat, name) => {
-    //   const hash = crypto.createHash("sha256");
-    //   const data = answerFormat + name;
-    //   hash.update(data);
-    //   return hash.digest("hex");
-    // };
+    const generateId = (answerFormat, name) => {
+      const hash = crypto.createHash("sha256");
+      const data = answerFormat + name;
+      hash.update(data);
+      return hash.digest("hex");
+    };
 
     // console.log(
     //   "Generating id: ",
@@ -87,14 +86,17 @@ module.exports = () => {
     //   generateId(req.body.answer_format, req.body.name)
     // );
 
-    // const mergedId = generateId(req.body.answer_format, req.body.name);
+    console.log("NEW LOG:!", req.body.answer_format, req.body.name);
+
+    const mergedId = generateId(req.body.answer_format, req.body.name);
+    console.log("NEW LOG:!", mergedId);
 
     // create the log object with the date string converted to a date Date object
     const datifiedSubmittedLog = {
       _id: new ObjectId(),
       date: date,
       value: int64Value,
-      logType_id: logType_id,
+      logType_id: mergedId,
     };
     console.log(
       "🚀 ~ file: logs.js:99 ~ router.post ~ datifiedSubmittedLog:",

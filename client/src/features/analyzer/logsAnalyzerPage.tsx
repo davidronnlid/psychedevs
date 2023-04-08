@@ -29,11 +29,11 @@ function groupLogsByLogTypeId(logs: Log[]): Record<string, Log[]> {
 }
 
 const LogsAnalyzerPage = () => {
-  const data = useAppSelector(selectLogs);
-
-  const groupedLogs = groupLogsByLogTypeId(data || []);
   const [inProcessOfLoading, err] = useFetchLogTypes();
   const logTypes = useAppSelector(selectLogTypes);
+
+  const logsData = useAppSelector(selectLogs);
+  const groupedLogs = groupLogsByLogTypeId(logsData || []);
 
   const [selectedLogTypeName, setSelectedLogTypeName] = useState("");
   const [selectedLogTypeNameTwo, setSelectedLogTypeNameTwo] = useState("");
@@ -55,7 +55,12 @@ const LogsAnalyzerPage = () => {
       const correlation = calculateCorrelation(filteredLogs);
       setCorrelation(correlation);
     }
-  }, [selectedLogTypeName, selectedLogTypeNameTwo]);
+  }, [
+    selectedLogTypeName,
+    selectedLogTypeNameTwo,
+    groupedLogs,
+    inProcessOfLoading,
+  ]);
 
   const findMatchingName = (logTypeId: string): string => {
     const logType = logTypes.find((lt) => lt.logType_id === logTypeId);
@@ -95,14 +100,16 @@ const LogsAnalyzerPage = () => {
       <Typography variant="h4" gutterBottom>
         Logs
       </Typography>
-      {Object.entries(groupedLogs).map(([logTypeId, logs]) => (
-        <LogsOfALogType
-          key={logTypeId}
-          logType_id={logTypeId}
-          logList={logs}
-          name={findMatchingName(logTypeId)}
-        />
-      ))}
+      {groupedLogs
+        ? Object.entries(groupedLogs).map(([logTypeId, logs]) => (
+            <LogsOfALogType
+              key={logTypeId}
+              logType_id={logTypeId}
+              logList={logs}
+              name={findMatchingName(logTypeId)}
+            />
+          ))
+        : "Loading..."}
       <h3>Find correlations</h3>
       <p>Please select two log types to analyze</p>
       <FormControl>

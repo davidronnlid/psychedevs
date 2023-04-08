@@ -122,7 +122,9 @@ const VasForm: React.FC<VasFormProps> = ({
           body: JSON.stringify({
             date: formInputs.date ? formInputs.date : new Date(Date.now()),
             value: formInputs.value,
+            name: name,
             _id: _id.toString(),
+            answer_format: answer_format,
             logType_id: logType_id,
           }),
         });

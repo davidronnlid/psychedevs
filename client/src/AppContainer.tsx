@@ -18,7 +18,9 @@ import { useFetchLogsQuery } from "./redux/logsAPI/logsAPI";
 import { setLogs } from "./redux/logsAPI/logsSlice";
 
 const AppContainer: React.FC = (): JSX.Element => {
-  const { data, error, isLoading } = useFetchLogsQuery();
+  const { data, error, isLoading, isSuccess } = useFetchLogsQuery();
+
+  console.log("🚀!!!!!!!!!!!! ~ file: AppContainer.tsx:22 ~ data:", data);
 
   const dispatch = useAppDispatch();
 
@@ -27,7 +29,9 @@ const AppContainer: React.FC = (): JSX.Element => {
     if (jwt) {
       dispatch(setAuthState({ isAuthenticated: true, jwt }));
 
-      if (data) {
+      console.log("About to set this data into store state: ", data);
+
+      if (isSuccess) {
         dispatch(setLogs(data));
       }
 
@@ -54,7 +58,7 @@ const AppContainer: React.FC = (): JSX.Element => {
 
       fetchData();
     }
-  }, [dispatch]);
+  }, [dispatch, isSuccess, data]);
 
   return (
     <div className="appContainer">
