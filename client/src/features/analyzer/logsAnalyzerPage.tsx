@@ -189,10 +189,11 @@ const LogsAnalyzerPage = () => {
                   possible correlations between them.{" "}
                 </h4>
                 <p>
-                  Existing sample size: {correlationData.existingSampleSize}
+                  Existing logs per log type:{" "}
+                  {correlationData.existingSampleSize}
                 </p>
                 <p>
-                  Estimated required sample size:{" "}
+                  Estimated required logs per log type:{" "}
                   {correlationData.requiredSampleSize}
                 </p>
               </>
