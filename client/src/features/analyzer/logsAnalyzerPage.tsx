@@ -10,13 +10,12 @@ import {
   SelectChangeEvent,
   Box,
   Typography,
-  Tooltip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { calculateCorrelation } from "../../functions/correlations";
 import VerticalSpacer from "../../components/VerticalSpacer";
 import { selectLogs } from "../../redux/logsAPI/logsSlice";
-import { Info } from "@mui/icons-material";
+import InfoModal from "../../components/InfoModal";
 
 function groupLogsByLogTypeId(logs: Log[]): Record<string, Log[]> {
   return logs.reduce((acc: Record<string, Log[]>, log: Log) => {
@@ -42,7 +41,13 @@ const LogsAnalyzerPage = () => {
     correlation: number | null;
     pValue: number | null;
     requiredSampleSize?: number | null;
-  }>({ correlation: null, pValue: null, requiredSampleSize: null });
+    existingSampleSize?: number | null;
+  }>({
+    correlation: null,
+    pValue: null,
+    requiredSampleSize: null,
+    existingSampleSize: null,
+  });
 
   useEffect(() => {
     const selectedLogTypeIds = findMatchingLogTypeIds(
@@ -100,7 +105,6 @@ const LogsAnalyzerPage = () => {
   return (
     <>
       <VerticalSpacer size="3rem" />
-
       <Typography variant="h4" gutterBottom>
         Logs
       </Typography>
@@ -114,7 +118,25 @@ const LogsAnalyzerPage = () => {
             />
           ))
         : "Loading..."}
-      <h3>Find correlations</h3>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          width: "20%",
+          justifyContent: "space-between",
+        }}
+      >
+        <h3>Find correlations</h3>
+        <InfoModal
+          title="Correlation and required sample size equations"
+          bodyText="Equation used to calculate correlation:
+        Pearsons R = (nΣ(xy) - ΣxΣy) /
+        sqrt([nΣ(x^2) - (Σx)^2] * [nΣ(y^2) - (Σy)^2]).
+        
+        Equation used to calculate required sample size:
+        n = ((z_alpha + z_beta) / r)^2 where n is the required sample size, z_alpha and z_beta are the z-scores associated with the desired significance levels, and r is the correlation coefficient."
+        />
+      </div>
       <p>Please select two log types to analyze</p>
       <FormControl>
         <Select
@@ -145,24 +167,41 @@ const LogsAnalyzerPage = () => {
           ))}
         </Select>
       </FormControl>
-      <p>P-value: {correlationData.pValue}</p>
-      <p>Correlation: {correlationData.correlation}</p>
-      <p>Required sample size: {correlationData.requiredSampleSize}</p>
+      {correlationData &&
+        selectedLogTypeName !== "" &&
+        selectedLogTypeNameTwo !== "" &&
+        ((correlationData?.existingSampleSize ?? 0) >=
+          (correlationData?.requiredSampleSize ?? 1100) &&
+        (correlationData?.pValue ?? 1) <= 0.05 ? (
+          <>
+            <p>YOOOO correlation bro</p>
+            <p>Correlation: {correlationData.correlation}</p>
+            <p>P-value: {correlationData.pValue}</p>
+          </>
+        ) : (
+          <>
+            <h3>No correlation was found. </h3>
+            {(correlationData?.existingSampleSize ?? 0) <=
+            (correlationData?.requiredSampleSize ?? 0) ? (
+              <>
+                <h4>
+                  You need to collect more logs for these log types to find
+                  possible correlations between them.{" "}
+                </h4>
+                <p>
+                  Existing sample size: {correlationData.existingSampleSize}
+                </p>
+                <p>
+                  Estimated required sample size:{" "}
+                  {correlationData.requiredSampleSize}
+                </p>
+              </>
+            ) : (
+              <h4>One of these log types has no logs.</h4>
+            )}
+          </>
+        ))}
 
-      <Tooltip
-        // style={{ cursor: "default" }}
-        title="Equation used to calculate correlation:
-        Pearsons R = (nΣ(xy) - ΣxΣy) /
-        sqrt([nΣ(x^2) - (Σx)^2] * [nΣ(y^2) - (Σy)^2]).Equation used to calculate required sample size:
-        The required sample size is calculated using the formula:
-
-n = ((z_alpha + z_beta) / r)^2
-
-where n is the required sample size, z_alpha and z_beta are the z-scores associated with the desired significance levels, and r is the correlation coefficient."
-        arrow
-      >
-        <Info />
-      </Tooltip>
       <Box padding="100px" />
     </>
   );

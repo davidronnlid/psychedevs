@@ -112,5 +112,7 @@ export const calculateCorrelation = (logs: Log[][]) => {
     requiredSampleSize = Math.ceil(Math.pow((zAlpha + zBeta) / correlation, 2));
   } else requiredSampleSize = 1100;
 
-  return { correlation, pValue, requiredSampleSize };
+  const existingSampleSize = n;
+
+  return { correlation, pValue, requiredSampleSize, existingSampleSize };
 };
