@@ -6,6 +6,7 @@ import VerticalSpacer from "../../components/VerticalSpacer";
 import { Button, Box } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import OuraData from "../../components/oura/ouraData";
 
 import { useState } from "react";
 
@@ -22,6 +23,37 @@ const Planner = () => {
     );
   };
 
+  const [isToggled, setIsToggled] = useState(false);
+
+  const handleToggle = () => {
+    setIsToggled(!isToggled);
+  };
+
+  const handleIntegrateOura = async () => {
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.REACT_APP_BACKEND_LOCAL_URL
+        : process.env.REACT_APP_PROD_URL;
+
+    console.log("About to send req to /oura/auth");
+
+    try {
+      const response = await fetch(`${baseUrl}/oura/auth`);
+      if (!response.ok) {
+        throw new Error("Error fetching HRV data");
+      }
+      const data = await response.json();
+      console.log(
+        "🚀 ~ file: plannerPage.tsx:43 ~ handleIntegrateOura ~ data:",
+        data
+      );
+    } catch (error) {
+      console.log(error);
+      // setError(error.message);
+    } finally {
+    }
+  };
+
   return (
     <>
       <VerticalSpacer size="3rem" />
@@ -30,6 +62,13 @@ const Planner = () => {
         Logs planner
       </Typography>
       <VerticalSpacer size="1rem" />
+
+      <Button onClick={() => handleIntegrateOura()}>Integrate with Oura</Button>
+
+      <Button variant="contained" onClick={handleToggle}>
+        Load oura data
+      </Button>
+      {isToggled && <OuraData />}
 
       <Typography variant="h5" gutterBottom>
         Planned log types

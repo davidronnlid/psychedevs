@@ -11,6 +11,7 @@ const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
 const usersRouter = require("./controllers/users");
 const logsRouter = require("./controllers/logTypes");
+const ouraRouter = require("./controllers/oura");
 
 const connectToDB = require("./dbConnect");
 
@@ -23,6 +24,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
 app.use("/logs", logsRouter);
+app.use("/oura", ouraRouter());
 
 (async () => {
   try {
