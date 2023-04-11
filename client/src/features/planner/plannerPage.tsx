@@ -27,12 +27,6 @@ const Planner = () => {
     );
   };
 
-  const [isToggled, setIsToggled] = useState(false);
-
-  const handleToggle = () => {
-    setIsToggled(!isToggled);
-  };
-
   const handleIntegrateOura = async () => {
     const baseUrl =
       process.env.NODE_ENV === "development"
@@ -68,8 +62,10 @@ const Planner = () => {
   };
 
   const [ouraAuthCompleted, setOuraAuthCompleted] = useState(false);
-  const handleOuraAuthCompleted = (ouraAuthCompleted: boolean) => {
-    setOuraAuthCompleted(ouraAuthCompleted);
+  const [confirmationOfOuraAuth, setConfirmationOfOuraAuth] = useState(false);
+  const handleOuraAuthCompleted = (isOuraAuthCompleted: boolean) => {
+    setOuraAuthCompleted(isOuraAuthCompleted);
+    setConfirmationOfOuraAuth(isOuraAuthCompleted);
   };
 
   return (
@@ -83,14 +79,21 @@ const Planner = () => {
 
       <Button onClick={() => handleIntegrateOura()}>Integrate with Oura</Button>
 
-      <Button variant="contained" onClick={handleToggle}>
-        Load oura data
-      </Button>
-      <OuraAuthCompleted onOuraAuthCompleted={handleOuraAuthCompleted} />
+      <Typography variant="h6" gutterBottom>
+        Oura integration log types
+      </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Categories{" "}
+      </Typography>
+
+      <OuraAuthCompleted
+        onOuraAuthCompleted={handleOuraAuthCompleted}
+        ouraAuthCompleted={ouraAuthCompleted}
+      />
       <ConfirmationMessage
         message="Oura data loaded successfully"
-        state={ouraAuthCompleted}
-        stateSetter={setOuraAuthCompleted}
+        state={confirmationOfOuraAuth}
+        stateSetter={setConfirmationOfOuraAuth}
       />
       <Typography variant="h5" gutterBottom>
         Planned log types

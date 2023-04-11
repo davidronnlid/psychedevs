@@ -1,71 +1,26 @@
-import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
-
-interface SleepData {
-  id: string;
-  average_breath: number;
-  average_heart_rate: number;
-  average_hrv: number;
-  awake_time: number;
-  bedtime_end: string;
-  bedtime_start: string;
-  day: string;
-  deep_sleep_duration: number;
-  efficiency: number;
-  heart_rate: {
-    interval: number;
-    items: number[];
-    timestamp: string;
-  };
-  hrv: {
-    interval: number;
-    items: number[];
-    timestamp: string;
-  };
-  latency: number;
-  light_sleep_duration: number;
-  low_battery_alert: boolean;
-  lowest_heart_rate: number;
-  movement_30_sec: string;
-  period: number;
-  readiness: {
-    contributors: { [key: string]: number };
-    score: number;
-    temperature_deviation: number;
-    temperature_trend_deviation: number;
-  };
-  readiness_score_delta: number;
-  rem_sleep_duration: number;
-  restless_periods: number;
-  sleep_phase_5_min: string;
-  sleep_score_delta: number;
-  time_in_bed: number;
-  total_sleep_duration: number;
-  type: string;
-  [key: string]: any;
-}
+import OuraData from "./ouraData";
+import { DailyActivity, SleepData } from "../../typeModels/ouraModel";
 
 interface Props {
   onOuraAuthCompleted: (ouraAuthCompleted: boolean) => void;
+  ouraAuthCompleted: boolean;
 }
 
-interface OuraLogType {
-  ouraLogType: string;
-  transformedOuraLogType: string;
+interface OuraResponseData {
+  daily_activity: {
+    data: DailyActivity[];
+  };
+  sleep_data: {
+    data: SleepData[];
+  };
 }
 
-function transformOuraLogTypes(logTypes: string[]): OuraLogType[] {
-  return logTypes.map((logType) => {
-    const transformedLogType = logType
-      .replace(/_/g, " ")
-      .replace(/^\w/, (c) => c.toUpperCase());
-    return { ouraLogType: logType, transformedOuraLogType: transformedLogType };
-  });
-}
-
-const OuraAuthCompleted = ({ onOuraAuthCompleted }: Props) => {
-  const [data, setData] = useState<SleepData[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+const OuraAuthCompleted = ({
+  onOuraAuthCompleted,
+  ouraAuthCompleted,
+}: Props) => {
+  const [ouraData, setOuraData] = useState<OuraResponseData | null>(null);
   const token = localStorage.getItem("user_sesh_JWT");
 
   useEffect(() => {
@@ -90,70 +45,33 @@ const OuraAuthCompleted = ({ onOuraAuthCompleted }: Props) => {
         }
 
         const responseData = await response.json();
-        console.log(
-          "🚀 ~ file: ouraAuthCompleted.tsx:30 ~ fetchData ~ responseData:",
-          responseData.data.data
-        );
-        setData(responseData.data.data);
-        onOuraAuthCompleted(true);
+
+        setOuraData(responseData);
+        if (responseData && !hasCalledOnOuraAuthCompleted) {
+          onOuraAuthCompleted(true);
+          setHasCalledOnOuraAuthCompleted(true);
+        }
       } catch (error) {
-        console.log(error); // setError(error.message);
+        console.log(error);
       }
     };
 
     fetchData();
-  }, [token]);
+  }, [token, onOuraAuthCompleted]);
 
-  // find all keys of the first element in the data array
-  const logTypeKeys = data
-    ? data.reduce((acc: Array<string>, obj: SleepData) => {
-        Object.keys(obj).forEach((key) => {
-          if (!acc.includes(key)) {
-            acc.push(key);
-          }
-        });
-        return acc;
-      }, [])
-    : [];
-
-  const transformedLogTypes = transformOuraLogTypes(logTypeKeys);
-  console.log(
-    "🚀 ~ file: ouraAuthCompleted.tsx:124 ~ OuraAuthCompleted ~ transformedLogTypes:",
-    transformedLogTypes
-  );
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleOpen = () => {
-    setIsOpen(!isOpen);
-  };
+  const [hasCalledOnOuraAuthCompleted, setHasCalledOnOuraAuthCompleted] =
+    useState(false);
 
   return (
     <div>
-      {error && <p>Error: {error}</p>}
-      {data && (
+      {ouraAuthCompleted ? (
         <>
-          <h2>Oura integration log types</h2>
-          <h4>Categories</h4>
-          <ul>
-            <li>
-              Sleep{" "}
-              <Button variant="outlined" onClick={toggleOpen}>
-                {isOpen ? "Hide specific log types" : "Show specific log types"}
-              </Button>
-            </li>
-          </ul>
-
-          {isOpen && (
-            <ul>
-              {transformedLogTypes.map((key) => (
-                <li key={key.ouraLogType}>
-                  <h3>{key.transformedOuraLogType}</h3>
-                </li>
-              ))}
-            </ul>
-          )}
+          {(["daily_activity", "sleep_data"] as const).map((key) => (
+            <OuraData key={key} ouraData={ouraData?.[key]?.data} />
+          ))}
         </>
+      ) : (
+        <p>Loading oura data...</p>
       )}
     </div>
   );
