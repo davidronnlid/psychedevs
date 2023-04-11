@@ -2,9 +2,12 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { ObjectId } = require("mongodb");
 const User = require("../models/user");
 
-module.exports = ({ client }) => {
+module.exports = () => {
+  console.log("Router for /auth set up");
+
   // User registration route
   router.post("/signup", async (req, res) => {
     console.log("Req received at /auth/signup");
@@ -44,7 +47,7 @@ module.exports = ({ client }) => {
     try {
       // Find the user by username
       const user = await User.findOne({ username });
-      console.log("Found user with this username: ", user.username);
+      console.log("Found user with this username: ", user.username, user);
 
       if (!user) {
         return res.status(404).send();

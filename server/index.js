@@ -26,12 +26,11 @@ app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
 app.use("/logs", logsRouter);
 app.use("/oura", ouraRouter());
+app.use("/auth", authRouter());
 
 (async () => {
   try {
     await connectToDB();
-
-    app.use("/auth", authRouter);
 
     console.log("All routers are set up");
   } catch (err) {

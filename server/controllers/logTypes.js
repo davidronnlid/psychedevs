@@ -4,30 +4,28 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { ObjectId } = require("mongodb");
 
+const Logs = require("../models/logs");
 const LogTypes = require("../models/logTypes");
 
 // GET existing log types
 router.get("/log-types", async (req, res) => {
-  console.log("get req received at /logs/log-types");
-
-  if (!db) {
-    res.status(500).send("Database connection not established");
-    return;
-  }
-
-  const collection = db.collection("log_types");
+  console.log("GET req received at /logs/log-types");
 
   try {
     const token = req.headers.authorization.split(" ")[1];
 
     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
-    const logTypes = await collection.findOne({ userId: userId });
+    console.log("🚀 ~ file: logTypes.js:19 ~ router.get ~ userId:", userId);
+    const logTypes = await LogTypes.findOne({ userId: userId });
     console.log("🚀 ~ file: logTypes.js:19 ~ router.get ~ logTypes:", logTypes);
 
-    const logTypesToSend = logTypes.logTypes;
-
-    res.status(200).send(logTypesToSend);
+    if (logTypes) {
+      const logTypesToSend = logTypes.logTypes;
+      res.status(200).send(logTypesToSend);
+    } else {
+      res.status(404).send({ message: "Log types not found" });
+    }
   } catch (error) {
     console.error("Error fetching log types data: ", error);
     res.status(500).send({ message: "Internal server error" });
@@ -36,9 +34,6 @@ router.get("/log-types", async (req, res) => {
 
 // Add a new log type
 router.post("/log-types", async (req, res) => {
-  const db = req.app.locals.db;
-  const collection = db.collection("log_types");
-
   console.log("post req received at /logs/log-types");
 
   try {
@@ -77,7 +72,7 @@ router.post("/log-types", async (req, res) => {
       ],
     };
 
-    const updateResult = await collection.updateOne(
+    const updateResult = await LogTypes.updateOne(
       { userId: userId },
       {
         $push: {
@@ -94,20 +89,20 @@ router.post("/log-types", async (req, res) => {
 
     console.log("Upserted log type to db; ", updateResult);
 
-    const logTypes = await collection.findOne({ userId: userId });
+    const logTypes = await LogTypes.findOne({ userId: userId });
 
     const logTypesToSend = logTypes.logTypes;
 
     res.status(200).send({ logTypes: logTypesToSend });
   } catch (err) {
     console.error(err);
+    res.status(500).send({ message: "Internal server error" });
   }
 });
 
 // Delete a log type
 router.delete("/log-types", async (req, res) => {
-  const db = req.app.locals.db;
-  const collection = db.collection("log_types");
+  console.log("DELETE at /logs/log-types");
 
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -143,13 +138,13 @@ router.delete("/log-types", async (req, res) => {
       ],
     };
 
-    const result = await collection.updateOne(
+    const result = await LogTypes.updateOne(
       { userId: userId },
       { $pull: { logTypes: { name: { $in: namesOfLogTypesToRemove } } } }
     );
     console.log("Removed log type from db, ", result);
 
-    const logTypes = await collection.findOne({ userId: userId });
+    const logTypes = await LogTypes.findOne({ userId: userId });
 
     const logTypesToSend = logTypes.logTypes;
 
@@ -162,9 +157,6 @@ router.delete("/log-types", async (req, res) => {
 // Update a log type - corresponds to log type editing UI in frontend
 router.put("/log-types", async (req, res) => {
   console.log("/logs/log-types is where the req is at yoo");
-  const db = req.app.locals.db;
-  const logTypesCollection = db.collection("log_types");
-  const logsCollection = db.collection("vas_mood_logs");
 
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -199,7 +191,7 @@ router.put("/log-types", async (req, res) => {
 
     const oldLogType_id = req.body.oldLogType.logType_id;
 
-    const logTypesUpdateResult = await logTypesCollection.updateOne(
+    const logTypesUpdateResult = await LogTypes.updateOne(
       { userId: userId, "logTypes.logType_id": oldLogType_id },
       {
         $set: {
@@ -217,7 +209,7 @@ router.put("/log-types", async (req, res) => {
       userId
     );
 
-    const logsUpdateResult = await logsCollection.updateMany(
+    const logsUpdateResult = await Logs.updateMany(
       {
         user_id: new ObjectId(userId),
       },
@@ -234,19 +226,20 @@ router.put("/log-types", async (req, res) => {
     console.log("Updated log type in db, ", logTypesUpdateResult);
 
     if (logsUpdateResult) {
-      const logDocument = await logsCollection.findOne({
+      const logDocument = await Logs.findOne({
         user_id: new ObjectId(userId),
       });
       console.log("Updated logs in db, ", logDocument);
     }
 
-    const logTypes = await logTypesCollection.findOne({ userId: userId });
+    const logTypes = await LogTypes.findOne({ userId: userId });
 
     const logTypesToSend = logTypes.logTypes;
 
     res.status(200).json(logTypesToSend);
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).send({ message: "Internal server error" });
   }
 });
 

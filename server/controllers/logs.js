@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 const Logs = require("../models/logs");
 const moment = require("moment");
-const { Long } = require("bson");
 const crypto = require("crypto");
 
 module.exports = () => {
@@ -14,6 +13,11 @@ module.exports = () => {
   router.get("/logs", async (req, res) => {
     console.log("GET Req received at /vas/logs");
     console.log("Request headers:", req.headers);
+
+    if (!req.headers.authorization) {
+      res.status(401).json({ message: "Missing authorization header" });
+      return;
+    }
 
     const token = req.headers.authorization.split(" ")[1];
     let decodedToken;
@@ -115,11 +119,13 @@ module.exports = () => {
         );
 
         try {
-          const result = await Logs.insertOne({
+          const newLogs = new Logs({
             _id: new ObjectId(),
             logs: [datifiedSubmittedLog],
             user_id: new ObjectId(userId),
           });
+          const result = await newLogs.save();
+
           console.log(`New log inserted with _id: ${result.insertedId}`);
           res.status(201).json(result);
         } catch (error) {

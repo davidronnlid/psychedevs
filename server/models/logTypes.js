@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
+const { ObjectId } = require("mongodb");
 const { Schema } = mongoose;
 
-const logTypeSchema = new Schema({
+const logTypesSchema = new Schema({
   _id: ObjectId,
   userId: {
-    type: ObjectId,
+    type: String,
     required: true,
   },
   logTypes: [
@@ -31,6 +32,6 @@ const logTypeSchema = new Schema({
   ],
 });
 
-const LogType = mongoose.model("LogType", logTypeSchema, "log_types");
+const LogType = mongoose.model("LogTypes", logTypesSchema, "log_types");
 
 module.exports = LogType;

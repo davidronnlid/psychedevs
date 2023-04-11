@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const pass = process.env.ATLAS_PASS;
-const uri = `mongodb+srv://daro6551:${pass}@dr-social-media-app.hm6wqbm.mongodb.net/?retryWrites=true&w=majority&ssl=true`;
+
+const uri = `mongodb+srv://daro6551:${pass}@dr-social-media-app.hm6wqbm.mongodb.net/app_users?retryWrites=true&w=majority&ssl=true`;
 
 const connectToDB = async () => {
   try {
