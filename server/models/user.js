@@ -1,6 +1,7 @@
+// models/userModel.js
+const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 
-// Define the user schema - which will be used in auth.js primarily
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -11,9 +12,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  profile_pic: {
+    filename: String,
+    contentType: String,
+    image: Buffer,
+  },
+  _id: {
+    type: ObjectId,
+    required: true,
+  },
 });
 
-// Define the User model
-const User = mongoose.model("user_account_data", userSchema);
+const User = mongoose.model("User", userSchema, "user_account_data");
 
 module.exports = User;

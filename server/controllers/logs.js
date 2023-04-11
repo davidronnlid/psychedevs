@@ -8,13 +8,10 @@ const { Long } = require("bson");
 const crypto = require("crypto");
 
 module.exports = () => {
-  console.log("Router for /logs set up");
+  console.log("Router for /vas set up");
 
   // Define a get route to let users see their logged data
   router.get("/logs", async (req, res) => {
-    const db = req.app.locals.db;
-    const vas_mood_logs = db.collection("vas_mood_logs");
-    // vas_mood_logs is now the collection for logs of ALL log types, not just VAS's for mood
     console.log("GET Req received at /vas/logs");
     console.log("Request headers:", req.headers);
 
@@ -32,7 +29,7 @@ module.exports = () => {
     console.log("userId:", userId);
     try {
       const logsQuery = { user_id: new ObjectId(userId) };
-      const foundUserLogs = await vas_mood_logs.findOne(logsQuery);
+      const foundUserLogs = await Logs.findOne(logsQuery);
 
       if (foundUserLogs) {
         console.log("Found some user logs: ", foundUserLogs.logs);
@@ -57,14 +54,9 @@ module.exports = () => {
       req.headers.authorization,
       req.body
     );
-
-    const db = req.app.locals.db;
-    const vas_mood_logs = db.collection("vas_mood_logs");
     const submittedLog = req.body;
     const dateString = submittedLog.date;
-    const logType_id = submittedLog.logType_id;
-
-    const int64Value = Long.fromString(submittedLog.value.toString());
+    const logValue = submittedLog.value;
 
     // // assuming that the date string is in the format "YYYY-MM-DD"
     // // convert the date string to a Date object
@@ -86,7 +78,7 @@ module.exports = () => {
     const datifiedSubmittedLog = {
       _id: new ObjectId(),
       date: date,
-      value: int64Value,
+      value: logValue,
       logType_id: mergedId,
     };
     console.log(
@@ -102,14 +94,14 @@ module.exports = () => {
 
     try {
       const logsQuery = { user_id: userId };
-      const foundUserLogs = await vas_mood_logs.findOne(logsQuery);
+      const foundUserLogs = await Logs.findOne(logsQuery);
 
       if (foundUserLogs) {
         console.log(
           "about to update existing array of logs for this user with datifiedSubmittedLog"
         );
 
-        const logged = await vas_mood_logs.updateOne(
+        const logged = await Logs.updateOne(
           { user_id: new ObjectId(userId) }, // The filter to match the document to update
           { $push: { logs: datifiedSubmittedLog } } // The update operation to perform
         );
@@ -123,7 +115,7 @@ module.exports = () => {
         );
 
         try {
-          const result = await vas_mood_logs.insertOne({
+          const result = await Logs.insertOne({
             _id: new ObjectId(),
             logs: [datifiedSubmittedLog],
             user_id: new ObjectId(userId),
@@ -143,9 +135,7 @@ module.exports = () => {
 
   // Delete a log type
   router.delete("/logs", async (req, res) => {
-    const db = req.app.locals.db;
-    const collection = db.collection("vas_mood_logs");
-
+    console.log("DELETE Req received at /vas/logs");
     try {
       const token = req.headers.authorization.split(" ")[1];
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -161,13 +151,13 @@ module.exports = () => {
         (id) => new ObjectId(id)
       );
 
-      const result = await collection.updateOne(
+      const result = await Logs.updateOne(
         { user_id: new ObjectId(userId) },
         { $pull: { logs: { _id: { $in: objectIdsOfLogsToRemove } } } }
       );
       console.log(result);
 
-      const logs = await collection.findOne({
+      const logs = await Logs.findOne({
         user_id: new ObjectId(userId),
       });
       console.log("🚀 ~ file: logs.js:151 ~ router.delete ~ logs:", logs);
@@ -182,12 +172,9 @@ module.exports = () => {
 
   router.put("/logs", async (req, res) => {
     console.log(
-      "Received PUT req at /logs/logs with the following req body: ",
+      "Received PUT req at /vas/logs with the following req body: ",
       req.body
     );
-
-    const db = req.app.locals.db;
-    const collection = db.collection("vas_mood_logs");
 
     try {
       const token = req.headers.authorization.split(" ")[1];
@@ -208,7 +195,7 @@ module.exports = () => {
         };
       });
 
-      const result = await collection.bulkWrite(updateOperations);
+      const result = await Logs.bulkWrite(updateOperations);
 
       console.log("Updated ", result.modifiedCount, " logs of today");
 

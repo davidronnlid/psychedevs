@@ -9,8 +9,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import OuraData from "../../components/oura/ouraData";
 
 import { useState } from "react";
+import { useJwt } from "../../redux/authSlice";
 
 const Planner = () => {
+  const token = useJwt();
+
   const [inProcessOfLoading, err] = useFetchLogTypes();
   const [showAddLogTypeForm, setShowAddLogTypeForm] = useState(false);
   const [addLogTypeButtonText, setAddLogTypeButtonText] =
@@ -38,7 +41,13 @@ const Planner = () => {
     console.log("About to send req to /oura/auth");
 
     try {
-      const response = await fetch(`${baseUrl}/oura/auth`);
+      const response = await fetch(`${baseUrl}/oura/auth`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Error fetching HRV data");
       }
@@ -47,6 +56,9 @@ const Planner = () => {
         "🚀 ~ file: plannerPage.tsx:43 ~ handleIntegrateOura ~ data:",
         data
       );
+
+      // Redirect the user to the Oura authentication URL
+      window.location.href = data.redirectUrl;
     } catch (error) {
       console.log(error);
       // setError(error.message);

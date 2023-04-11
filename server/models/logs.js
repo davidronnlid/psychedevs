@@ -8,7 +8,26 @@ const logsSchema = new mongoose.Schema({
     required: true,
   },
   logs: {
-    type: Array,
+    type: [
+      {
+        _id: {
+          type: ObjectId,
+          required: true,
+        },
+        date: {
+          type: Date,
+          required: true,
+        },
+        value: {
+          type: Number,
+          required: true,
+        },
+        logType_id: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     required: true,
   },
   user_id: {
@@ -18,6 +37,6 @@ const logsSchema = new mongoose.Schema({
 });
 
 // Define the User model
-const Logs = mongoose.model("vas_mood_logs", logsSchema);
+const Logs = mongoose.model("vas_mood_logs", logsSchema, "vas_mood_logs");
 
 module.exports = Logs;

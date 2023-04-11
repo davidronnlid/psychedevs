@@ -2,13 +2,12 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const logs = require("./logs");
 const { ObjectId } = require("mongodb");
+
+const LogTypes = require("../models/logTypes");
 
 // GET existing log types
 router.get("/log-types", async (req, res) => {
-  const db = req.app.locals.db;
-
   console.log("get req received at /logs/log-types");
 
   if (!db) {

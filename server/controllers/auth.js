@@ -5,9 +5,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
 module.exports = ({ client }) => {
-  const database = client.db("app_users");
-  const users = database.collection("user_account_data");
-
   // User registration route
   router.post("/signup", async (req, res) => {
     console.log("Req received at /auth/signup");
@@ -19,18 +16,18 @@ module.exports = ({ client }) => {
       // Hash the password with the salt value
       const hashedPw = await bcrypt.hash(password, salt);
 
-      const newUser = {
+      const newUser = new User({
+        // Create a new user using the Mongoose model
         username,
         password: hashedPw,
-      };
+        _id: new ObjectId(),
+      });
 
-      // Save the hashed password to the database
-      const result = await users.insertOne(newUser);
+      const result = await newUser.save();
       console.log("User registered successfully", result);
 
-      const user = await users.findOne({ username: newUser.username });
       // Generate a JWT token
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
       res.status(200).send({ token });
       console.log("JWT was sent successfully to logged in user");
     } catch (error) {
@@ -46,7 +43,7 @@ module.exports = ({ client }) => {
 
     try {
       // Find the user by username
-      const user = await users.findOne({ username });
+      const user = await User.findOne({ username });
       console.log("Found user with this username: ", user.username);
 
       if (!user) {
