@@ -12,7 +12,6 @@ module.exports = () => {
   // Define a get route to let users see their logged data
   router.get("/logs", async (req, res) => {
     console.log("GET Req received at /vas/logs");
-    console.log("Request headers:", req.headers);
 
     if (!req.headers.authorization) {
       res.status(401).json({ message: "Missing authorization header" });
@@ -36,7 +35,7 @@ module.exports = () => {
       const foundUserLogs = await Logs.findOne(logsQuery);
 
       if (foundUserLogs) {
-        console.log("Found some user logs: ", foundUserLogs.logs);
+        console.log("Found some user logs!");
         res.status(200).json(foundUserLogs.logs);
       } else {
         console.log(

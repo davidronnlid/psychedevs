@@ -6,10 +6,11 @@ import VerticalSpacer from "../../components/VerticalSpacer";
 import { Button, Box } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import OuraData from "../../components/oura/ouraData";
+import ConfirmationMessage from "../../components/alerts/confirmationMessage";
 
 import { useState } from "react";
 import { useJwt } from "../../redux/authSlice";
+import OuraAuthCompleted from "../oura/ouraAuthCompleted";
 
 const Planner = () => {
   const token = useJwt();
@@ -66,6 +67,11 @@ const Planner = () => {
     }
   };
 
+  const [ouraAuthCompleted, setOuraAuthCompleted] = useState(false);
+  const handleOuraAuthCompleted = (ouraAuthCompleted: boolean) => {
+    setOuraAuthCompleted(ouraAuthCompleted);
+  };
+
   return (
     <>
       <VerticalSpacer size="3rem" />
@@ -80,8 +86,12 @@ const Planner = () => {
       <Button variant="contained" onClick={handleToggle}>
         Load oura data
       </Button>
-      {isToggled && <OuraData />}
-
+      <OuraAuthCompleted onOuraAuthCompleted={handleOuraAuthCompleted} />
+      <ConfirmationMessage
+        message="Oura data loaded successfully"
+        state={ouraAuthCompleted}
+        stateSetter={setOuraAuthCompleted}
+      />
       <Typography variant="h5" gutterBottom>
         Planned log types
       </Typography>

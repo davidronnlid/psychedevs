@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const ouraSchema = new Schema({
   accessToken: String,
   refreshToken: String,
-  user_id: ObjectId,
+  PD_user_id: ObjectId,
 });
 
-module.exports = mongoose.model("OuraUser", ouraSchema);
+module.exports = mongoose.model("OuraUser", ouraSchema, "oura_users");
