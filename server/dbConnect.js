@@ -12,6 +12,7 @@ const connectToDB = async () => {
       useUnifiedTopology: true,
       useFindAndModify: false,
       useCreateIndex: true,
+      server: { auto_reconnect: true },
     });
     console.log("Connected to MongoDB using Mongoose!");
   } catch (err) {

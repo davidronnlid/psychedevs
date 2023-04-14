@@ -1,3 +1,22 @@
+export interface OuraResponseData {
+  daily_activity: {
+    data: DailyActivity[];
+  };
+  sleep: {
+    data: SleepData[];
+  };
+
+  daily_readiness: {
+    data: DailyReadiness[];
+  };
+  daily_sleep: {
+    data: DailySleep[];
+  };
+  heartrate: {
+    data: Heartrate[];
+  };
+}
+
 export interface SleepData {
   id: string;
   average_breath: number;
@@ -42,28 +61,30 @@ export interface SleepData {
   [key: string]: any;
 }
 
+interface DailyActivityContributors {
+  meet_daily_targets: number;
+  move_every_hour: number;
+  recovery_time: number;
+  stay_active: number;
+  training_frequency: number;
+  [key: string]: number;
+}
+
 export interface DailyActivity {
-  active_calories: number;
-  average_met_minutes: number;
-  class_5_min: string;
-  contributors: {
-    meet_daily_targets: number;
-    move_every_hour: number;
-    recovery_time: number;
-    stay_active: number;
-    training_frequency: number;
-    [key: string]: number;
-  };
-  day: string;
-  equivalent_walking_distance: number;
-  high_activity_met_minutes: number;
-  high_activity_time: number;
   id: string;
+  day: string;
+  active_calories: number;
+  class_5_min: string;
+  contributors: DailyActivityContributors;
+  equivalent_walking_distance: number;
   inactivity_alerts: number;
+  average_met_minutes: number;
   low_activity_met_minutes: number;
   low_activity_time: number;
   medium_activity_met_minutes: number;
   medium_activity_time: number;
+  high_activity_met_minutes: number;
+  high_activity_time: number;
   met: {
     interval: number;
     items: number[];
@@ -80,4 +101,62 @@ export interface DailyActivity {
   target_meters: number;
   timestamp: string;
   total_calories: number;
+  [key: string]: any;
+}
+
+interface DailyReadinessContributors {
+  activity_balance: number;
+  body_temperature: number;
+  hrv_balance: number;
+  previous_day_activity: number | null;
+  previous_night: number;
+  recovery_index: number;
+  resting_heart_rate: number;
+  sleep_balance: number;
+}
+
+export interface DailyReadiness {
+  contributors: DailyReadinessContributors;
+  day: string;
+  id: string;
+  score: number;
+  temperature_deviation: number;
+  temperature_trend_deviation: number;
+  timestamp: string;
+}
+
+interface DailySleepContributors {
+  deep_sleep: number;
+  efficiency: number;
+  latency: number;
+  rem_sleep: number;
+  restfulness: number;
+  timing: number;
+  total_sleep: number;
+}
+
+export interface DailySleep {
+  contributors: DailySleepContributors;
+  day: string;
+  id: string;
+  score: number;
+  timestamp: string;
+}
+
+interface HeartrateContributors {
+  deep_sleep: number;
+  efficiency: number;
+  latency: number;
+  rem_sleep: number;
+  restfulness: number;
+  timing: number;
+  total_sleep: number;
+}
+
+export interface Heartrate {
+  contributors: HeartrateContributors;
+  day: string;
+  id: string;
+  score: number;
+  timestamp: string;
 }

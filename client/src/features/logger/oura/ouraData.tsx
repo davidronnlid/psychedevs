@@ -1,7 +1,6 @@
 import { Check } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { useState } from "react";
-import { SleepData } from "../../typeModels/ouraModel";
 
 type OuraLogType = {
   ouraLogType: string;
@@ -24,9 +23,10 @@ function transformOuraLogTypes(logTypes: [string, any][]): OuraLogType[] {
 
 interface Props {
   ouraData: any;
+  ouraLogType: string;
 }
 
-const OuraData = ({ ouraData }: Props) => {
+const OuraData = ({ ouraData, ouraLogType }: Props) => {
   console.log("Received updatedOuraData in OuraData component! ", ouraData);
 
   // find all keys of the first element in the data array
@@ -73,7 +73,7 @@ const OuraData = ({ ouraData }: Props) => {
               width: "70%",
             }}
           >
-            Sleep <Check />
+            {ouraLogType} <Check />
             <Button variant="outlined" onClick={toggleOpen}>
               {isOpen ? "Hide specific log types" : "Show specific log types"}
             </Button>
@@ -85,19 +85,7 @@ const OuraData = ({ ouraData }: Props) => {
             {transformedLogTypes.map((key) => (
               <li key={key.ouraLogType}>
                 <h3>{key.transformedOuraLogType}</h3>
-                <ul>
-                  {ouraData
-                    .filter((obj: any) => obj.summary_date)
-                    .sort((a: any, b: any) =>
-                      a.summary_date.localeCompare(b.summary_date)
-                    )
-                    .map((obj: any) => (
-                      <li key={obj.summary_date}>
-                        <>{obj[key.ouraLogType]}</>
-                        {obj}
-                      </li>
-                    ))}
-                </ul>
+                <p>{key.value.toString()}</p>
               </li>
             ))}
           </ul>

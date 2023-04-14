@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
 import OuraData from "./ouraData";
-import { DailyActivity, SleepData } from "../../typeModels/ouraModel";
+import { OuraResponseData } from "../../../typeModels/ouraModel";
 
 interface Props {
   onOuraAuthCompleted: (ouraAuthCompleted: boolean) => void;
   ouraAuthCompleted: boolean;
-}
-
-interface OuraResponseData {
-  daily_activity: {
-    data: DailyActivity[];
-  };
-  sleep_data: {
-    data: SleepData[];
-  };
 }
 
 const OuraAuthCompleted = ({
@@ -45,6 +36,10 @@ const OuraAuthCompleted = ({
         }
 
         const responseData = await response.json();
+        console.log(
+          "🚀 ~ file: ouraAuthCompleted.tsx:48 ~ fetchData ~ responseData:",
+          responseData
+        );
 
         setOuraData(responseData);
         if (responseData && !hasCalledOnOuraAuthCompleted) {
@@ -66,8 +61,20 @@ const OuraAuthCompleted = ({
     <div>
       {ouraAuthCompleted ? (
         <>
-          {(["daily_activity", "sleep_data"] as const).map((key) => (
-            <OuraData key={key} ouraData={ouraData?.[key]?.data} />
+          {(
+            [
+              "daily_activity",
+              "sleep",
+              "daily_readiness",
+              "daily_sleep",
+              "heartrate",
+            ] as const
+          ).map((key) => (
+            <OuraData
+              key={key}
+              ouraData={ouraData?.[key]?.data}
+              ouraLogType={key}
+            />
           ))}
         </>
       ) : (

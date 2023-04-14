@@ -10,7 +10,7 @@ import ConfirmationMessage from "../../components/alerts/confirmationMessage";
 
 import { useState } from "react";
 import { useJwt } from "../../redux/authSlice";
-import OuraAuthCompleted from "../oura/ouraAuthCompleted";
+import OuraAuthCompleted from "../logger/oura/ouraAuthCompleted";
 
 const Planner = () => {
   const token = useJwt();

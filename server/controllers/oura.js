@@ -204,10 +204,10 @@ module.exports = () => {
         access_token = new_access_token;
       }
 
-      const start = "2022-12-18";
+      const start = "2022-11-18";
       const end = "2022-12-24";
 
-      const sleep_data = await fetchDataFromEndpoint(
+      const sleep = await fetchDataFromEndpoint(
         access_token,
         "sleep",
         start,
@@ -220,24 +220,59 @@ module.exports = () => {
         start,
         end
       );
-      console.log(
-        "🚀 ~ file: oura.js:220 ~ router.get ~ daily_activity:",
-        daily_activity
+      const daily_readiness = await fetchDataFromEndpoint(
+        access_token,
+        "daily_readiness",
+        start,
+        end
+      );
+      const daily_sleep = await fetchDataFromEndpoint(
+        access_token,
+        "daily_sleep",
+        start,
+        end
       );
 
-      console.log(
-        "🚀 ~ file: oura.js:220 ~ router.get ~ sleep_data:",
-        sleep_data
+      const heartrate = await fetchDataFromEndpoint(
+        access_token,
+        "daily_sleep",
+        start,
+        end
+      );
+      const session = await fetchDataFromEndpoint(
+        access_token,
+        "session",
+        start,
+        end
+      );
+      const tag = await fetchDataFromEndpoint(access_token, "tag", start, end);
+      const workout = await fetchDataFromEndpoint(
+        access_token,
+        "workout",
+        start,
+        end
       );
 
-      res.json({ daily_activity: daily_activity, sleep_data: sleep_data });
+      res.json({
+        daily_activity: daily_activity,
+        sleep: sleep,
+        daily_readiness: daily_readiness,
+        daily_sleep: daily_sleep,
+        heartrate: heartrate,
+        session: session,
+        tag: tag,
+        workout: workout,
+      });
 
-      console.log(
-        "🚀 ~ file: oura.js:119 ~ router.get ~ access_token:",
-        access_token
-      );
-
-      console.log({ daily_activity: daily_activity, sleep_data: sleep_data });
+      console.log({
+        daily_activity: daily_activity,
+        sleep: sleep,
+        daily_sleep: daily_sleep,
+        heartrate: heartrate,
+        session: session,
+        tag: tag,
+        workout: workout,
+      });
     } catch (error) {
       console.error("Error fetching Oura data.");
       res.status(500).send("Error fetching Oura data");
