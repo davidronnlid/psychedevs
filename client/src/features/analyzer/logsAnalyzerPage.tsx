@@ -17,6 +17,7 @@ import VerticalSpacer from "../../components/VerticalSpacer";
 import { selectLogs } from "../../redux/logsAPI/logsSlice";
 import InfoModal from "../../components/InfoModal";
 import OuraLogs from "./oura/ouraLogs";
+import OuraLogTypeCategories from "./oura/ouraLogTypeCategories";
 
 function groupLogsByLogTypeId(logs: Log[]): Record<string, Log[]> {
   return logs.reduce((acc: Record<string, Log[]>, log: Log) => {
@@ -109,7 +110,8 @@ const LogsAnalyzerPage = () => {
       <Typography variant="h4" gutterBottom>
         Logs
       </Typography>
-      <OuraLogs />
+      <OuraLogTypeCategories />
+      {/* <OuraLogs /> */}
       {groupedLogs
         ? Object.entries(groupedLogs).map(([logTypeId, logs]) => (
             <LogsOfALogType

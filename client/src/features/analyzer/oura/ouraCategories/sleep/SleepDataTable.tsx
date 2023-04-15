@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { SleepData } from "../../../../typeModels/ouraModel";
+import { SleepData } from "../../../../../typeModels/ouraModel";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -154,7 +154,7 @@ const SleepDataTable: React.FC<SleepDataTableProps> = ({ sleepData }) => {
           onClick={() => setShowSleepData((prev) => !prev)}
           style={{ cursor: "pointer" }}
         >
-          Sleep Data
+          Sleep logs
         </Typography>
         {showSleepData && (
           <>

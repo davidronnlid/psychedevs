@@ -4,9 +4,11 @@ import userReducer from "./userSlice";
 import logTypesReducer from "./logTypesSlice";
 import answerFormatsReducer from "./answerFormatsSlice";
 import logsReducer from "./logsAPI/logsSlice";
-import ouraReducer from "./ouraLogTypesAPI/ouraLogTypesSlice";
+import ouraLogsReducer from "./ouraAPI/ouraLogsSlice";
+import ouraLogTypeCategoriesReducer from "./ouraAPI/ouraLogTypeCategoriesSlice";
 import { logsAPI } from "./logsAPI/logsAPI";
-import { ouraAPI } from "./ouraLogTypesAPI/ouraLogTypesAPI";
+import { ouraLogsAPI } from "./ouraAPI/ouraLogsAPI";
+import { ouraLogTypesAPI } from "./ouraAPI/ouraLogTypeCategoriesAPI";
 
 export const store = configureStore({
   reducer: {
@@ -16,13 +18,16 @@ export const store = configureStore({
     answerFormats: answerFormatsReducer,
     logsAPI: logsAPI.reducer,
     logs: logsReducer,
-    ouraAPI: ouraAPI.reducer,
-    oura: ouraReducer,
+    ouraLogsAPI: ouraLogsAPI.reducer,
+    ouraLogTypesAPI: ouraLogTypesAPI.reducer,
+    ouraLogs: ouraLogsReducer,
+    ouraLogTypeCategories: ouraLogTypeCategoriesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(logsAPI.middleware)
-      .concat(ouraAPI.middleware),
+      .concat(ouraLogsAPI.middleware)
+      .concat(ouraLogTypesAPI.middleware),
 });
 
 export type AppDispatch = typeof store.dispatch;

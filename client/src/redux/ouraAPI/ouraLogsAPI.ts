@@ -9,8 +9,8 @@ const baseUrl =
 const token = localStorage.getItem("user_sesh_JWT");
 console.log("Token from localStorage:", token);
 
-export const ouraAPI = createApi({
-  reducerPath: "ouraAPI",
+export const ouraLogsAPI = createApi({
+  reducerPath: "ouraLogsAPI",
   baseQuery: fetchBaseQuery({
     baseUrl,
     prepareHeaders: (headers) => {
@@ -22,10 +22,10 @@ export const ouraAPI = createApi({
     },
   }),
   endpoints: (builder) => ({
-    fetchOuraData: builder.query<OuraResponseData, void>({
-      query: () => "/oura/data",
+    fetchOuraLogs: builder.query<OuraResponseData, void>({
+      query: () => "/oura/logs",
     }),
   }),
 });
 
-export const { useFetchOuraDataQuery } = ouraAPI;
+export const { useFetchOuraLogsQuery } = ouraLogsAPI;

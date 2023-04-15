@@ -5,16 +5,11 @@ export interface OuraResponseData {
   sleep: {
     data: SleepData[];
   };
+}
 
-  daily_readiness: {
-    data: DailyReadiness[];
-  };
-  daily_sleep: {
-    data: DailySleep[];
-  };
-  heartrate: {
-    data: Heartrate[];
-  };
+export interface OuraLogTypeCategoriesResponseData {
+  daily_activity: boolean;
+  sleep: boolean;
 }
 
 export interface SleepData {
@@ -102,61 +97,4 @@ export interface DailyActivity {
   timestamp: string;
   total_calories: number;
   [key: string]: any;
-}
-
-interface DailyReadinessContributors {
-  activity_balance: number;
-  body_temperature: number;
-  hrv_balance: number;
-  previous_day_activity: number | null;
-  previous_night: number;
-  recovery_index: number;
-  resting_heart_rate: number;
-  sleep_balance: number;
-}
-
-export interface DailyReadiness {
-  contributors: DailyReadinessContributors;
-  day: string;
-  id: string;
-  score: number;
-  temperature_deviation: number;
-  temperature_trend_deviation: number;
-  timestamp: string;
-}
-
-interface DailySleepContributors {
-  deep_sleep: number;
-  efficiency: number;
-  latency: number;
-  rem_sleep: number;
-  restfulness: number;
-  timing: number;
-  total_sleep: number;
-}
-
-export interface DailySleep {
-  contributors: DailySleepContributors;
-  day: string;
-  id: string;
-  score: number;
-  timestamp: string;
-}
-
-interface HeartrateContributors {
-  deep_sleep: number;
-  efficiency: number;
-  latency: number;
-  rem_sleep: number;
-  restfulness: number;
-  timing: number;
-  total_sleep: number;
-}
-
-export interface Heartrate {
-  contributors: HeartrateContributors;
-  day: string;
-  id: string;
-  score: number;
-  timestamp: string;
 }

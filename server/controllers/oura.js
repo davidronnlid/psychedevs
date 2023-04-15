@@ -40,21 +40,40 @@ const refreshAccessToken = async (client_id, client_secret, refresh_token) => {
     throw error;
   }
 };
-
 async function fetchDataFromEndpoint(accessToken, dataType, start, end) {
+  const url = `https://api.ouraring.com/v2/usercollection/${dataType}?start_date=${start}&end_date=${end}`;
   try {
-    const url = `https://api.ouraring.com/v2/usercollection/${dataType}?start_date=${start}&end_date=${end}`;
-
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    return response.data;
+    return {
+      data: response.data,
+      error: false,
+    };
   } catch (error) {
     console.error(`Error fetching data from ${url}.`);
+    console.error("Error response:", error.response.data);
     throw error;
   }
+}
+
+async function handleTokenRefresh(PD_user_id) {
+  const ouraUser = await OuraUser.findOne({ PD_user_id: PD_user_id });
+  const { access_token: new_access_token, refresh_token: new_refresh_token } =
+    await refreshAccessToken(
+      process.env.OURA_CLIENT_ID,
+      process.env.OURA_CLIENT_SECRET,
+      ouraUser.refreshToken
+    );
+
+  // Update the access token and refresh token in the database
+  ouraUser.access_token = new_access_token;
+  ouraUser.refreshToken = new_refresh_token;
+  await ouraUser.save();
+
+  return new_access_token;
 }
 
 module.exports = () => {
@@ -70,7 +89,7 @@ module.exports = () => {
           ? process.env.OURA_REDIRECT_URI_LOCAL
           : process.env.OURA_REDIRECT_URI,
       response_type: "code",
-      scope: "heartrate daily workout tag session",
+      scope: "daily",
       state: token.toString(),
     });
 
@@ -146,28 +165,9 @@ module.exports = () => {
     }
   });
 
-  router.get("/data", async (req, res) => {
-    console.log("Received GET req at /oura/data");
+  router.get("/logs", async (req, res) => {
+    console.log("Received GET req at /oura/logs");
     const token = req.headers.authorization.split(" ")[1];
-
-    const OURA_USER_INFO_URL = "https://api.ouraring.com/v1/userinfo";
-
-    async function checkTokenExpiration(access_token) {
-      try {
-        const response = await axios.get(OURA_USER_INFO_URL, {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        });
-        return response.status_code === 200;
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          console.log(error.response);
-          return false;
-        }
-        throw error;
-      }
-    }
 
     try {
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -181,101 +181,119 @@ module.exports = () => {
       }
       let { access_token } = ouraUser;
 
-      // Check if the access token is valid
-      const isTokenValid = await checkTokenExpiration(access_token);
-
-      if (!isTokenValid) {
-        // Refresh the access token
-        const {
-          access_token: new_access_token,
-          refresh_token: new_refresh_token,
-        } = await refreshAccessToken(
-          process.env.OURA_CLIENT_ID,
-          process.env.OURA_CLIENT_SECRET,
-          ouraUser.refreshToken
-        );
-
-        // Update the access token and refresh token in the database
-        ouraUser.access_token = new_access_token;
-        ouraUser.refreshToken = new_refresh_token;
-        await ouraUser.save();
-
-        // Use the new access token for API calls
-        access_token = new_access_token;
-      }
-
       const start = "2022-11-18";
       const end = "2022-12-24";
 
-      const sleep = await fetchDataFromEndpoint(
-        access_token,
-        "sleep",
-        start,
-        end
-      );
+      const fetchWithTokenRefresh = async (dataType) => {
+        try {
+          return await fetchDataFromEndpoint(
+            access_token,
+            dataType,
+            start,
+            end
+          );
+        } catch (error) {
+          if (error.response && error.response.status === 401) {
+            console.log("Refreshing access token...");
+            access_token = await handleTokenRefresh(PD_user_id);
+            return await fetchDataFromEndpoint(
+              access_token,
+              dataType,
+              start,
+              end
+            );
+          } else {
+            throw error;
+          }
+        }
+      };
 
-      const daily_activity = await fetchDataFromEndpoint(
-        access_token,
-        "daily_activity",
-        start,
-        end
-      );
-      const daily_readiness = await fetchDataFromEndpoint(
-        access_token,
-        "daily_readiness",
-        start,
-        end
-      );
-      const daily_sleep = await fetchDataFromEndpoint(
-        access_token,
-        "daily_sleep",
-        start,
-        end
-      );
+      const sleep = await fetchWithTokenRefresh("sleep");
+      const daily_activity = await fetchWithTokenRefresh("daily_activity");
 
-      const heartrate = await fetchDataFromEndpoint(
-        access_token,
-        "daily_sleep",
-        start,
-        end
-      );
-      const session = await fetchDataFromEndpoint(
-        access_token,
-        "session",
-        start,
-        end
-      );
-      const tag = await fetchDataFromEndpoint(access_token, "tag", start, end);
-      const workout = await fetchDataFromEndpoint(
-        access_token,
-        "workout",
-        start,
-        end
-      );
+      console.log("Sample of what will be sent to client: ", daily_activity);
 
       res.json({
         daily_activity: daily_activity,
         sleep: sleep,
-        daily_readiness: daily_readiness,
-        daily_sleep: daily_sleep,
-        heartrate: heartrate,
-        session: session,
-        tag: tag,
-        workout: workout,
-      });
-
-      console.log({
-        daily_activity: daily_activity,
-        sleep: sleep,
-        daily_sleep: daily_sleep,
-        heartrate: heartrate,
-        session: session,
-        tag: tag,
-        workout: workout,
       });
     } catch (error) {
       console.error("Error fetching Oura data.");
       res.status(500).send("Error fetching Oura data");
+    }
+  });
+
+  router.get("/log-type-categories", async (req, res) => {
+    console.log("Received GET req at /oura/log-types");
+
+    const log_types = req.query.log_types.split(",");
+
+    const token = req.headers.authorization.split(" ")[1];
+
+    try {
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const PD_user_id = new ObjectId(decodedToken.userId);
+
+      const ouraUser = await OuraUser.findOne({ PD_user_id: PD_user_id });
+
+      if (!ouraUser) {
+        return res.status(404).send("User not found");
+      }
+
+      let { accessToken } = ouraUser;
+
+      const start = "2022-11-18";
+      const end = "2022-12-24";
+
+      const fetchWithTokenRefresh = async (dataType) => {
+        try {
+          return await fetchDataFromEndpoint(accessToken, dataType, start, end);
+        } catch (error) {
+          if (error.response && error.response.status === 401) {
+            console.log("Refreshing access token...");
+            access_token = await handleTokenRefresh(PD_user_id);
+            return await fetchDataFromEndpoint(
+              accessToken,
+              dataType,
+              start,
+              end
+            );
+          } else {
+            throw error;
+          }
+        }
+      };
+
+      const fetchedData = {};
+      console.log(
+        "🚀 ~ file: oura.js:328 ~ router.get ~ fetchedData:",
+        fetchedData
+      );
+      for (const log_type of log_types) {
+        try {
+          await fetchWithTokenRefresh(log_type);
+          fetchedData[log_type] = true;
+        } catch (error) {
+          if (error.response && error.response.status === 401) {
+            fetchedData[log_type] = false;
+          } else {
+            throw error;
+          }
+        }
+      }
+      console.log(
+        "🚀 ~ file: oura.js:345 ~ router.get ~ fetchedData:",
+        fetchedData
+      );
+
+      res.json(fetchedData);
+    } catch (error) {
+      console.error(
+        "Error fetching Oura log types.",
+        error.message,
+        error.stack
+      );
+      res.status(500).send("Error fetching Oura log types");
     }
   });
 

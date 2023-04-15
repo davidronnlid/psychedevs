@@ -11,7 +11,7 @@ const OuraAuthCompleted = ({
   onOuraAuthCompleted,
   ouraAuthCompleted,
 }: Props) => {
-  const [ouraData, setOuraData] = useState<OuraResponseData | null>(null);
+  const [ouraData, setOuraLogsData] = useState<OuraResponseData | null>(null);
   const token = localStorage.getItem("user_sesh_JWT");
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const OuraAuthCompleted = ({
           responseData
         );
 
-        setOuraData(responseData);
+        setOuraLogsData(responseData);
         if (responseData && !hasCalledOnOuraAuthCompleted) {
           onOuraAuthCompleted(true);
           setHasCalledOnOuraAuthCompleted(true);
@@ -61,15 +61,7 @@ const OuraAuthCompleted = ({
     <div>
       {ouraAuthCompleted ? (
         <>
-          {(
-            [
-              "daily_activity",
-              "sleep",
-              "daily_readiness",
-              "daily_sleep",
-              "heartrate",
-            ] as const
-          ).map((key) => (
+          {(["daily_activity", "sleep"] as const).map((key) => (
             <OuraData
               key={key}
               ouraData={ouraData?.[key]?.data}
