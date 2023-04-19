@@ -29,18 +29,6 @@ interface Props {
 const OuraData = ({ ouraData, ouraLogType }: Props) => {
   console.log("Received updatedOuraData in OuraData component! ", ouraData);
 
-  // find all keys of the first element in the data array
-  // const logTypeKeys = ouraData
-  //   ? ouraData.reduce((acc: Array<string>, obj: SleepData) => {
-  //       Object.keys(obj).forEach((key) => {
-  //         if (!acc.includes(key)) {
-  //           acc.push(key);
-  //         }
-  //       });
-  //       return acc;
-  //     }, [])
-  //   : [];
-
   const logTypeKeys = ouraData
     ? Object.keys(ouraData[0]).filter((key) => key !== "summary_date")
     : [];

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import OuraData from "./ouraData";
-import { OuraResponseData } from "../../../typeModels/ouraModel";
+import { useAppSelector } from "../../../redux/hooks";
+import { selectOuraLogsData } from "../../../redux/ouraAPI/logs/ouraLogsSlice";
+import { useFetchOuraLogsQuery } from "../../../redux/ouraAPI/logs/ouraLogsAPI";
 
 interface Props {
   onOuraAuthCompleted: (ouraAuthCompleted: boolean) => void;
@@ -11,51 +13,23 @@ const OuraAuthCompleted = ({
   onOuraAuthCompleted,
   ouraAuthCompleted,
 }: Props) => {
-  const [ouraData, setOuraLogsData] = useState<OuraResponseData | null>(null);
   const token = localStorage.getItem("user_sesh_JWT");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const baseUrl =
-        process.env.NODE_ENV === "development"
-          ? process.env.REACT_APP_BACKEND_LOCAL_URL
-          : process.env.REACT_APP_PROD_URL;
-
-      try {
-        const response = await fetch(`${baseUrl}/oura/data`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("Token sent:", token);
-
-        if (!response.ok) {
-          throw new Error("Error fetching data from /oura/data");
-        }
-
-        const responseData = await response.json();
-        console.log(
-          "🚀 ~ file: ouraAuthCompleted.tsx:48 ~ fetchData ~ responseData:",
-          responseData
-        );
-
-        setOuraLogsData(responseData);
-        if (responseData && !hasCalledOnOuraAuthCompleted) {
-          onOuraAuthCompleted(true);
-          setHasCalledOnOuraAuthCompleted(true);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, [token, onOuraAuthCompleted]);
+  const {
+    data: ouraLogsData,
+    error: ouraLogsError,
+    isLoading: ouraLogsLoading,
+  } = useFetchOuraLogsQuery();
 
   const [hasCalledOnOuraAuthCompleted, setHasCalledOnOuraAuthCompleted] =
     useState(false);
+  console.log(ouraLogsData, " in ouraAuthCompleted file");
+
+  useEffect(() => {
+    if (ouraLogsData && !hasCalledOnOuraAuthCompleted) {
+      onOuraAuthCompleted(true);
+      setHasCalledOnOuraAuthCompleted(true);
+    }
+  }, [token, onOuraAuthCompleted]);
 
   return (
     <div>
@@ -63,9 +37,9 @@ const OuraAuthCompleted = ({
         <>
           {(["daily_activity", "sleep"] as const).map((key) => (
             <OuraData
-              key={key}
-              ouraData={ouraData?.[key]?.data}
+              ouraData={ouraLogsData?.[key]?.data}
               ouraLogType={key}
+              key={key}
             />
           ))}
         </>

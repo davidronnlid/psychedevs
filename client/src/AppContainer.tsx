@@ -17,8 +17,6 @@ import LogsAnalyzerPage from "./features/analyzer/logsAnalyzerPage";
 import { useFetchLogsQuery } from "./redux/logsAPI/logsAPI";
 
 import { setLogs } from "./redux/logsAPI/logsSlice";
-import { useFetchOuraLogsQuery } from "./redux/ouraAPI/ouraLogsAPI";
-import { setOuraLogsData } from "./redux/ouraAPI/ouraLogsSlice";
 
 const AppContainer: React.FC = (): JSX.Element => {
   const { data, error, isLoading, isSuccess } = useFetchLogsQuery();
@@ -62,20 +60,6 @@ const AppContainer: React.FC = (): JSX.Element => {
       fetchData();
     }
   }, [dispatch, isSuccess, data]);
-
-  // Oura data fetching below
-  // const {
-  //   data: ouraData,
-  //   error: ouraError,
-  //   isLoading: ouraLoading,
-  // } = useFetchOuraLogsQuery();
-
-  // useEffect(() => {
-  //   if (ouraData) {
-  //     console.log("Setting this into ouraData state: ", ouraData);
-  //     dispatch(setOuraLogsData(ouraData));
-  //   }
-  // }, [dispatch, ouraData]);
 
   return (
     <div className="appContainer">

@@ -4,11 +4,13 @@ import userReducer from "./userSlice";
 import logTypesReducer from "./logTypesSlice";
 import answerFormatsReducer from "./answerFormatsSlice";
 import logsReducer from "./logsAPI/logsSlice";
-import ouraLogsReducer from "./ouraAPI/ouraLogsSlice";
-import ouraLogTypeCategoriesReducer from "./ouraAPI/ouraLogTypeCategoriesSlice";
+import ouraLogsReducer from "./ouraAPI/logs/ouraLogsSlice";
+import ouraLogTypesReducer from "./ouraAPI/logTypes/ouraLogTypesSlice";
+import ouraLogTypeCategoriesReducer from "./ouraAPI/logTypeCategories/ouraLogTypeCategoriesSlice";
 import { logsAPI } from "./logsAPI/logsAPI";
-import { ouraLogsAPI } from "./ouraAPI/ouraLogsAPI";
-import { ouraLogTypesAPI } from "./ouraAPI/ouraLogTypeCategoriesAPI";
+import { ouraLogsAPI } from "./ouraAPI/logs/ouraLogsAPI";
+import { ouraLogTypeCategoriesAPI } from "./ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
+import { ouraLogTypesAPI } from "./ouraAPI/logTypes/ouraLogTypesAPI";
 
 export const store = configureStore({
   reducer: {
@@ -20,14 +22,18 @@ export const store = configureStore({
     logs: logsReducer,
     ouraLogsAPI: ouraLogsAPI.reducer,
     ouraLogTypesAPI: ouraLogTypesAPI.reducer,
+    ouraLogTypeCategoriesAPI: ouraLogTypeCategoriesAPI.reducer,
     ouraLogs: ouraLogsReducer,
+    ouraLogTypes: ouraLogTypesReducer,
     ouraLogTypeCategories: ouraLogTypeCategoriesReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(logsAPI.middleware)
-      .concat(ouraLogsAPI.middleware)
-      .concat(ouraLogTypesAPI.middleware),
+    getDefaultMiddleware().concat(
+      logsAPI.middleware,
+      ouraLogsAPI.middleware,
+      ouraLogTypesAPI.middleware,
+      ouraLogTypeCategoriesAPI.middleware
+    ),
 });
 
 export type AppDispatch = typeof store.dispatch;

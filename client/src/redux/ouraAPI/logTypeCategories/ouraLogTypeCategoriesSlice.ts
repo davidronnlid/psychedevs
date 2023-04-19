@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../store";
-import { OuraLogTypeCategoriesResponseData } from "../../typeModels/ouraModel";
+import { RootState } from "../../store";
+import { OuraLogTypeCategoriesResponseData } from "../../../typeModels/ouraModel";
 
 interface OuraState {
   logTypeCategories: OuraLogTypeCategoriesResponseData;

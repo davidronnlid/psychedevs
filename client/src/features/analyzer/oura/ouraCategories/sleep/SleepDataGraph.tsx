@@ -122,6 +122,8 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
 };
 
 const SleepDataGraph: React.FC<SleepDataGraphProps> = ({ sleepData }) => {
+  // console.log("🚀 ~ file: SleepDataGraph.tsx:125 ~ sleepData:", sleepData);
+
   const [selectedDataTypes, setSelectedDataTypes] =
     useState<DataTypeOption[]>(availableDataTypes);
   const minMaxValues = findMinMaxValues(sleepData, selectedDataTypes);
@@ -129,6 +131,10 @@ const SleepDataGraph: React.FC<SleepDataGraphProps> = ({ sleepData }) => {
     sleepData,
     selectedDataTypes,
     minMaxValues
+  );
+  console.log(
+    "🚀 ~ file: SleepDataGraph.tsx:133 ~ normalizedData:",
+    normalizedData
   );
 
   const tooltipFormatter = (value: any, name: string) => {

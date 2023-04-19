@@ -12,6 +12,16 @@ export interface OuraLogTypeCategoriesResponseData {
   sleep: boolean;
 }
 
+export interface OuraLogType {
+  logTypeName: string;
+  unit: string;
+}
+
+export interface OuraLogTypesResponseData {
+  daily_activity: OuraLogType[] | null;
+  sleep: OuraLogType[] | null;
+}
+
 export interface SleepData {
   id: string;
   average_breath: number;

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { OuraResponseData } from "../../typeModels/ouraModel";
+import { OuraResponseData } from "../../../typeModels/ouraModel";
 
 const baseUrl =
   process.env.NODE_ENV === "development"

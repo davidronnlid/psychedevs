@@ -1,4 +1,4 @@
-import { selectOuraLogsData } from "../../../redux/ouraAPI/ouraLogsSlice";
+import { selectOuraLogsData } from "../../../redux/ouraAPI/logs/ouraLogsSlice";
 import { useAppSelector } from "../../../redux/hooks";
 import DailyActivityTable from "./ouraCategories/DailyActivityTable";
 import { Typography } from "@mui/material";
@@ -13,14 +13,14 @@ const OuraLogs = () => {
   return (
     <div>
       <Typography variant="h4">Oura logs</Typography>
-      {ouraData.daily_activity && (
-        <DailyActivityTable dailyActivities={ouraData.daily_activity.data} />
-      )}
       {ouraData.sleep && (
         <>
           <SleepDataGraph sleepData={ouraData.sleep.data} />
           <SleepDataTable sleepData={ouraData.sleep.data} />
         </>
+      )}
+      {ouraData.daily_activity && (
+        <DailyActivityTable dailyActivities={ouraData.daily_activity.data} />
       )}
     </div>
   );

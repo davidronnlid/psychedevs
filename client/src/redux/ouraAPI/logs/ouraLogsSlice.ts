@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../store";
+import { RootState } from "../../store";
 import {
   OuraResponseData,
   SleepData,
   DailyActivity,
-} from "../../typeModels/ouraModel";
+} from "../../../typeModels/ouraModel";
 
 interface OuraState {
   ouraData: OuraResponseData;

@@ -223,10 +223,76 @@ module.exports = () => {
     }
   });
 
-  router.get("/log-type-categories", async (req, res) => {
-    console.log("Received GET req at /oura/log-types");
+  router.get("/log-types/sleep", async (req, res) => {
+    console.log("Received GET req at /log-types/sleep");
 
-    const log_types = req.query.log_types.split(",");
+    // deep_sleep_duration: number;
+    // efficiency: number;
+    // heart_rate: {
+    //   interval: number;
+    //   items: number[];
+    //   timestamp: string;
+    // };
+    // hrv: {
+    //   interval: number;
+    //   items: number[];
+    //   timestamp: string;
+    // };
+    // latency: number;
+    // light_sleep_duration: number;
+    // low_battery_alert: boolean;
+    // lowest_heart_rate: number;
+    // movement_30_sec: string;
+    // period: number;
+    // readiness: {
+    //   contributors: { [key: string]: number };
+    //   score: number;
+    //   temperature_deviation: number;
+    //   temperature_trend_deviation: number;
+    // };
+    // readiness_score_delta: number;
+    // rem_sleep_duration: number;
+    // restless_periods: number;
+    // sleep_phase_5_min: string;
+    // sleep_score_delta: number;
+    // time_in_bed: number;
+    // total_sleep_duration: number;
+
+    // awake_time: number;
+    // bedtime_end: string;
+    // bedtime_start: string;
+    // day: string;
+    try {
+      const sleepLogTypes = [
+        {
+          logTypeName: "Respiratory rate",
+          unit: "Breaths per minute",
+        },
+        {
+          logTypeName: "Average heart rate",
+          unit: "Beats per minute",
+        },
+        {
+          logTypeName: "Average heart rate variability",
+          unit: "milliseconds",
+        },
+      ];
+
+      res.json({ daily_activity: null, sleep: sleepLogTypes });
+    } catch (error) {
+      console.error(
+        "Error fetching sleep log types.",
+        error.message,
+        error.stack
+      );
+      res.status(500).send("Error fetching sleep log types");
+    }
+  });
+
+  router.get("/log-type-categories", async (req, res) => {
+    console.log("Received GET req at /oura/log-type-categories");
+
+    const log_type_categories = req.query.log_type_categories.split(",");
 
     const token = req.headers.authorization.split(" ")[1];
 
@@ -251,7 +317,7 @@ module.exports = () => {
         } catch (error) {
           if (error.response && error.response.status === 401) {
             console.log("Refreshing access token...");
-            access_token = await handleTokenRefresh(PD_user_id);
+            accessToken = await handleTokenRefresh(PD_user_id);
             return await fetchDataFromEndpoint(
               accessToken,
               dataType,
@@ -269,13 +335,13 @@ module.exports = () => {
         "🚀 ~ file: oura.js:328 ~ router.get ~ fetchedData:",
         fetchedData
       );
-      for (const log_type of log_types) {
+      for (const category of log_type_categories) {
         try {
-          await fetchWithTokenRefresh(log_type);
-          fetchedData[log_type] = true;
+          await fetchWithTokenRefresh(category);
+          fetchedData[category] = true;
         } catch (error) {
           if (error.response && error.response.status === 401) {
-            fetchedData[log_type] = false;
+            fetchedData[category] = false;
           } else {
             throw error;
           }

@@ -11,6 +11,7 @@ import ConfirmationMessage from "../../components/alerts/confirmationMessage";
 import { useState } from "react";
 import { useJwt } from "../../redux/authSlice";
 import OuraAuthCompleted from "../logger/oura/ouraAuthCompleted";
+import OuraLogTypeCategories from "../logger/oura/ouraLogTypeCategories";
 
 const Planner = () => {
   const token = useJwt();
@@ -85,8 +86,9 @@ const Planner = () => {
       <Typography variant="subtitle1" gutterBottom>
         Categories{" "}
       </Typography>
+      <OuraLogTypeCategories />
 
-      <OuraAuthCompleted
+      {/* <OuraAuthCompleted
         onOuraAuthCompleted={handleOuraAuthCompleted}
         ouraAuthCompleted={ouraAuthCompleted}
       />
@@ -94,7 +96,7 @@ const Planner = () => {
         message="Oura data loaded successfully"
         state={confirmationOfOuraAuth}
         stateSetter={setConfirmationOfOuraAuth}
-      />
+      /> */}
       <Typography variant="h5" gutterBottom>
         Planned log types
       </Typography>
