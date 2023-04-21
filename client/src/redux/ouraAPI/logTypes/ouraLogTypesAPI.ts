@@ -7,7 +7,7 @@ const baseUrl =
     : process.env.REACT_APP_PROD_URL;
 
 const token = localStorage.getItem("user_sesh_JWT");
-interface FetchLogTypesParams {
+interface FetchOuraLogTypesParams {
   category: string;
 }
 
@@ -25,7 +25,7 @@ export const ouraLogTypesAPI = createApi({
   endpoints: (builder) => ({
     fetchOuraLogTypes: builder.query<
       OuraLogTypesResponseData,
-      FetchLogTypesParams
+      FetchOuraLogTypesParams
     >({
       query: ({ category }) => ({
         url: `/oura/log-types/${category}`,

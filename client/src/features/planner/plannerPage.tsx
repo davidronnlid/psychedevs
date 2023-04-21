@@ -57,8 +57,6 @@ const Planner = () => {
       window.location.href = data.redirectUrl;
     } catch (error) {
       console.log(error);
-      // setError(error.message);
-    } finally {
     }
   };
 
@@ -77,26 +75,14 @@ const Planner = () => {
         Logs planner
       </Typography>
       <VerticalSpacer size="1rem" />
-
       <Button onClick={() => handleIntegrateOura()}>Integrate with Oura</Button>
-
       <Typography variant="h6" gutterBottom>
         Oura integration log types
       </Typography>
       <Typography variant="subtitle1" gutterBottom>
-        Categories{" "}
+        Categories
       </Typography>
       <OuraLogTypeCategories />
-
-      {/* <OuraAuthCompleted
-        onOuraAuthCompleted={handleOuraAuthCompleted}
-        ouraAuthCompleted={ouraAuthCompleted}
-      />
-      <ConfirmationMessage
-        message="Oura data loaded successfully"
-        state={confirmationOfOuraAuth}
-        stateSetter={setConfirmationOfOuraAuth}
-      /> */}
       <Typography variant="h5" gutterBottom>
         Planned log types
       </Typography>
