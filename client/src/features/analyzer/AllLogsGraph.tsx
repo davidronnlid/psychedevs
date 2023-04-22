@@ -1,78 +1,194 @@
-import React from "react";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Legend,
-} from "recharts";
-import { SleepData } from "../../typeModels/ouraModel";
+import { Bar } from "react-chartjs-2";
 import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
+import { SleepData, DailyActivity } from "../../typeModels/ouraModel";
+import { Chart, ChartDataset } from "chart.js";
+import { LinearScale } from "chart.js/auto";
+import React, { useState, useEffect } from "react";
 
-const dataTypes = [
-  { key: "average_breath", label: "Average Breath", color: "#8884d8" },
-  { key: "average_heart_rate", label: "Average Heart Rate", color: "#82ca9d" },
-  { key: "average_hrv", label: "Average HRV", color: "#FFBB28" },
-  { key: "awake_time", label: "Awake Time", color: "#FF8042" },
-];
+Chart.register(LinearScale);
 
-const OuraLineChart: React.FC = () => {
+type ChartOptionsType = {
+  scales: {
+    y1: {
+      type: "linear";
+      position: "left";
+      beginAtZero: true;
+      title: {
+        display: boolean;
+        text: string;
+        color: string;
+        font: {
+          size: number;
+        };
+        rotation: number;
+      };
+    };
+    y2: {
+      type: "linear";
+      position: "right";
+      beginAtZero: true;
+      title: {
+        display: boolean;
+        text: string;
+        color: string;
+        font: {
+          size: number;
+        };
+        rotation: number;
+      };
+    };
+  };
+};
+
+const AllLogsGraph: React.FC = () => {
   const {
-    data: ouraData,
-    error: ouraError,
-    isLoading: ouraLoading,
+    data: ouraLogsData,
+    error: ouraLogsError,
+    isLoading: ouraLogsIsLoading,
   } = useFetchOuraLogsQuery();
+  const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
 
-  if (ouraLoading || !ouraData || !ouraData.sleep || !ouraData.sleep.data) {
-    return <p>Loading...</p>;
-  }
-
-  // Create an array of objects with only the relevant keys
-  const chartData = ouraData.sleep.data.map((data: SleepData) => {
-    const chartItem: any = { day: data.day };
-    dataTypes.forEach(({ key }) => {
-      chartItem[key] = data[key];
-    });
-    return chartItem;
-  });
-
-  // Calculate the min and max values for the YAxis domain
-  const minMaxValues = chartData.reduce(
-    (acc, cur) => {
-      dataTypes.forEach(({ key }) => {
-        acc.min = Math.min(acc.min, cur[key]);
-        acc.max = Math.max(acc.max, cur[key]);
-      });
-      return acc;
-    },
-    { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY }
+  const sleepData: SleepData[] = ouraLogsData?.sleep.data || [];
+  const dailyActivityData: DailyActivity[] =
+    ouraLogsData?.daily_activity.data || [];
+  console.log(
+    "🚀 ~ file: AllLogsGraph.tsx:55 ~ dailyActivityData:",
+    dailyActivityData
   );
 
-  const yAxisDomain = [minMaxValues.min, minMaxValues.max];
+  const logTypes = [
+    {
+      id: "total_sleep_duration",
+      label: "Total Sleep Duration",
+      data: sleepData.map((item) => item.total_sleep_duration),
+      backgroundColor: "rgba(75, 192, 192, 0.2)",
+      borderColor: "rgba(75, 192, 192, 1)",
+      yAxisID: "y1",
+    },
+    {
+      id: "rem_sleep_duration",
+      label: "REM Sleep Duration",
+      data: sleepData.map((item) => item.rem_sleep_duration),
+      backgroundColor: "rgba(75, 192, 192, 0.2)",
+      borderColor: "rgba(75, 192, 192, 1)",
+      yAxisID: "y1",
+    },
+    {
+      id: "steps",
+      label: "Steps",
+      data: dailyActivityData.map((item) => item.steps),
+      backgroundColor: "rgba(75, 192, 192, 0.2)",
+      borderColor: "rgba(75, 192, 192, 1)",
+      yAxisID: "y2",
+    },
+  ];
+
+  const [filteredLogTypes, setFilteredLogTypes] = useState(logTypes);
+
+  useEffect(() => {
+    setFilteredLogTypes(
+      logTypes.filter((log) =>
+        log.label.toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }, [search]);
+
+  const handleLogTypeSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = event.target.value;
+
+    if (selectedLogs.includes(selected)) {
+      setSelectedLogs(selectedLogs.filter((log) => log !== selected));
+    } else {
+      if (selectedLogs.length < 2) {
+        setSelectedLogs([...selectedLogs, selected]);
+      }
+    }
+  };
+
+  if (ouraLogsIsLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (ouraLogsError) {
+    return <div>Error: {ouraLogsError.toString()}</div>;
+  }
+
+  const labels = sleepData.map((item) => item.day);
+
+  const getChartDataForLogType = (logTypeId: string) => {
+    const logType = logTypes.find((log) => log.id === logTypeId);
+    if (logType) {
+      return {
+        label: logType.label,
+        data: logType.data,
+        backgroundColor: logType.backgroundColor,
+        borderColor: logType.borderColor,
+        borderWidth: 1,
+        yAxisID: logType.yAxisID,
+      };
+    }
+    return null;
+  };
+
+  const chartData = {
+    labels,
+    datasets: selectedLogs
+      .map((log) => getChartDataForLogType(log))
+      .filter((dataset) => dataset !== null) as ChartDataset<"bar", number[]>[],
+  };
+
+  const chartOptions: ChartOptionsType = {
+    scales: {
+      y1: {
+        type: "linear",
+        position: "left",
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Sleep Duration (minutes) axis",
+          color: "rgba(75, 192, 192, 1)",
+          font: {
+            size: 16, // Set the font size
+          },
+          rotation: 90, // Set the rotation to 0 for horizontal orientation
+        },
+      },
+      y2: {
+        type: "linear",
+        position: "right",
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Active Calories axis",
+          color: "rgba(255, 206, 86, 1)",
+          font: {
+            size: 16, // Set the font size
+          },
+          rotation: 0, // Set the rotation to 0 for horizontal orientation
+        },
+      },
+    },
+  };
 
   return (
     <>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="day" />
-          <YAxis domain={yAxisDomain} />
-          <Legend />
-          {dataTypes.map((dataType) => (
-            <Line
-              key={dataType.key}
-              type="monotone"
-              dataKey={dataType.key}
-              stroke={dataType.color}
-              activeDot={{ r: 8 }}
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+      <input
+        type="text"
+        placeholder="Search log types"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <select onChange={handleLogTypeSelect}>
+        {filteredLogTypes.map((log) => (
+          <option key={log.id} value={log.id}>
+            {log.label}
+          </option>
+        ))}
+      </select>
+      <Bar data={chartData} options={chartOptions} />
     </>
   );
 };
 
-export default OuraLineChart;
+export default AllLogsGraph;

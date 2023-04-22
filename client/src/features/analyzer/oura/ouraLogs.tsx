@@ -1,9 +1,9 @@
 import { selectOuraLogsData } from "../../../redux/ouraAPI/logs/ouraLogsSlice";
 import { useAppSelector } from "../../../redux/hooks";
-import DailyActivityTable from "./ouraCategories/DailyActivityTable";
+// import DailyActivityTable from "./ouraCategories/DailyActivityTable";
+// import SleepDataTable from "./ouraCategories/sleep/SleepDataTable";
+// import SleepDataGraph from "./ouraCategories/sleep/SleepDataGraph";
 import { Typography } from "@mui/material";
-import SleepDataTable from "./ouraCategories/sleep/SleepDataTable";
-import SleepDataGraph from "./ouraCategories/sleep/SleepDataGraph";
 
 const OuraLogs = () => {
   const ouraData = useAppSelector(selectOuraLogsData);
@@ -13,7 +13,7 @@ const OuraLogs = () => {
   return (
     <div>
       <Typography variant="h4">Oura logs</Typography>
-      {ouraData.sleep && (
+      {/* {ouraData.sleep && (
         <>
           <SleepDataGraph sleepData={ouraData.sleep.data} />
           <SleepDataTable sleepData={ouraData.sleep.data} />
@@ -21,7 +21,7 @@ const OuraLogs = () => {
       )}
       {ouraData.daily_activity && (
         <DailyActivityTable dailyActivities={ouraData.daily_activity.data} />
-      )}
+      )} */}
     </div>
   );
 };

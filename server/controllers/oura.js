@@ -48,8 +48,12 @@ async function fetchDataFromEndpoint(accessToken, dataType, start, end) {
         Authorization: `Bearer ${accessToken}`,
       },
     });
+    console.log(
+      "🚀 ~ file: oura.js:51 ~ fetchDataFromEndpoint ~ response:",
+      response.data.data
+    );
     return {
-      data: response.data,
+      data: response.data.data,
       error: false,
     };
   } catch (error) {
@@ -181,8 +185,8 @@ module.exports = () => {
       }
       let { access_token } = ouraUser;
 
-      const start = "2022-11-18";
-      const end = "2022-12-24";
+      const start = "2023-04-14";
+      const end = "2023-04-20";
 
       const fetchWithTokenRefresh = async (dataType) => {
         try {
@@ -211,7 +215,10 @@ module.exports = () => {
       const sleep = await fetchWithTokenRefresh("sleep");
       const daily_activity = await fetchWithTokenRefresh("daily_activity");
 
-      console.log("Sample of what will be sent to client: ", daily_activity);
+      console.log("Sample of what will be sent to client: ", {
+        daily_activity: daily_activity,
+        sleep: sleep,
+      });
 
       res.json({
         daily_activity: daily_activity,
@@ -303,54 +310,67 @@ module.exports = () => {
     try {
       const sleepLogTypes = [
         {
+          logType: "average_breath",
           logTypeName: "Respiratory rate",
           unit: "Breaths per minute",
         },
         {
+          logType: "average_heart_rate",
           logTypeName: "Average heart rate",
           unit: "Beats per minute",
         },
         {
+          logType: "average_hrv",
           logTypeName: "Average heart rate variability",
           unit: "milliseconds",
         },
         {
+          logType: "deep_sleep_duration",
           logTypeName: "Deep sleep duration",
           unit: "hours/minutes",
         },
         {
+          logType: "latency",
           logTypeName: "Time to fall asleep",
           unit: "minutes",
         },
         {
+          logType: "light_sleep_duration",
           logTypeName: "Light sleep duration",
           unit: "hours/minutes",
         },
         {
+          logType: "rem_sleep_duration",
           logTypeName: "REM sleep duration",
           unit: "hours/minutes",
         },
         {
+          logType: "time_in_bed",
           logTypeName: "Time in bed",
           unit: "hours/minutes",
         },
         {
+          logType: "total_sleep_duration",
           logTypeName: "Total sleep duration",
           unit: "hours/minutes",
         },
         {
+          logType: "awake_time",
           logTypeName: "Awake time",
           unit: "date",
         },
         {
+          logType: "bedtime_start",
           logTypeName: "Bedtime start",
           unit: "date",
         },
         {
+          logType: "bedtime_end",
           logTypeName: "Bedtime end",
           unit: "date",
         },
         {
+          logType: "day",
           logTypeName: "Day",
           unit: "date",
         },
@@ -373,22 +393,27 @@ module.exports = () => {
     try {
       const dailyActivityLogTypes = [
         {
+          logType: "active_calories",
           logTypeName: "Calories burned while active",
           unit: "calories",
         },
         {
+          logType: "average_met_minutes",
           logTypeName: "Average MET minutes",
           unit: "minutes",
         },
         {
+          logType: "resting_time",
           logTypeName: "Resting time",
           unit: "hours/minutes",
         },
         {
+          logType: "steps",
           logTypeName: "Steps",
           unit: "number",
         },
         {
+          logType: "day",
           logTypeName: "Day",
           unit: "date",
         },

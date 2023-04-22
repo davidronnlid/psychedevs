@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import OuraData from "./ouraData";
-import { useAppSelector } from "../../../redux/hooks";
-import { selectOuraLogsData } from "../../../redux/ouraAPI/logs/ouraLogsSlice";
 import { useFetchOuraLogsQuery } from "../../../redux/ouraAPI/logs/ouraLogsAPI";
 
 interface Props {
