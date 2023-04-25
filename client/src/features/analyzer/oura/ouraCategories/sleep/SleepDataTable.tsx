@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 
 import { SleepData } from "../../../../../typeModels/ouraModel";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 import {
   Table,
@@ -127,17 +125,17 @@ const SleepDataTable: React.FC<SleepDataTableProps> = ({ sleepData }) => {
     <>
       <Grid container spacing={2} alignItems="center" justifyContent="center">
         <Grid item>
-          <DatePicker
+          {/* <DatePicker
             selected={dateRange[0]}
             onChange={(date: Date | null) => setDateRange([date, dateRange[1]])}
             selectsStart
             startDate={dateRange[0]}
             endDate={dateRange[1]}
             placeholderText="Start date"
-          />
+          /> */}
         </Grid>
         <Grid item>
-          <DatePicker
+          {/* <DatePicker
             selected={dateRange[1]}
             onChange={(date: Date | null) => setDateRange([dateRange[0], date])}
             selectsEnd
@@ -145,7 +143,7 @@ const SleepDataTable: React.FC<SleepDataTableProps> = ({ sleepData }) => {
             endDate={dateRange[1]}
             minDate={dateRange[0]}
             placeholderText="End date"
-          />
+          /> */}
         </Grid>
       </Grid>
       <TableContainer component={Paper}>
