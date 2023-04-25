@@ -7,7 +7,11 @@ export interface OuraResponseData {
   };
 }
 
-export interface OuraLogsData {
+export interface OuraLogsDataByType {
+  [logTypeId: string]: OuraLog[];
+}
+
+export interface OuraLog {
   id: string;
   day: string;
   [key: string]: number | any;

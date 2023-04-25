@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { OuraLogsData, OuraResponseData } from "../../../typeModels/ouraModel";
+import { OuraLogsDataByType } from "../../../typeModels/ouraModel";
 
 const baseUrl =
   process.env.NODE_ENV === "development"
@@ -22,8 +22,13 @@ export const ouraLogsAPI = createApi({
     },
   }),
   endpoints: (builder) => ({
-    fetchOuraLogs: builder.query<OuraLogsData, { logTypeId: string }>({
-      query: ({ logTypeId }) => `/oura/logs?logTypeId=${logTypeId}`,
+    fetchOuraLogs: builder.query<OuraLogsDataByType, { logTypeIds: string[] }>({
+      query: ({ logTypeIds }) => {
+        const queryParam = logTypeIds
+          .map((id) => `logTypeId[]=${id}`)
+          .join("&");
+        return `/oura/logs?${queryParam}`;
+      },
     }),
   }),
 });

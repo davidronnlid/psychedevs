@@ -269,14 +269,16 @@ module.exports = () => {
     console.log("Received GET req at /oura/logs");
     const token = req.headers.authorization.split(" ")[1];
 
-    const logTypeId = req.query.logTypeId;
-    console.log("🚀 ~ file: oura.js:177 ~ router.get ~ logTypeId:", logTypeId);
+    const logTypeIds = req.query.logTypeId;
+    console.log(
+      "🚀 ~ file: oura.js:177 ~ router.get ~ logTypeIds:",
+      logTypeIds
+    );
 
     try {
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
       const PD_user_id = new ObjectId(decodedToken.userId);
 
-      // Find the user in the database using PD_user_id
       const ouraUser = await OuraUser.findOne({ PD_user_id: PD_user_id });
 
       if (!ouraUser) {
@@ -311,18 +313,6 @@ module.exports = () => {
         }
       };
 
-      const isSleepLogType = sleepLogTypes.some(
-        (logType) => logType.logType === logTypeId
-      );
-
-      if (!isSleepLogType) {
-        return res.status(400).send("Invalid logTypeId");
-      }
-
-      const data = isSleepLogType
-        ? await fetchWithTokenRefresh("sleep")
-        : await fetchWithTokenRefresh("daily_activity");
-
       const filterLogsByLogType = (logs, logTypeId) => {
         return logs
           .map((log) => {
@@ -337,7 +327,37 @@ module.exports = () => {
           .filter((log) => log !== undefined);
       };
 
-      const filteredData = filterLogsByLogType(data.data, logTypeId);
+      const validLogTypes = logTypeIds.filter((logTypeId) => {
+        return sleepLogTypes.some((logType) => logType.logType === logTypeId);
+      });
+
+      if (validLogTypes.length === 0) {
+        return res.status(400).send("Invalid logTypeIds");
+      }
+
+      const dataPromises = validLogTypes.map(async (logTypeId) => {
+        const isSleepLogType = sleepLogTypes.some(
+          (logType) => logType.logType === logTypeId
+        );
+
+        const data = isSleepLogType
+          ? await fetchWithTokenRefresh("sleep")
+          : await fetchWithTokenRefresh("daily_activity");
+
+        return { logTypeId, data: data.data };
+      });
+
+      const allData = await Promise.all(dataPromises);
+
+      const filteredData = allData.reduce((acc, { logTypeId, data }) => {
+        const logs = filterLogsByLogType(data, logTypeId);
+
+        if (!acc[logTypeId]) {
+          acc[logTypeId] = [];
+        }
+        acc[logTypeId] = [...acc[logTypeId], ...logs];
+        return acc;
+      }, {});
 
       console.log(
         "🚀 ~ file: oura.js:335 ~ router.get ~ filteredData:",

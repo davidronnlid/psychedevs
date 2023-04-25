@@ -16,7 +16,7 @@ const OuraAuthCompleted = ({
     data: ouraLogsData,
     error: ouraLogsError,
     isLoading: ouraLogsLoading,
-  } = useFetchOuraLogsQuery({ logTypeId: "rem_sleep_data" });
+  } = useFetchOuraLogsQuery({ logTypeIds: ["rem_sleep_data", "steps"] });
 
   const [hasCalledOnOuraAuthCompleted, setHasCalledOnOuraAuthCompleted] =
     useState(false);
@@ -33,13 +33,13 @@ const OuraAuthCompleted = ({
     <div>
       {ouraAuthCompleted ? (
         <>
-          {(["daily_activity", "sleep"] as const).map((key) => (
+          {/* {(["daily_activity", "sleep"] as const).map((key: any) => (
             <OuraData
               ouraData={ouraLogsData?.[key]?.data}
               ouraLogType={key}
               key={key}
             />
-          ))}
+          ))} */}
         </>
       ) : (
         <p>Loading oura data...</p>
