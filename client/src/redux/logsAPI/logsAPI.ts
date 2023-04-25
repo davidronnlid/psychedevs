@@ -22,8 +22,19 @@ export const logsAPI = createApi({
     },
   }),
   endpoints: (builder) => ({
-    fetchLogs: builder.query<Log[], void>({
-      query: () => "/vas/logs",
+    fetchLogs: builder.query<
+      Log[],
+      { startDate: string; endDate: string; logTypeIds: string[] }
+    >({
+      query: ({ startDate, endDate, logTypeIds }) => ({
+        url: "/vas/logs",
+        method: "GET",
+        body: JSON.stringify({
+          startDate,
+          endDate,
+          logTypeIds,
+        }),
+      }),
     }),
   }),
 });

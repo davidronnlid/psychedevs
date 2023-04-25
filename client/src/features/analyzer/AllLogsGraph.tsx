@@ -12,8 +12,16 @@ import { useFetchOuraLogTypeCategoriesQuery } from "../../redux/ouraAPI/logTypeC
 import { Box } from "@mui/material";
 import { DatePicker } from "@mui/lab";
 import DateRangePicker from "../../components/dateRangePicker";
+import { selectLogTypes } from "../../redux/logTypesSlice";
+import { useAppSelector } from "../../redux/hooks";
+import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
 
 Chart.register(LinearScale);
+
+type CombinedLogType = {
+  id: string | undefined;
+  label: string | undefined;
+};
 
 type ChartOptionsType = {
   scales: {
@@ -53,6 +61,8 @@ type ChartOptionsType = {
 };
 
 const AllLogsGraph: React.FC = () => {
+  const PDLogTypes = useAppSelector(selectLogTypes);
+
   const [selectedOuraLogTypes, setSelectedOuraLogTypes] = useState<string[]>(
     []
   );
@@ -82,6 +92,19 @@ const AllLogsGraph: React.FC = () => {
   const ouraLogTypes = useMemo(() => {
     return [...ouraSleepLogTypes, ...ouraDailyActivityLogTypes];
   }, [ouraSleepLogTypes, ouraDailyActivityLogTypes]);
+  const allLogTypes = useMemo(() => {
+    const ouraMapped = ouraLogTypes.map((logType) => ({
+      id: logType.id,
+      label: logType.label,
+    }));
+
+    const pdMapped = PDLogTypes.map((logType) => ({
+      id: logType.logType_id,
+      label: logType.name,
+    }));
+
+    return [...ouraMapped, ...pdMapped];
+  }, [ouraLogTypes, PDLogTypes]);
 
   const {
     data: ouraLogTypeCategoriesData,
@@ -144,31 +167,33 @@ const AllLogsGraph: React.FC = () => {
     return chartOptions;
   };
 
-  const [filteredLogTypes, setFilteredLogTypes] = useState(ouraLogTypes);
+  const [filteredLogTypes, setFilteredLogTypes] =
+    useState<{ id: string | undefined; label: string }[]>(ouraLogTypes);
 
   useEffect(() => {
-    setFilteredLogTypes(ouraLogTypes);
-  }, [ouraLogTypes]);
+    setFilteredLogTypes(allLogTypes);
+  }, [allLogTypes]);
 
   useEffect(() => {
     setFilteredLogTypes(
-      ouraLogTypes.filter((ouraLogType) =>
-        ouraLogType.label.toLowerCase().includes(search.toLowerCase())
+      allLogTypes.filter((logType) =>
+        logType.label.toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [search, ouraLogTypes]);
+  }, [search, allLogTypes]);
 
-  const [correlationData, setCorrelationData] = useState<{
-    correlation: number | null;
-    pValue: number | null;
-    requiredSampleSize?: number | null;
-    existingSampleSize?: number | null;
-  }>({
-    correlation: null,
-    pValue: null,
-    requiredSampleSize: null,
-    existingSampleSize: null,
-  });
+  // const [correlationData, setCorrelationData] = useState<{
+  //   correlation: number | null;
+  //   pValue: number | null;
+  //   requiredSampleSize?: number | null;
+  //   existingSampleSize?: number | null;
+  // }>({
+  //   correlation: null,
+  //   pValue: null,
+  //   requiredSampleSize: null,
+  //   existingSampleSize: null,
+  // });
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   console.log(
@@ -176,6 +201,17 @@ const AllLogsGraph: React.FC = () => {
     startDate,
     endDate
   );
+  const {
+    data: PDLogsData,
+    error: PDLogsError,
+    isLoading: PDLogsIsLoading,
+  } = useFetchLogsQuery({
+    startDate,
+    endDate,
+    logTypeIds: selectedOuraLogTypes.filter((logTypeId) =>
+      PDLogTypes.some((logType) => logType.logType_id === logTypeId)
+    ),
+  });
   const {
     data: ouraLogsData,
     error: ouraLogsError,
@@ -219,15 +255,26 @@ const AllLogsGraph: React.FC = () => {
   //     setCorrelationData(correlationResult);
   //   }
   // }, [ouraLogsData, selectedOuraLogTypes]);
+  const [selectedPDLogTypes, setSelectedPDLogTypes] = useState<string[]>([]);
 
   const handleLogTypeSelect = (_event: any, newValue: any) => {
     if (newValue.length <= 2) {
-      setSelectedOuraLogTypes(newValue.map((item: any) => item.id));
+      const selectedOura = newValue
+        .filter((item: any) => ouraLogTypes.some((log) => log.id === item.id))
+        .map((item: any) => item.id);
+      const selectedPD = newValue
+        .filter((item: any) =>
+          PDLogTypes.some((log) => log.logType_id === item.id)
+        )
+        .map((item: any) => item.id);
+
+      setSelectedOuraLogTypes(selectedOura);
+      setSelectedPDLogTypes(selectedPD);
     }
   };
 
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
-    const logType = ouraLogTypes.find((log) => log.id === logTypeId);
+    const logType = allLogTypes.find((log) => log.id === logTypeId);
 
     const yAxisID = selectedOuraLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
 
@@ -235,9 +282,18 @@ const AllLogsGraph: React.FC = () => {
       const backgroundColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
       const borderColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
 
-      const logData =
-        ouraLogsData?.[logTypeId]?.map((ouraLog: any) => ouraLog[logTypeId]) ||
-        "";
+      let logData;
+      if (ouraLogTypes.some((log) => log.id === logTypeId)) {
+        logData =
+          ouraLogsData?.[logTypeId]?.map(
+            (ouraLog: any) => ouraLog[logTypeId]
+          ) || "";
+      } else if (PDLogTypes.some((log) => log.logType_id === logTypeId)) {
+        logData =
+          PDLogsData?.[logTypeId]?.map(
+            (PDLog: { [logTypeId: string]: any }) => PDLog[logTypeId]
+          ) || "";
+      }
 
       return {
         label: logType.label,
@@ -300,7 +356,7 @@ const AllLogsGraph: React.FC = () => {
         getOptionLabel={(option) => option?.label || ""}
         onChange={handleLogTypeSelect}
         value={selectedOuraLogTypes.map((logId) =>
-          ouraLogTypes.find((log) => log.id === logId)
+          allLogTypes.find((log) => log.id === logId)
         )}
         renderInput={(params) => (
           <TextField

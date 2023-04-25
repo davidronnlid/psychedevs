@@ -19,9 +19,9 @@ import { useFetchLogsQuery } from "./redux/logsAPI/logsAPI";
 import { setLogs } from "./redux/logsAPI/logsSlice";
 
 const AppContainer: React.FC = (): JSX.Element => {
-  const { data, error, isLoading, isSuccess } = useFetchLogsQuery();
+  // const { data, error, isLoading, isSuccess } = useFetchLogsQuery();
 
-  console.log("🚀!!!!!!!!!!!! ~ file: AppContainer.tsx:22 ~ data:", data);
+  // console.log("🚀!!!!!!!!!!!! ~ file: AppContainer.tsx:22 ~ data:", data);
 
   const dispatch = useAppDispatch();
 
@@ -30,11 +30,11 @@ const AppContainer: React.FC = (): JSX.Element => {
     if (jwt) {
       dispatch(setAuthState({ isAuthenticated: true, jwt }));
 
-      console.log("About to set this data into store state: ", data);
+      // console.log("About to set this data into store state: ", data);
 
-      if (isSuccess) {
-        dispatch(setLogs(data));
-      }
+      // if (isSuccess) {
+      //   dispatch(setLogs(data));
+      // }
 
       // req to users/user-id is logged, but not req to users/user-profile, the below function doesn't see to get called
 
@@ -59,7 +59,7 @@ const AppContainer: React.FC = (): JSX.Element => {
 
       fetchData();
     }
-  }, [dispatch, isSuccess, data]);
+  }, [dispatch]);
 
   return (
     <div className="appContainer">
