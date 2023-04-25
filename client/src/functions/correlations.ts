@@ -55,7 +55,7 @@ const inverseNormalCDF = (p: number): number | undefined => {
 };
 
 export const calculateCorrelation = (logs: Log[][]) => {
-  // Filter logs with matching dates
+  //Filter logs with matching dates
   const filteredLogs0 = logs[0].filter((log0) =>
     logs[1].some((log1) => log1.date === log0.date)
   );
