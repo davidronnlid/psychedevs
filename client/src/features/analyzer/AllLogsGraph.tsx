@@ -1,14 +1,8 @@
 import { Bar } from "react-chartjs-2";
 import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
-import {
-  SleepData,
-  DailyActivity,
-  OuraResponseData,
-  OuraLogType,
-} from "../../typeModels/ouraModel";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
 
@@ -78,8 +72,9 @@ const AllLogsGraph: React.FC = () => {
     "🚀 ~ file: AllLogsGraph.tsx:60 ~ ouraDailyActivityLogTypes:",
     ouraDailyActivityLogTypes
   );
-
-  const ouraLogTypes = [...ouraSleepLogTypes, ...ouraDailyActivityLogTypes];
+  const ouraLogTypes = useMemo(() => {
+    return [...ouraSleepLogTypes, ...ouraDailyActivityLogTypes];
+  }, [ouraSleepLogTypes, ouraDailyActivityLogTypes]);
   console.log("🚀 ~ file: AllLogsGraph.tsx:89 ~ ouraLogTypes:", ouraLogTypes);
 
   const generateChartOptions = (selectedOuraSleepLogTypes: string[]) => {
@@ -170,28 +165,19 @@ const AllLogsGraph: React.FC = () => {
   } = useFetchOuraLogsQuery({
     logTypeId: selectedLogTypeId,
   });
-  console.log("🚀 ~ file: AllLogsGraph.tsx:168 ~ ouraLogsData:", ouraLogsData);
+  console.log(
+    "🚀 ~ file: AllLogsGraph.tsx:168 ~ ouraLogsData:",
+    ouraLogsData,
+    ouraLogsData?.map((ouraLog: any) => ouraLog.day)
+  );
 
-  // if (ouraLogsIsLoading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (ouraLogsError) {
-  //   return <div>Error: {ouraLogsError.toString()}</div>;
-  // }
-
-  const sleepData = [
-    {
-      day: "2023-04-17",
-      id: "f16bc289-d2d4-49e6-b953-e99d7e7b0ee9",
-      total_sleep_duration: 32250,
-    },
-  ];
-
-  const xAxisLabels = sleepData.map((item) => item.day);
+  const xAxisLabels = ouraLogsData?.map((ouraLog: any) => ouraLog.day);
 
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
-    console.log(logTypeId, ouraLogsData, "in getChartDataForLogType");
+    console.log(
+      ouraLogsData?.map((ouraLog: any) => ouraLog[logTypeId]),
+      "in getChartDataForLogType"
+    );
 
     const logType = ouraLogTypes.find((log) => log.id === logTypeId);
 
@@ -214,13 +200,18 @@ const AllLogsGraph: React.FC = () => {
     return null;
   };
 
+  console.log(
+    selectedOuraSleepLogTypes,
+    " will be set to that when initialization of chartData happens"
+  );
+
   const chartData = {
-    xAxisLabels,
+    labels: xAxisLabels,
     datasets: selectedOuraSleepLogTypes
       .map((logTypeId, index) => getChartDataForLogType(logTypeId, index))
       .filter((dataset) => dataset !== null) as ChartDataset<"bar", number[]>[],
   };
-
+  console.log("🚀 ~ file: AllLogsGraph.tsx:214 ~ chartData:", chartData);
   return (
     <>
       <Autocomplete
