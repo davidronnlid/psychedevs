@@ -1,10 +1,16 @@
 import { Bar } from "react-chartjs-2";
 import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
-import { SleepData, DailyActivity } from "../../typeModels/ouraModel";
+import {
+  SleepData,
+  DailyActivity,
+  OuraResponseData,
+  OuraLogType,
+} from "../../typeModels/ouraModel";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
 import React, { useState, useEffect } from "react";
 import { Autocomplete, TextField } from "@mui/material";
+import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
 
 Chart.register(LinearScale);
 
@@ -46,51 +52,48 @@ type ChartOptionsType = {
 };
 
 const AllLogsGraph: React.FC = () => {
-  const {
-    data: ouraLogsData,
-    error: ouraLogsError,
-    isLoading: ouraLogsIsLoading,
-  } = useFetchOuraLogsQuery();
-  const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
+  const [selectedOuraSleepLogTypes, setSelectedOuraSleepLogTypes] = useState<
+    string[]
+  >([]);
+
   const [search, setSearch] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const sleepData: SleepData[] = ouraLogsData?.sleep.data || [];
-  const dailyActivityData: DailyActivity[] =
-    ouraLogsData?.daily_activity.data || [];
+  const {
+    logTypes: ouraSleepLogTypes,
+    error,
+    isLoading,
+  } = useOuraLogTypes("sleep");
   console.log(
-    "🚀 ~ file: AllLogsGraph.tsx:55 ~ dailyActivityData:",
-    dailyActivityData
+    "🚀 ~ file: AllLogsGraph.tsx:60 ~ ouraSleepLogTypes:",
+    ouraSleepLogTypes
   );
 
-  const logTypes = [
-    {
-      id: "total_sleep_duration",
-      label: "Total Sleep Duration",
-      data: sleepData.map((item) => item.total_sleep_duration),
-    },
-    {
-      id: "rem_sleep_duration",
-      label: "REM Sleep Duration",
-      data: sleepData.map((item) => item.rem_sleep_duration),
-    },
-    {
-      id: "steps",
-      label: "Steps",
-      data: dailyActivityData.map((item) => item.steps),
-    },
-  ];
+  const {
+    logTypes: ouraDailyActivityLogTypes,
+    error: ouraDailyActivityLogTypesError,
+    isLoading: ouraDailyActivityLogTypesIsLoading,
+  } = useOuraLogTypes("daily_activity");
+  console.log(
+    "🚀 ~ file: AllLogsGraph.tsx:60 ~ ouraDailyActivityLogTypes:",
+    ouraDailyActivityLogTypes
+  );
 
-  const generateChartOptions = (selectedLogs: string[]) => {
-    const selectedLogData = selectedLogs.map((logId) =>
-      logTypes.find((log) => log.id === logId)
+  const ouraLogTypes = [...ouraSleepLogTypes, ...ouraDailyActivityLogTypes];
+  console.log("🚀 ~ file: AllLogsGraph.tsx:89 ~ ouraLogTypes:", ouraLogTypes);
+
+  const generateChartOptions = (selectedOuraSleepLogTypes: string[]) => {
+    const selectedLogData = selectedOuraSleepLogTypes.map((logId) =>
+      ouraLogTypes.find((log) => log.id === logId)
     );
     const y1LogType = selectedLogData.find(
-      (log) => log && selectedLogs.indexOf(log.id) === 0
+      (log) => log && selectedOuraSleepLogTypes.indexOf(log.id) === 0
     );
     const y2LogType = selectedLogData.find(
-      (log) => log && selectedLogs.indexOf(log.id) === 1
+      (log) => log && selectedOuraSleepLogTypes.indexOf(log.id) === 1
     );
+
+    console.log("y1LogType&y2LogType. ", y1LogType, y2LogType);
 
     const y1AxisDisplay = !!y1LogType;
     const y2AxisDisplay = !!y2LogType;
@@ -133,36 +136,67 @@ const AllLogsGraph: React.FC = () => {
     return chartOptions;
   };
 
-  const [filteredLogTypes, setFilteredLogTypes] = useState(logTypes);
+  const [filteredLogTypes, setFilteredLogTypes] = useState(ouraLogTypes);
+
+  useEffect(() => {
+    setFilteredLogTypes(ouraLogTypes);
+  }, [ouraLogTypes]);
 
   useEffect(() => {
     setFilteredLogTypes(
-      logTypes.filter((log) =>
-        log.label.toLowerCase().includes(search.toLowerCase())
+      ouraLogTypes.filter((ouraLogType) =>
+        ouraLogType.label.toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [search]);
+  }, [search, ouraLogTypes]);
 
   const handleLogTypeSelect = (_event: any, newValue: any) => {
     if (newValue.length <= 2) {
-      setSelectedLogs(newValue.map((item: any) => item.id));
+      console.log(
+        "🚀 ~ file: AllLogsGraph.tsx:157 ~ handleLogTypeSelect ~ newValue:",
+        newValue
+      );
+      setSelectedOuraSleepLogTypes(newValue.map((item: any) => item.id));
     }
   };
 
-  if (ouraLogsIsLoading) {
-    return <div>Loading...</div>;
-  }
+  const selectedLogTypeId =
+    selectedOuraSleepLogTypes[0] ?? "total_sleep_duration";
 
-  if (ouraLogsError) {
-    return <div>Error: {ouraLogsError.toString()}</div>;
-  }
+  const {
+    data: ouraLogsData,
+    error: ouraLogsError,
+    isLoading: ouraLogsIsLoading,
+  } = useFetchOuraLogsQuery({
+    logTypeId: selectedLogTypeId,
+  });
+  console.log("🚀 ~ file: AllLogsGraph.tsx:168 ~ ouraLogsData:", ouraLogsData);
 
-  const labels = sleepData.map((item) => item.day);
+  // if (ouraLogsIsLoading) {
+  //   return <div>Loading...</div>;
+  // }
+
+  // if (ouraLogsError) {
+  //   return <div>Error: {ouraLogsError.toString()}</div>;
+  // }
+
+  const sleepData = [
+    {
+      day: "2023-04-17",
+      id: "f16bc289-d2d4-49e6-b953-e99d7e7b0ee9",
+      total_sleep_duration: 32250,
+    },
+  ];
+
+  const xAxisLabels = sleepData.map((item) => item.day);
 
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
-    const logType = logTypes.find((log) => log.id === logTypeId);
+    console.log(logTypeId, ouraLogsData, "in getChartDataForLogType");
 
-    const yAxisID = selectedLogs.indexOf(logTypeId) === 0 ? "y1" : "y2";
+    const logType = ouraLogTypes.find((log) => log.id === logTypeId);
+
+    const yAxisID =
+      selectedOuraSleepLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
 
     if (logType) {
       const backgroundColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
@@ -170,7 +204,7 @@ const AllLogsGraph: React.FC = () => {
 
       return {
         label: logType.label,
-        data: logType.data,
+        data: ouraLogsData?.map((ouraLog: any) => ouraLog[logTypeId]),
         backgroundColor,
         borderColor,
         borderWidth: 1,
@@ -181,9 +215,9 @@ const AllLogsGraph: React.FC = () => {
   };
 
   const chartData = {
-    labels,
-    datasets: selectedLogs
-      .map((log, index) => getChartDataForLogType(log, index))
+    xAxisLabels,
+    datasets: selectedOuraSleepLogTypes
+      .map((logTypeId, index) => getChartDataForLogType(logTypeId, index))
       .filter((dataset) => dataset !== null) as ChartDataset<"bar", number[]>[],
   };
 
@@ -193,7 +227,7 @@ const AllLogsGraph: React.FC = () => {
         multiple
         open={dropdownOpen}
         onOpen={() => {
-          if (selectedLogs.length < 2) {
+          if (selectedOuraSleepLogTypes.length < 2) {
             setDropdownOpen(true);
           }
         }}
@@ -201,24 +235,27 @@ const AllLogsGraph: React.FC = () => {
         options={filteredLogTypes}
         getOptionLabel={(option) => option?.label || ""}
         onChange={handleLogTypeSelect}
-        value={selectedLogs.map((logId) =>
-          logTypes.find((log) => log.id === logId)
+        value={selectedOuraSleepLogTypes.map((logId) =>
+          ouraLogTypes.find((log) => log.id === logId)
         )}
         renderInput={(params) => (
           <TextField
             {...params}
             label="Select 2 log types to display logs for"
-            disabled={selectedLogs.length >= 2}
+            disabled={selectedOuraSleepLogTypes.length >= 2}
             helperText={
-              selectedLogs.length >= 2
-                ? "Further log type selection is disabled because you have selected 2/2 log types to analyze logs of"
+              selectedOuraSleepLogTypes.length >= 2
+                ? "Max number of log types selected"
                 : ""
             }
           />
         )}
       />
 
-      <Bar data={chartData} options={generateChartOptions(selectedLogs)} />
+      <Bar
+        data={chartData}
+        options={generateChartOptions(selectedOuraSleepLogTypes)}
+      />
     </>
   );
 };

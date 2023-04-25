@@ -9,6 +9,102 @@ const OuraUser = require("../models/ouraUser");
 const axios = require("axios");
 const OURA_TOKEN_URL = "https://api.ouraring.com/oauth/token";
 
+const sleepLogTypes = [
+  {
+    logType: "average_breath",
+    logTypeName: "Respiratory rate",
+    unit: "Breaths per minute",
+  },
+  {
+    logType: "average_heart_rate",
+    logTypeName: "Average heart rate",
+    unit: "Beats per minute",
+  },
+  {
+    logType: "average_hrv",
+    logTypeName: "Average heart rate variability",
+    unit: "milliseconds",
+  },
+  {
+    logType: "deep_sleep_duration",
+    logTypeName: "Deep sleep duration",
+    unit: "hours/minutes",
+  },
+  {
+    logType: "latency",
+    logTypeName: "Time to fall asleep",
+    unit: "minutes",
+  },
+  {
+    logType: "light_sleep_duration",
+    logTypeName: "Light sleep duration",
+    unit: "hours/minutes",
+  },
+  {
+    logType: "rem_sleep_duration",
+    logTypeName: "REM sleep duration",
+    unit: "hours/minutes",
+  },
+  {
+    logType: "time_in_bed",
+    logTypeName: "Time in bed",
+    unit: "hours/minutes",
+  },
+  {
+    logType: "total_sleep_duration",
+    logTypeName: "Total sleep duration",
+    unit: "hours/minutes",
+  },
+  {
+    logType: "awake_time",
+    logTypeName: "Awake time",
+    unit: "date",
+  },
+  {
+    logType: "bedtime_start",
+    logTypeName: "Bedtime start",
+    unit: "date",
+  },
+  {
+    logType: "bedtime_end",
+    logTypeName: "Bedtime end",
+    unit: "date",
+  },
+  {
+    logType: "day",
+    logTypeName: "Day",
+    unit: "date",
+  },
+];
+
+const dailyActivityLogTypes = [
+  {
+    logType: "active_calories",
+    logTypeName: "Calories burned while active",
+    unit: "calories",
+  },
+  {
+    logType: "average_met_minutes",
+    logTypeName: "Average MET minutes",
+    unit: "minutes",
+  },
+  {
+    logType: "resting_time",
+    logTypeName: "Resting time",
+    unit: "hours/minutes",
+  },
+  {
+    logType: "steps",
+    logTypeName: "Steps",
+    unit: "number",
+  },
+  {
+    logType: "day",
+    logTypeName: "Day",
+    unit: "date",
+  },
+];
+
 const refreshAccessToken = async (client_id, client_secret, refresh_token) => {
   console.log(
     client_id,
@@ -48,10 +144,10 @@ async function fetchDataFromEndpoint(accessToken, dataType, start, end) {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    console.log(
-      "🚀 ~ file: oura.js:51 ~ fetchDataFromEndpoint ~ response:",
-      response.data.data
-    );
+    // console.log(
+    //   "🚀 ~ file: oura.js:51 ~ fetchDataFromEndpoint ~ response:",
+    //   response.data.data
+    // );
     return {
       data: response.data.data,
       error: false,
@@ -173,6 +269,9 @@ module.exports = () => {
     console.log("Received GET req at /oura/logs");
     const token = req.headers.authorization.split(" ")[1];
 
+    const logTypeId = req.query.logTypeId;
+    console.log("🚀 ~ file: oura.js:177 ~ router.get ~ logTypeId:", logTypeId);
+
     try {
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
       const PD_user_id = new ObjectId(decodedToken.userId);
@@ -212,20 +311,42 @@ module.exports = () => {
         }
       };
 
-      const sleep = await fetchWithTokenRefresh("sleep");
-      const daily_activity = await fetchWithTokenRefresh("daily_activity");
+      const isSleepLogType = sleepLogTypes.some(
+        (logType) => logType.logType === logTypeId
+      );
 
-      console.log("Sample of what will be sent to client: ", {
-        daily_activity: daily_activity,
-        sleep: sleep,
-      });
+      if (!isSleepLogType) {
+        return res.status(400).send("Invalid logTypeId");
+      }
 
-      res.json({
-        daily_activity: daily_activity,
-        sleep: sleep,
-      });
+      const data = isSleepLogType
+        ? await fetchWithTokenRefresh("sleep")
+        : await fetchWithTokenRefresh("daily_activity");
+
+      const filterLogsByLogType = (logs, logTypeId) => {
+        return logs
+          .map((log) => {
+            if (log[logTypeId] !== undefined) {
+              return {
+                id: log.id,
+                day: log.day,
+                [logTypeId]: log[logTypeId],
+              };
+            }
+          })
+          .filter((log) => log !== undefined);
+      };
+
+      const filteredData = filterLogsByLogType(data.data, logTypeId);
+
+      console.log(
+        "🚀 ~ file: oura.js:335 ~ router.get ~ filteredData:",
+        filteredData
+      );
+
+      res.json(filteredData);
     } catch (error) {
-      console.error("Error fetching Oura data.");
+      console.error("Error fetching Oura data.", error);
       res.status(500).send("Error fetching Oura data");
     }
   });
@@ -272,10 +393,10 @@ module.exports = () => {
       };
 
       const fetchedData = {};
-      console.log(
-        "🚀 ~ file: oura.js:328 ~ router.get ~ fetchedData:",
-        fetchedData
-      );
+      // console.log(
+      //   "🚀 ~ file: oura.js:328 ~ router.get ~ fetchedData:",
+      //   fetchedData
+      // );
       for (const category of log_type_categories) {
         try {
           await fetchWithTokenRefresh(category);
@@ -288,10 +409,10 @@ module.exports = () => {
           }
         }
       }
-      console.log(
-        "🚀 ~ file: oura.js:345 ~ router.get ~ fetchedData:",
-        fetchedData
-      );
+      // console.log(
+      //   "🚀 ~ file: oura.js:345 ~ router.get ~ fetchedData:",
+      //   fetchedData
+      // );
 
       res.json(fetchedData);
     } catch (error) {
@@ -308,74 +429,6 @@ module.exports = () => {
     console.log("Received GET req at /log-types/sleep");
 
     try {
-      const sleepLogTypes = [
-        {
-          logType: "average_breath",
-          logTypeName: "Respiratory rate",
-          unit: "Breaths per minute",
-        },
-        {
-          logType: "average_heart_rate",
-          logTypeName: "Average heart rate",
-          unit: "Beats per minute",
-        },
-        {
-          logType: "average_hrv",
-          logTypeName: "Average heart rate variability",
-          unit: "milliseconds",
-        },
-        {
-          logType: "deep_sleep_duration",
-          logTypeName: "Deep sleep duration",
-          unit: "hours/minutes",
-        },
-        {
-          logType: "latency",
-          logTypeName: "Time to fall asleep",
-          unit: "minutes",
-        },
-        {
-          logType: "light_sleep_duration",
-          logTypeName: "Light sleep duration",
-          unit: "hours/minutes",
-        },
-        {
-          logType: "rem_sleep_duration",
-          logTypeName: "REM sleep duration",
-          unit: "hours/minutes",
-        },
-        {
-          logType: "time_in_bed",
-          logTypeName: "Time in bed",
-          unit: "hours/minutes",
-        },
-        {
-          logType: "total_sleep_duration",
-          logTypeName: "Total sleep duration",
-          unit: "hours/minutes",
-        },
-        {
-          logType: "awake_time",
-          logTypeName: "Awake time",
-          unit: "date",
-        },
-        {
-          logType: "bedtime_start",
-          logTypeName: "Bedtime start",
-          unit: "date",
-        },
-        {
-          logType: "bedtime_end",
-          logTypeName: "Bedtime end",
-          unit: "date",
-        },
-        {
-          logType: "day",
-          logTypeName: "Day",
-          unit: "date",
-        },
-      ];
-
       res.json({ daily_activity: null, sleep: sleepLogTypes });
     } catch (error) {
       console.error(
@@ -391,34 +444,6 @@ module.exports = () => {
     console.log("Received GET req at /log-types/daily_activity");
 
     try {
-      const dailyActivityLogTypes = [
-        {
-          logType: "active_calories",
-          logTypeName: "Calories burned while active",
-          unit: "calories",
-        },
-        {
-          logType: "average_met_minutes",
-          logTypeName: "Average MET minutes",
-          unit: "minutes",
-        },
-        {
-          logType: "resting_time",
-          logTypeName: "Resting time",
-          unit: "hours/minutes",
-        },
-        {
-          logType: "steps",
-          logTypeName: "Steps",
-          unit: "number",
-        },
-        {
-          logType: "day",
-          logTypeName: "Day",
-          unit: "date",
-        },
-      ];
-
       res.json({ daily_activity: dailyActivityLogTypes, sleep: null });
     } catch (error) {
       console.error(

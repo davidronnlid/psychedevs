@@ -16,7 +16,7 @@ const OuraAuthCompleted = ({
     data: ouraLogsData,
     error: ouraLogsError,
     isLoading: ouraLogsLoading,
-  } = useFetchOuraLogsQuery();
+  } = useFetchOuraLogsQuery({ logTypeId: "rem_sleep_data" });
 
   const [hasCalledOnOuraAuthCompleted, setHasCalledOnOuraAuthCompleted] =
     useState(false);

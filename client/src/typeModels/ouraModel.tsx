@@ -7,6 +7,12 @@ export interface OuraResponseData {
   };
 }
 
+export interface OuraLogsData {
+  id: string;
+  day: string;
+  [key: string]: number | any;
+}
+
 export interface OuraLogTypeCategoriesResponseData {
   daily_activity: boolean;
   sleep: boolean;
