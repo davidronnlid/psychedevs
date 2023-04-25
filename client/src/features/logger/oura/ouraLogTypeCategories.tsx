@@ -12,8 +12,38 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Button, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useJwt } from "../../../redux/authSlice";
+import OuraLogo from "../../../images/OuraLogo.png";
+
+import { CSSProperties } from "react";
+
+const OuraLogTypeCategoriesStyles: Record<string, CSSProperties> = {
+  button: {
+    display: "flex",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    width: "13rem",
+  },
+  Box: {
+    display: "flex",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    width: "10rem",
+  },
+  logoOfIntegrateButton: {
+    width: "3.75rem",
+    position: "relative",
+    top: "-2px",
+    left: "4px",
+  },
+  logoOfOuraLogTypesTitle: {
+    width: "3.75rem",
+    position: "relative",
+    top: "-5px",
+    left: "0px",
+  },
+};
 
 const OuraLogTypeCategories: React.FC = (): JSX.Element => {
   const [selectedLogTypeCategory, setSelectedLogTypeCategory] =
@@ -118,14 +148,31 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
     return <p>Loading oura log type catgegories...</p>;
   } else if (ouraLogTypeCategoriesError) {
     return (
-      <Button onClick={() => handleIntegrateOura()}>Integrate with Oura</Button>
+      <Button
+        onClick={() => handleIntegrateOura()}
+        style={OuraLogTypeCategoriesStyles.button}
+      >
+        <Typography>Integrate with </Typography>
+        <img
+          src={OuraLogo}
+          alt="Oura logo"
+          style={OuraLogTypeCategoriesStyles.logoOfIntegrateButton}
+        />
+      </Button>
     );
   } else {
     return (
       <>
-        <Typography variant="h6" gutterBottom>
-          Oura integration log types
-        </Typography>
+        <Box sx={OuraLogTypeCategoriesStyles.Box}>
+          <img
+            src={OuraLogo}
+            alt="Oura logo"
+            style={OuraLogTypeCategoriesStyles.logoOfOuraLogTypesTitle}
+          />
+          <Typography variant="h6" gutterBottom>
+            log types
+          </Typography>
+        </Box>
         <Typography variant="subtitle1" gutterBottom>
           Categories
         </Typography>
