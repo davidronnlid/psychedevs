@@ -4,6 +4,7 @@ import { SleepData, DailyActivity } from "../../typeModels/ouraModel";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
 import React, { useState, useEffect } from "react";
+import { Autocomplete, TextField } from "@mui/material";
 
 Chart.register(LinearScale);
 
@@ -13,6 +14,8 @@ type ChartOptionsType = {
       type: "linear";
       position: "left";
       beginAtZero: true;
+      display: boolean;
+
       title: {
         display: boolean;
         text: string;
@@ -27,6 +30,8 @@ type ChartOptionsType = {
       type: "linear";
       position: "right";
       beginAtZero: true;
+      display: boolean;
+
       title: {
         display: boolean;
         text: string;
@@ -48,6 +53,7 @@ const AllLogsGraph: React.FC = () => {
   } = useFetchOuraLogsQuery();
   const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const sleepData: SleepData[] = ouraLogsData?.sleep.data || [];
   const dailyActivityData: DailyActivity[] =
@@ -62,27 +68,70 @@ const AllLogsGraph: React.FC = () => {
       id: "total_sleep_duration",
       label: "Total Sleep Duration",
       data: sleepData.map((item) => item.total_sleep_duration),
-      backgroundColor: "rgba(75, 192, 192, 0.2)",
-      borderColor: "rgba(75, 192, 192, 1)",
-      yAxisID: "y1",
     },
     {
       id: "rem_sleep_duration",
       label: "REM Sleep Duration",
       data: sleepData.map((item) => item.rem_sleep_duration),
-      backgroundColor: "rgba(75, 192, 192, 0.2)",
-      borderColor: "rgba(75, 192, 192, 1)",
-      yAxisID: "y1",
     },
     {
       id: "steps",
       label: "Steps",
       data: dailyActivityData.map((item) => item.steps),
-      backgroundColor: "rgba(75, 192, 192, 0.2)",
-      borderColor: "rgba(75, 192, 192, 1)",
-      yAxisID: "y2",
     },
   ];
+
+  const generateChartOptions = (selectedLogs: string[]) => {
+    const selectedLogData = selectedLogs.map((logId) =>
+      logTypes.find((log) => log.id === logId)
+    );
+    const y1LogType = selectedLogData.find(
+      (log) => log && selectedLogs.indexOf(log.id) === 0
+    );
+    const y2LogType = selectedLogData.find(
+      (log) => log && selectedLogs.indexOf(log.id) === 1
+    );
+
+    const y1AxisDisplay = !!y1LogType;
+    const y2AxisDisplay = !!y2LogType;
+
+    const chartOptions: ChartOptionsType = {
+      scales: {
+        y1: {
+          type: "linear",
+          position: "left",
+          beginAtZero: true,
+          display: y1AxisDisplay,
+          title: {
+            display: y1AxisDisplay,
+            text: y1LogType ? y1LogType.label : "",
+            color: "#001219",
+            font: {
+              size: 16,
+            },
+            rotation: 0,
+          },
+        },
+        y2: {
+          type: "linear",
+          position: "right",
+          beginAtZero: true,
+          display: y2AxisDisplay,
+          title: {
+            display: y2AxisDisplay,
+            text: y2LogType ? y2LogType.label : "",
+            color: "#26ace2",
+            font: {
+              size: 16,
+            },
+            rotation: 0,
+          },
+        },
+      },
+    };
+
+    return chartOptions;
+  };
 
   const [filteredLogTypes, setFilteredLogTypes] = useState(logTypes);
 
@@ -94,15 +143,9 @@ const AllLogsGraph: React.FC = () => {
     );
   }, [search]);
 
-  const handleLogTypeSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = event.target.value;
-
-    if (selectedLogs.includes(selected)) {
-      setSelectedLogs(selectedLogs.filter((log) => log !== selected));
-    } else {
-      if (selectedLogs.length < 2) {
-        setSelectedLogs([...selectedLogs, selected]);
-      }
+  const handleLogTypeSelect = (_event: any, newValue: any) => {
+    if (newValue.length <= 2) {
+      setSelectedLogs(newValue.map((item: any) => item.id));
     }
   };
 
@@ -116,16 +159,22 @@ const AllLogsGraph: React.FC = () => {
 
   const labels = sleepData.map((item) => item.day);
 
-  const getChartDataForLogType = (logTypeId: string) => {
+  const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
     const logType = logTypes.find((log) => log.id === logTypeId);
+
+    const yAxisID = selectedLogs.indexOf(logTypeId) === 0 ? "y1" : "y2";
+
     if (logType) {
+      const backgroundColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
+      const borderColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
+
       return {
         label: logType.label,
         data: logType.data,
-        backgroundColor: logType.backgroundColor,
-        borderColor: logType.borderColor,
+        backgroundColor,
+        borderColor,
         borderWidth: 1,
-        yAxisID: logType.yAxisID,
+        yAxisID,
       };
     }
     return null;
@@ -134,59 +183,42 @@ const AllLogsGraph: React.FC = () => {
   const chartData = {
     labels,
     datasets: selectedLogs
-      .map((log) => getChartDataForLogType(log))
+      .map((log, index) => getChartDataForLogType(log, index))
       .filter((dataset) => dataset !== null) as ChartDataset<"bar", number[]>[],
-  };
-
-  const chartOptions: ChartOptionsType = {
-    scales: {
-      y1: {
-        type: "linear",
-        position: "left",
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Sleep Duration (minutes) axis",
-          color: "rgba(75, 192, 192, 1)",
-          font: {
-            size: 16, // Set the font size
-          },
-          rotation: 90, // Set the rotation to 0 for horizontal orientation
-        },
-      },
-      y2: {
-        type: "linear",
-        position: "right",
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Active Calories axis",
-          color: "rgba(255, 206, 86, 1)",
-          font: {
-            size: 16, // Set the font size
-          },
-          rotation: 0, // Set the rotation to 0 for horizontal orientation
-        },
-      },
-    },
   };
 
   return (
     <>
-      <input
-        type="text"
-        placeholder="Search log types"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+      <Autocomplete
+        multiple
+        open={dropdownOpen}
+        onOpen={() => {
+          if (selectedLogs.length < 2) {
+            setDropdownOpen(true);
+          }
+        }}
+        onClose={() => setDropdownOpen(false)}
+        options={filteredLogTypes}
+        getOptionLabel={(option) => option?.label || ""}
+        onChange={handleLogTypeSelect}
+        value={selectedLogs.map((logId) =>
+          logTypes.find((log) => log.id === logId)
+        )}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Select 2 log types to display logs for"
+            disabled={selectedLogs.length >= 2}
+            helperText={
+              selectedLogs.length >= 2
+                ? "Further log type selection is disabled because you have selected 2/2 log types to analyze logs of"
+                : ""
+            }
+          />
+        )}
       />
-      <select onChange={handleLogTypeSelect}>
-        {filteredLogTypes.map((log) => (
-          <option key={log.id} value={log.id}>
-            {log.label}
-          </option>
-        ))}
-      </select>
-      <Bar data={chartData} options={chartOptions} />
+
+      <Bar data={chartData} options={generateChartOptions(selectedLogs)} />
     </>
   );
 };
