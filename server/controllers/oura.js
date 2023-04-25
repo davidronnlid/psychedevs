@@ -327,27 +327,53 @@ module.exports = () => {
           .filter((log) => log !== undefined);
       };
 
-      const validLogTypes = logTypeIds.filter((logTypeId) => {
-        return sleepLogTypes.some((logType) => logType.logType === logTypeId);
-      });
+      const validSleepLogTypes = logTypeIds.filter((logTypeId) =>
+        sleepLogTypes.some((logType) => logType.logType === logTypeId)
+      );
+
+      const validDailyActivityLogTypes = logTypeIds.filter((logTypeId) =>
+        dailyActivityLogTypes.some((logType) => logType.logType === logTypeId)
+      );
+
+      const validLogTypes = [
+        ...validSleepLogTypes,
+        ...validDailyActivityLogTypes,
+      ];
 
       if (validLogTypes.length === 0) {
         return res.status(400).send("Invalid logTypeIds");
       }
 
-      const dataPromises = validLogTypes.map(async (logTypeId) => {
-        const isSleepLogType = sleepLogTypes.some(
-          (logType) => logType.logType === logTypeId
+      const dataPromises = [];
+      if (validLogTypes.length === 0) {
+        return res.status(400).send("Invalid logTypeIds");
+      }
+
+      if (validSleepLogTypes.length > 0) {
+        dataPromises.push(
+          (async () => {
+            const data = await fetchWithTokenRefresh("sleep");
+            return validSleepLogTypes.map((logTypeId) => ({
+              logTypeId,
+              data: data.data,
+            }));
+          })()
         );
+      }
 
-        const data = isSleepLogType
-          ? await fetchWithTokenRefresh("sleep")
-          : await fetchWithTokenRefresh("daily_activity");
+      if (validDailyActivityLogTypes.length > 0) {
+        dataPromises.push(
+          (async () => {
+            const data = await fetchWithTokenRefresh("daily_activity");
+            return validDailyActivityLogTypes.map((logTypeId) => ({
+              logTypeId,
+              data: data.data,
+            }));
+          })()
+        );
+      }
 
-        return { logTypeId, data: data.data };
-      });
-
-      const allData = await Promise.all(dataPromises);
+      const allData = (await Promise.all(dataPromises)).flat();
 
       const filteredData = allData.reduce((acc, { logTypeId, data }) => {
         const logs = filterLogsByLogType(data, logTypeId);
@@ -413,10 +439,6 @@ module.exports = () => {
       };
 
       const fetchedData = {};
-      // console.log(
-      //   "🚀 ~ file: oura.js:328 ~ router.get ~ fetchedData:",
-      //   fetchedData
-      // );
       for (const category of log_type_categories) {
         try {
           await fetchWithTokenRefresh(category);
@@ -429,10 +451,6 @@ module.exports = () => {
           }
         }
       }
-      // console.log(
-      //   "🚀 ~ file: oura.js:345 ~ router.get ~ fetchedData:",
-      //   fetchedData
-      // );
 
       res.json(fetchedData);
     } catch (error) {

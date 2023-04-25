@@ -12,38 +12,38 @@ const OuraAuthCompleted = ({
   ouraAuthCompleted,
 }: Props) => {
   const token = localStorage.getItem("user_sesh_JWT");
-  const {
-    data: ouraLogsData,
-    error: ouraLogsError,
-    isLoading: ouraLogsLoading,
-  } = useFetchOuraLogsQuery({ logTypeIds: ["rem_sleep_data", "steps"] });
+  // const {
+  //   data: ouraLogsData,
+  //   error: ouraLogsError,
+  //   isLoading: ouraLogsLoading,
+  // } = useFetchOuraLogsQuery({ logTypeIds: ["rem_sleep_data", "steps"] });
 
-  const [hasCalledOnOuraAuthCompleted, setHasCalledOnOuraAuthCompleted] =
-    useState(false);
-  console.log(ouraLogsData, " in ouraAuthCompleted file");
+  // const [hasCalledOnOuraAuthCompleted, setHasCalledOnOuraAuthCompleted] =
+  //   useState(false);
+  // console.log(ouraLogsData, " in ouraAuthCompleted file");
 
-  useEffect(() => {
-    if (ouraLogsData && !hasCalledOnOuraAuthCompleted) {
-      onOuraAuthCompleted(true);
-      setHasCalledOnOuraAuthCompleted(true);
-    }
-  }, [token, onOuraAuthCompleted]);
+  // useEffect(() => {
+  //   if (ouraLogsData && !hasCalledOnOuraAuthCompleted) {
+  //     onOuraAuthCompleted(true);
+  //     setHasCalledOnOuraAuthCompleted(true);
+  //   }
+  // }, [token, onOuraAuthCompleted]);
 
   return (
     <div>
-      {ouraAuthCompleted ? (
-        <>
-          {/* {(["daily_activity", "sleep"] as const).map((key: any) => (
+      {/* {ouraAuthCompleted ? ( */}
+      <>
+        {/* {(["daily_activity", "sleep"] as const).map((key: any) => (
             <OuraData
               ouraData={ouraLogsData?.[key]?.data}
               ouraLogType={key}
               key={key}
             />
           ))} */}
-        </>
-      ) : (
-        <p>Loading oura data...</p>
-      )}
+      </>
+      {/* ) : ( */}
+      <p>Loading oura data in ouraAuthCompleted.tsx...</p>
+      {/* )} */}
     </div>
   );
 };
