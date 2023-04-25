@@ -2,9 +2,12 @@ import { Bar } from "react-chartjs-2";
 import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, SetStateAction } from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
+import { calculateCorrelation } from "../../functions/correlations";
+import { Log } from "../../typeModels/logTypeModel";
+import { OuraLog, OuraLogsDataByType } from "../../typeModels/ouraModel";
 
 Chart.register(LinearScale);
 
@@ -145,17 +148,17 @@ const AllLogsGraph: React.FC = () => {
     );
   }, [search, ouraLogTypes]);
 
-  const handleLogTypeSelect = (_event: any, newValue: any) => {
-    if (newValue.length <= 2) {
-      console.log(
-        "🚀 ~ file: AllLogsGraph.tsx:157 ~ handleLogTypeSelect ~ newValue:",
-        newValue
-      );
-      setSelectedOuraLogTypes(newValue.map((item: any) => item.id));
-    }
-  };
-
-  const selectedLogTypeId = selectedOuraLogTypes[0] ?? "total_sleep_duration";
+  const [correlationData, setCorrelationData] = useState<{
+    correlation: number | null;
+    pValue: number | null;
+    requiredSampleSize?: number | null;
+    existingSampleSize?: number | null;
+  }>({
+    correlation: null,
+    pValue: null,
+    requiredSampleSize: null,
+    existingSampleSize: null,
+  });
 
   const {
     data: ouraLogsData,
@@ -167,12 +170,39 @@ const AllLogsGraph: React.FC = () => {
 
   console.log("🚀 ~ file: AllLogsGraph.tsx:168 ~ ouraLogsData:", ouraLogsData);
 
-  const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
-    // console.log(
-    //   ouraLogsData?[logTypeId]?.map((ouraLog: any) => ouraLog[logTypeId]),
-    //   "in getChartDataForLogType"
-    // );
+  useEffect(() => {
+    if (ouraLogsData && selectedOuraLogTypes) {
+      console.log(
+        "🚀 ~ file: AllLogsGraph.tsx:179 ~ useEffect ~ selectedOuraLogTypes:",
+        selectedOuraLogTypes
+      );
 
+      const newSelectedOuraLogsData = selectedOuraLogTypes.map(
+        (ouraLogType: any) => {
+          return ouraLogsData[ouraLogType];
+        }
+      );
+      console.log(
+        "🚀 ~ file: AllLogsGraph.tsx:189 ~ useEffect ~ newSelectedOuraLogsData:",
+        newSelectedOuraLogsData
+      );
+
+      console.log(
+        "🚀 ~ file: AllLogsGraph.tsx:192 ~ useEffect ~ selectedOuraLogsData:",
+        newSelectedOuraLogsData
+      );
+      const correlationResult = calculateCorrelation(newSelectedOuraLogsData);
+      setCorrelationData(correlationResult);
+    }
+  }, [ouraLogsData, selectedOuraLogTypes]);
+
+  const handleLogTypeSelect = (_event: any, newValue: any) => {
+    if (newValue.length <= 2) {
+      setSelectedOuraLogTypes(newValue.map((item: any) => item.id));
+    }
+  };
+
+  const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
     const logType = ouraLogTypes.find((log) => log.id === logTypeId);
 
     const yAxisID = selectedOuraLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
@@ -220,6 +250,7 @@ const AllLogsGraph: React.FC = () => {
       .filter((dataset) => dataset !== null) as ChartDataset<"bar", number[]>[],
   };
   console.log("🚀 ~ file: AllLogsGraph.tsx:214 ~ chartData:", chartData);
+
   return (
     <>
       <Autocomplete
@@ -250,11 +281,45 @@ const AllLogsGraph: React.FC = () => {
           />
         )}
       />
-
       <Bar
         data={chartData}
         options={generateChartOptions(selectedOuraLogTypes)}
-      />
+      />{" "}
+      {correlationData &&
+        selectedOuraLogTypes[0] !== "" &&
+        selectedOuraLogTypes[1] !== "" &&
+        ((correlationData?.existingSampleSize ?? 0) >=
+          (correlationData?.requiredSampleSize ?? 1100) &&
+        (correlationData?.pValue ?? 1) <= 0.05 ? (
+          <>
+            <p>YOOOO correlation bro</p>
+            <p>Correlation: {correlationData.correlation}</p>
+            <p>P-value: {correlationData.pValue}</p>
+          </>
+        ) : (
+          <>
+            <h3>No correlation was found. </h3>
+            {(correlationData?.existingSampleSize ?? 0) <=
+            (correlationData?.requiredSampleSize ?? 0) ? (
+              <>
+                <h4>
+                  You need to collect more logs for these log types to find
+                  possible correlations between them.{" "}
+                </h4>
+                <p>
+                  Existing logs per log type:{" "}
+                  {correlationData.existingSampleSize}
+                </p>
+                <p>
+                  Estimated required logs per log type:{" "}
+                  {correlationData.requiredSampleSize}
+                </p>
+              </>
+            ) : (
+              <h4>One of these log types has no logs.</h4>
+            )}
+          </>
+        ))}
     </>
   );
 };
