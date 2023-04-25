@@ -12,6 +12,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import { Button, Typography } from "@mui/material";
+import { useJwt } from "../../../redux/authSlice";
 
 const OuraLogTypeCategories: React.FC = (): JSX.Element => {
   const [selectedLogTypeCategory, setSelectedLogTypeCategory] =
@@ -77,19 +79,56 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
     }
   }, [ouraLogTypesData]);
 
+  const token = useJwt();
+
+  const handleIntegrateOura = async () => {
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.REACT_APP_BACKEND_LOCAL_URL
+        : process.env.REACT_APP_PROD_URL;
+
+    console.log("About to send req to /oura/auth");
+
+    try {
+      const response = await fetch(`${baseUrl}/oura/auth`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Error fetching HRV data");
+      }
+      const data = await response.json();
+      console.log(
+        "🚀 ~ file: plannerPage.tsx:43 ~ handleIntegrateOura ~ data:",
+        data
+      );
+
+      // Redirect the user to the Oura authentication URL
+      window.location.href = data.redirectUrl;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Render a loading message, error message, or the log types based on the API call status
   if (ouraLogTypeCategoriesLoading) {
     return <p>Loading oura log type catgegories...</p>;
   } else if (ouraLogTypeCategoriesError) {
     return (
-      <p>
-        Error fetching oura log type catgegories:{" "}
-        {ouraLogTypeCategoriesError.toString()}
-      </p>
+      <Button onClick={() => handleIntegrateOura()}>Integrate with Oura</Button>
     );
   } else {
     return (
       <>
+        <Typography variant="h6" gutterBottom>
+          Oura integration log types
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          Categories
+        </Typography>
         <OuraLogTypeCategoryButtons
           logTypeCategories={logTypeCategories}
           setSelectedLogTypeCategory={setSelectedLogTypeCategory}

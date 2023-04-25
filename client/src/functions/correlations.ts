@@ -53,71 +53,29 @@ const inverseNormalCDF = (p: number): number | undefined => {
     return 0;
   }
 };
-export const calculateCorrelation = (logs: (Log | OuraLog)[][]) => {
-  const isOuraLog = (log: Log | OuraLog): log is OuraLog => {
-    return (log as OuraLog).day !== undefined;
-  };
-  const filteredLogs0 = logs[0]?.filter((log0) =>
-    logs[1]?.some((log1) => {
-      if (isOuraLog(log0) && isOuraLog(log1)) {
-        return log1.day === log0.day;
-      } else if (!isOuraLog(log0) && !isOuraLog(log1)) {
-        return (log1 as Log).date === (log0 as Log).date;
-      } else if (isOuraLog(log0)) {
-        return log1.date.toISOString().split("T")[0] === log0.day;
-      } else if (isOuraLog(log1)) {
-        return log0.date.toISOString().split("T")[0] === log1.day;
-      }
-    })
+
+export const calculateCorrelation = (logs: Log[][]) => {
+  // Filter logs with matching dates
+  const filteredLogs0 = logs[0].filter((log0) =>
+    logs[1].some((log1) => log1.date === log0.date)
   );
 
-  const filteredLogs1 = logs[1]?.filter((log1) =>
-    logs[0].some((log0) => {
-      if (isOuraLog(log0) && isOuraLog(log1)) {
-        return log1.day === log0.day;
-      } else if (!isOuraLog(log0) && !isOuraLog(log1)) {
-        return log1.date === log0.date;
-      } else if (isOuraLog(log1)) {
-        return log1.day === log0.date.toISOString().split("T")[0];
-      } else if (isOuraLog(log0)) {
-        return log0.day === log1.date.toISOString().split("T")[0];
-      }
-    })
+  const filteredLogs1 = logs[1].filter((log1) =>
+    logs[0].some((log0) => log0.date === log1.date)
   );
 
   // Get arrays of values
-  const values1 = filteredLogs0?.map((log) => {
-    if ("value" in log) {
-      return log.value;
-    } else {
-      for (const key in log) {
-        if (key !== "id" && key !== "day") {
-          return log[key];
-        }
-      }
-    }
-  });
-
-  const values2 = filteredLogs1?.map((log) => {
-    if ("value" in log) {
-      return log.value;
-    } else {
-      for (const key in log) {
-        if (key !== "id" && key !== "day") {
-          return log[key];
-        }
-      }
-    }
-  });
+  const values1 = filteredLogs0.map((log) => log.value);
+  const values2 = filteredLogs1.map((log) => log.value);
 
   // Ensure both value arrays have the same length
-  if (values1?.length !== values2?.length) {
+  if (values1.length !== values2.length) {
     console.error("The value arrays must have the same length.");
     return { correlation: NaN, pValue: NaN };
   }
 
   // Calculate correlation using Pearson correlation coefficient
-  const n = values1?.length;
+  const n = values1.length;
   let sumX = 0;
   let sumY = 0;
   let sumXY = 0;

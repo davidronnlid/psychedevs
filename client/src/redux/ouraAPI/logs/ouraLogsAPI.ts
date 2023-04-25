@@ -22,11 +22,15 @@ export const ouraLogsAPI = createApi({
     },
   }),
   endpoints: (builder) => ({
-    fetchOuraLogs: builder.query<OuraLogsDataByType, { logTypeIds: string[] }>({
-      query: ({ logTypeIds }) => {
-        const queryParam = logTypeIds
+    fetchOuraLogs: builder.query<
+      OuraLogsDataByType,
+      { logTypeIds: string[]; startDate: string; endDate: string }
+    >({
+      query: ({ logTypeIds, startDate, endDate }) => {
+        const logTypeParam = logTypeIds
           .map((id) => `logTypeId[]=${id}`)
           .join("&");
+        const queryParam = `${logTypeParam}&startDate=${startDate}&endDate=${endDate}`;
         return `/oura/logs?${queryParam}`;
       },
     }),

@@ -1,13 +1,17 @@
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
 import React, { useState, useEffect, useMemo, SetStateAction } from "react";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, TextField, Typography } from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
 import { calculateCorrelation } from "../../functions/correlations";
 import { Log } from "../../typeModels/logTypeModel";
 import { OuraLog, OuraLogsDataByType } from "../../typeModels/ouraModel";
+import { useFetchOuraLogTypeCategoriesQuery } from "../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
+import { Box } from "@mui/material";
+import { DatePicker } from "@mui/lab";
+import DateRangePicker from "../../components/dateRangePicker";
 
 Chart.register(LinearScale);
 
@@ -78,7 +82,13 @@ const AllLogsGraph: React.FC = () => {
   const ouraLogTypes = useMemo(() => {
     return [...ouraSleepLogTypes, ...ouraDailyActivityLogTypes];
   }, [ouraSleepLogTypes, ouraDailyActivityLogTypes]);
-  console.log("🚀 ~ file: AllLogsGraph.tsx:89 ~ ouraLogTypes:", ouraLogTypes);
+
+  const {
+    data: ouraLogTypeCategoriesData,
+    error: ouraLogTypeCategoriesError,
+    isLoading: ouraLogTypeCategoriesLoading,
+    isSuccess: ouraLogTypeCategoriesSuccess,
+  } = useFetchOuraLogTypeCategoriesQuery();
 
   const generateChartOptions = (selectedOuraLogTypes: string[]) => {
     const selectedLogData = selectedOuraLogTypes.map((logId) =>
@@ -159,42 +169,56 @@ const AllLogsGraph: React.FC = () => {
     requiredSampleSize: null,
     existingSampleSize: null,
   });
-
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  console.log(
+    "🚀 ~ file: AllLogsGraph.tsx:168 ~ ouraLogsData:",
+    startDate,
+    endDate
+  );
   const {
     data: ouraLogsData,
     error: ouraLogsError,
     isLoading: ouraLogsIsLoading,
   } = useFetchOuraLogsQuery({
     logTypeIds: selectedOuraLogTypes,
+    startDate,
+    endDate,
   });
 
-  console.log("🚀 ~ file: AllLogsGraph.tsx:168 ~ ouraLogsData:", ouraLogsData);
+  const handleStartDateChange = (newStartDate: string) => {
+    setStartDate(newStartDate);
+  };
 
-  useEffect(() => {
-    if (ouraLogsData && selectedOuraLogTypes) {
-      console.log(
-        "🚀 ~ file: AllLogsGraph.tsx:179 ~ useEffect ~ selectedOuraLogTypes:",
-        selectedOuraLogTypes
-      );
+  const handleEndDateChange = (newEndDate: string) => {
+    setEndDate(newEndDate);
+  };
 
-      const newSelectedOuraLogsData = selectedOuraLogTypes.map(
-        (ouraLogType: any) => {
-          return ouraLogsData[ouraLogType];
-        }
-      );
-      console.log(
-        "🚀 ~ file: AllLogsGraph.tsx:189 ~ useEffect ~ newSelectedOuraLogsData:",
-        newSelectedOuraLogsData
-      );
+  // useEffect(() => {
+  //   if (ouraLogsData && selectedOuraLogTypes) {
+  //     console.log(
+  //       "🚀 ~ file: AllLogsGraph.tsx:179 ~ useEffect ~ selectedOuraLogTypes:",
+  //       selectedOuraLogTypes
+  //     );
 
-      console.log(
-        "🚀 ~ file: AllLogsGraph.tsx:192 ~ useEffect ~ selectedOuraLogsData:",
-        newSelectedOuraLogsData
-      );
-      const correlationResult = calculateCorrelation(newSelectedOuraLogsData);
-      setCorrelationData(correlationResult);
-    }
-  }, [ouraLogsData, selectedOuraLogTypes]);
+  //     const newSelectedOuraLogsData = selectedOuraLogTypes.map(
+  //       (ouraLogType: any) => {
+  //         return ouraLogsData[ouraLogType];
+  //       }
+  //     );
+  //     console.log(
+  //       "🚀 ~ file: AllLogsGraph.tsx:189 ~ useEffect ~ newSelectedOuraLogsData:",
+  //       newSelectedOuraLogsData
+  //     );
+
+  //     console.log(
+  //       "🚀 ~ file: AllLogsGraph.tsx:192 ~ useEffect ~ selectedOuraLogsData:",
+  //       newSelectedOuraLogsData
+  //     );
+  //     const correlationResult = calculateCorrelation(newSelectedOuraLogsData);
+  //     setCorrelationData(correlationResult);
+  //   }
+  // }, [ouraLogsData, selectedOuraLogTypes]);
 
   const handleLogTypeSelect = (_event: any, newValue: any) => {
     if (newValue.length <= 2) {
@@ -247,12 +271,22 @@ const AllLogsGraph: React.FC = () => {
     labels: getUniqueDayLabels(),
     datasets: selectedOuraLogTypes
       .map((logTypeId, index) => getChartDataForLogType(logTypeId, index))
-      .filter((dataset) => dataset !== null) as ChartDataset<"bar", number[]>[],
+      .filter((dataset) => dataset !== null) as ChartDataset<
+      "line",
+      number[]
+    >[],
   };
-  console.log("🚀 ~ file: AllLogsGraph.tsx:214 ~ chartData:", chartData);
 
-  return (
+  return ouraLogTypeCategoriesData ? (
     <>
+      <Typography variant="h5">Oura logs</Typography>
+      <br />
+      <DateRangePicker
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
+      />
+
+      <br />
       <Autocomplete
         multiple
         open={dropdownOpen}
@@ -281,11 +315,13 @@ const AllLogsGraph: React.FC = () => {
           />
         )}
       />
-      <Bar
+      <br />
+      <Line
         data={chartData}
         options={generateChartOptions(selectedOuraLogTypes)}
-      />{" "}
-      {correlationData &&
+      />
+
+      {/* {correlationData &&
         selectedOuraLogTypes[0] !== "" &&
         selectedOuraLogTypes[1] !== "" &&
         ((correlationData?.existingSampleSize ?? 0) >=
@@ -319,8 +355,10 @@ const AllLogsGraph: React.FC = () => {
               <h4>One of these log types has no logs.</h4>
             )}
           </>
-        ))}
+        ))} */}
     </>
+  ) : (
+    <></>
   );
 };
 

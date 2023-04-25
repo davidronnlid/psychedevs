@@ -286,8 +286,8 @@ module.exports = () => {
       }
       let { access_token } = ouraUser;
 
-      const start = "2023-04-14";
-      const end = "2023-04-20";
+      const start = req.query.startDate;
+      const end = req.query.endDate;
 
       const fetchWithTokenRefresh = async (dataType) => {
         try {

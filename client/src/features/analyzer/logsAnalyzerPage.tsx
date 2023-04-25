@@ -109,7 +109,6 @@ const LogsAnalyzerPage = () => {
       <Typography variant="h4" gutterBottom>
         Logs
       </Typography>
-      <AllLogsGraph />
       {groupedLogs
         ? Object.entries(groupedLogs).map(([logTypeId, logs]) => (
             <LogsOfALogType
@@ -204,6 +203,7 @@ const LogsAnalyzerPage = () => {
             )}
           </>
         ))}
+      <AllLogsGraph />
 
       <Box padding="100px" />
     </>
