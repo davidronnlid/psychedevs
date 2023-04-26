@@ -26,15 +26,18 @@ export const logsAPI = createApi({
       Log[],
       { startDate: string; endDate: string; logTypeIds: string[] }
     >({
-      query: ({ startDate, endDate, logTypeIds }) => ({
-        url: "/vas/logs",
-        method: "GET",
-        body: JSON.stringify({
+      query: ({ startDate, endDate, logTypeIds }) => {
+        const queryParams = new URLSearchParams({
           startDate,
           endDate,
-          logTypeIds,
-        }),
-      }),
+          logTypeIds: JSON.stringify(logTypeIds),
+        });
+
+        return {
+          url: `/vas/logs?${queryParams}`,
+          method: "GET",
+        };
+      },
     }),
   }),
 });

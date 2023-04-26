@@ -63,9 +63,7 @@ type ChartOptionsType = {
 const AllLogsGraph: React.FC = () => {
   const PDLogTypes = useAppSelector(selectLogTypes);
 
-  const [selectedOuraLogTypes, setSelectedOuraLogTypes] = useState<string[]>(
-    []
-  );
+  const [selectedLogTypes, setSelectedLogTypes] = useState<string[]>([]);
 
   const [search, setSearch] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -75,23 +73,17 @@ const AllLogsGraph: React.FC = () => {
     error,
     isLoading,
   } = useOuraLogTypes("sleep");
-  console.log(
-    "🚀 ~ file: AllLogsGraph.tsx:60 ~ ouraSleepLogTypes:",
-    ouraSleepLogTypes
-  );
 
   const {
     logTypes: ouraDailyActivityLogTypes,
     error: ouraDailyActivityLogTypesError,
     isLoading: ouraDailyActivityLogTypesIsLoading,
   } = useOuraLogTypes("daily_activity");
-  console.log(
-    "🚀 ~ file: AllLogsGraph.tsx:60 ~ ouraDailyActivityLogTypes:",
-    ouraDailyActivityLogTypes
-  );
+
   const ouraLogTypes = useMemo(() => {
     return [...ouraSleepLogTypes, ...ouraDailyActivityLogTypes];
   }, [ouraSleepLogTypes, ouraDailyActivityLogTypes]);
+
   const allLogTypes = useMemo(() => {
     const ouraMapped = ouraLogTypes.map((logType) => ({
       id: logType.id,
@@ -113,15 +105,15 @@ const AllLogsGraph: React.FC = () => {
     isSuccess: ouraLogTypeCategoriesSuccess,
   } = useFetchOuraLogTypeCategoriesQuery();
 
-  const generateChartOptions = (selectedOuraLogTypes: string[]) => {
-    const selectedLogData = selectedOuraLogTypes.map((logId) =>
+  const generateChartOptions = (selectedLogTypes: string[]) => {
+    const selectedLogData = selectedLogTypes.map((logId) =>
       ouraLogTypes.find((log) => log.id === logId)
     );
     const y1LogType = selectedLogData.find(
-      (log) => log && selectedOuraLogTypes.indexOf(log.id) === 0
+      (log) => log && selectedLogTypes.indexOf(log.id) === 0
     );
     const y2LogType = selectedLogData.find(
-      (log) => log && selectedOuraLogTypes.indexOf(log.id) === 1
+      (log) => log && selectedLogTypes.indexOf(log.id) === 1
     );
 
     console.log("y1LogType&y2LogType. ", y1LogType, y2LogType);
@@ -199,7 +191,8 @@ const AllLogsGraph: React.FC = () => {
   console.log(
     "🚀 ~ file: AllLogsGraph.tsx:168 ~ ouraLogsData:",
     startDate,
-    endDate
+    endDate,
+    selectedLogTypes
   );
   const {
     data: PDLogsData,
@@ -208,16 +201,19 @@ const AllLogsGraph: React.FC = () => {
   } = useFetchLogsQuery({
     startDate,
     endDate,
-    logTypeIds: selectedOuraLogTypes.filter((logTypeId) =>
+    logTypeIds: selectedLogTypes.filter((logTypeId) =>
       PDLogTypes.some((logType) => logType.logType_id === logTypeId)
     ),
   });
+
+  console.log(PDLogsData, " is PDLogsData");
+
   const {
     data: ouraLogsData,
     error: ouraLogsError,
     isLoading: ouraLogsIsLoading,
   } = useFetchOuraLogsQuery({
-    logTypeIds: selectedOuraLogTypes,
+    logTypeIds: selectedLogTypes,
     startDate,
     endDate,
   });
@@ -231,13 +227,13 @@ const AllLogsGraph: React.FC = () => {
   };
 
   // useEffect(() => {
-  //   if (ouraLogsData && selectedOuraLogTypes) {
+  //   if (ouraLogsData && selectedLogTypes) {
   //     console.log(
-  //       "🚀 ~ file: AllLogsGraph.tsx:179 ~ useEffect ~ selectedOuraLogTypes:",
-  //       selectedOuraLogTypes
+  //       "🚀 ~ file: AllLogsGraph.tsx:179 ~ useEffect ~ selectedLogTypes:",
+  //       selectedLogTypes
   //     );
 
-  //     const newSelectedOuraLogsData = selectedOuraLogTypes.map(
+  //     const newSelectedOuraLogsData = selectedLogTypes.map(
   //       (ouraLogType: any) => {
   //         return ouraLogsData[ouraLogType];
   //       }
@@ -254,7 +250,7 @@ const AllLogsGraph: React.FC = () => {
   //     const correlationResult = calculateCorrelation(newSelectedOuraLogsData);
   //     setCorrelationData(correlationResult);
   //   }
-  // }, [ouraLogsData, selectedOuraLogTypes]);
+  // }, [ouraLogsData, selectedLogTypes]);
   const [selectedPDLogTypes, setSelectedPDLogTypes] = useState<string[]>([]);
 
   const handleLogTypeSelect = (_event: any, newValue: any) => {
@@ -268,31 +264,33 @@ const AllLogsGraph: React.FC = () => {
         )
         .map((item: any) => item.id);
 
-      setSelectedOuraLogTypes(selectedOura);
-      setSelectedPDLogTypes(selectedPD);
+      setSelectedLogTypes([...selectedOura, ...selectedPD]);
+      // setSelectedPDLogTypes(selectedPD);
+      // Make sure that these state setters do not overwrite previous state
     }
   };
 
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
     const logType = allLogTypes.find((log) => log.id === logTypeId);
 
-    const yAxisID = selectedOuraLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
+    const yAxisID = selectedLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
 
     if (logType) {
       const backgroundColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
       const borderColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
 
+      console.log(PDLogTypes, " in datasetter func");
+
       let logData;
-      if (ouraLogTypes.some((log) => log.id === logTypeId)) {
+      if (ouraLogTypes.some((logType) => logType.id === logTypeId)) {
         logData =
           ouraLogsData?.[logTypeId]?.map(
             (ouraLog: any) => ouraLog[logTypeId]
           ) || "";
-      } else if (PDLogTypes.some((log) => log.logType_id === logTypeId)) {
-        logData =
-          PDLogsData?.[logTypeId]?.map(
-            (PDLog: { [logTypeId: string]: any }) => PDLog[logTypeId]
-          ) || "";
+      } else if (
+        PDLogTypes.some((logType) => logType.logType_id === logTypeId)
+      ) {
+        logData = PDLogsData?.map((PDLog: Log) => PDLog.value) || [];
       }
 
       return {
@@ -307,13 +305,30 @@ const AllLogsGraph: React.FC = () => {
     return null;
   };
 
+  const convertDateToYMD = (dateString: string): string => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
   const getUniqueDayLabels = () => {
     const allDayLabels: string[] = [];
 
-    selectedOuraLogTypes.forEach((logTypeId) => {
-      const dayLabelsForLogType = ouraLogsData?.[logTypeId]?.map(
-        (ouraLog: any) => ouraLog.day
-      );
+    selectedLogTypes.forEach((logTypeId) => {
+      let dayLabelsForLogType;
+
+      if (PDLogTypes.some((log) => log.logType_id === logTypeId)) {
+        dayLabelsForLogType = PDLogsData?.filter(
+          (PDLog: any) => PDLog.logType_id === logTypeId
+        ).map((PDLog: any) => convertDateToYMD(PDLog.date));
+      } else {
+        dayLabelsForLogType = ouraLogsData?.[logTypeId]?.map(
+          (ouraLog: any) => ouraLog.day
+        );
+      }
 
       if (dayLabelsForLogType) {
         allDayLabels.push(...dayLabelsForLogType);
@@ -325,7 +340,7 @@ const AllLogsGraph: React.FC = () => {
 
   const chartData = {
     labels: getUniqueDayLabels(),
-    datasets: selectedOuraLogTypes
+    datasets: selectedLogTypes
       .map((logTypeId, index) => getChartDataForLogType(logTypeId, index))
       .filter((dataset) => dataset !== null) as ChartDataset<
       "line",
@@ -347,7 +362,7 @@ const AllLogsGraph: React.FC = () => {
         multiple
         open={dropdownOpen}
         onOpen={() => {
-          if (selectedOuraLogTypes.length < 2) {
+          if (selectedLogTypes.length < 2) {
             setDropdownOpen(true);
           }
         }}
@@ -355,16 +370,16 @@ const AllLogsGraph: React.FC = () => {
         options={filteredLogTypes}
         getOptionLabel={(option) => option?.label || ""}
         onChange={handleLogTypeSelect}
-        value={selectedOuraLogTypes.map((logId) =>
+        value={selectedLogTypes.map((logId) =>
           allLogTypes.find((log) => log.id === logId)
         )}
         renderInput={(params) => (
           <TextField
             {...params}
             label="Select 2 log types to display logs for"
-            disabled={selectedOuraLogTypes.length >= 2}
+            disabled={selectedLogTypes.length >= 2}
             helperText={
-              selectedOuraLogTypes.length >= 2
+              selectedLogTypes.length >= 2
                 ? "Max number of log types selected"
                 : ""
             }
@@ -372,14 +387,11 @@ const AllLogsGraph: React.FC = () => {
         )}
       />
       <br />
-      <Line
-        data={chartData}
-        options={generateChartOptions(selectedOuraLogTypes)}
-      />
+      <Line data={chartData} options={generateChartOptions(selectedLogTypes)} />
 
       {/* {correlationData &&
-        selectedOuraLogTypes[0] !== "" &&
-        selectedOuraLogTypes[1] !== "" &&
+        selectedLogTypes[0] !== "" &&
+        selectedLogTypes[1] !== "" &&
         ((correlationData?.existingSampleSize ?? 0) >=
           (correlationData?.requiredSampleSize ?? 1100) &&
         (correlationData?.pValue ?? 1) <= 0.05 ? (

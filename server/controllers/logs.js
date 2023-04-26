@@ -12,7 +12,6 @@ module.exports = () => {
   // Define a get route to let users see their logged data
   router.get("/logs", async (req, res) => {
     console.log("GET Req received at /vas/logs");
-
     if (!req.headers.authorization) {
       res.status(401).json({ message: "Missing authorization header" });
       return;
@@ -30,13 +29,38 @@ module.exports = () => {
     const userId = new ObjectId(decodedToken.userId);
     console.log("decodedToken.userId:", decodedToken.userId);
     console.log("userId:", userId);
-    try {
-      const logsQuery = { user_id: new ObjectId(userId) };
-      const foundUserLogs = await Logs.findOne(logsQuery);
 
-      if (foundUserLogs) {
+    const { startDate, endDate, logTypeIds } = req.query;
+
+    try {
+      const parsedLogTypeIds = JSON.parse(logTypeIds);
+
+      console.log(startDate, endDate, parsedLogTypeIds);
+
+      const logsQuery = {
+        user_id: new ObjectId(userId),
+      };
+
+      const foundUserLogs = await Logs.aggregate([
+        { $match: logsQuery },
+        { $unwind: "$logs" },
+        {
+          $match: {
+            "logs.date": {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate),
+            },
+            "logs.logType_id": {
+              $in: parsedLogTypeIds,
+            },
+          },
+        },
+        { $group: { _id: "$_id", logs: { $push: "$logs" } } },
+      ]).exec();
+
+      if (foundUserLogs.length > 0) {
         console.log("Found some user logs!");
-        res.status(200).json(foundUserLogs.logs);
+        res.status(200).json(foundUserLogs[0].logs);
       } else {
         console.log(
           "No logs found for this user, the foundUserLogs object returned: ",
