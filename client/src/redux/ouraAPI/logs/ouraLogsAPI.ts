@@ -31,6 +31,9 @@ export const ouraLogsAPI = createApi({
           .map((id) => `logTypeId[]=${id}`)
           .join("&");
         const queryParam = `${logTypeParam}&startDate=${startDate}&endDate=${endDate}`;
+
+        console.log("Constructed queryParam:", queryParam);
+
         return `/oura/logs?${queryParam}`;
       },
     }),

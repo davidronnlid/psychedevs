@@ -6,7 +6,7 @@ import React, { useState, useEffect, useMemo, SetStateAction } from "react";
 import { Autocomplete, TextField, Typography } from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
 import { calculateCorrelation } from "../../functions/correlations";
-import { Log } from "../../typeModels/logTypeModel";
+import { Log, LogType } from "../../typeModels/logTypeModel";
 import { OuraLog, OuraLogsDataByType } from "../../typeModels/ouraModel";
 import { useFetchOuraLogTypeCategoriesQuery } from "../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
 import { Box } from "@mui/material";
@@ -17,11 +17,6 @@ import { useAppSelector } from "../../redux/hooks";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
 
 Chart.register(LinearScale);
-
-type CombinedLogType = {
-  id: string | undefined;
-  label: string | undefined;
-};
 
 type ChartOptionsType = {
   scales: {
@@ -109,14 +104,12 @@ const AllLogsGraph: React.FC = () => {
     const selectedLogData = selectedLogTypes.map((logId) =>
       ouraLogTypes.find((log) => log.id === logId)
     );
-    const y1LogType = selectedLogData.find(
-      (log) => log && selectedLogTypes.indexOf(log.id) === 0
+    const y1LogType = allLogTypes.find(
+      (log) => log && selectedLogTypes.indexOf(log.id ?? "") === 0
     );
-    const y2LogType = selectedLogData.find(
-      (log) => log && selectedLogTypes.indexOf(log.id) === 1
+    const y2LogType = allLogTypes.find(
+      (log) => log && selectedLogTypes.indexOf(log.id ?? "") === 1
     );
-
-    console.log("y1LogType&y2LogType. ", y1LogType, y2LogType);
 
     const y1AxisDisplay = !!y1LogType;
     const y2AxisDisplay = !!y2LogType;
@@ -201,19 +194,24 @@ const AllLogsGraph: React.FC = () => {
   } = useFetchLogsQuery({
     startDate,
     endDate,
-    logTypeIds: selectedLogTypes.filter((logTypeId) =>
-      PDLogTypes.some((logType) => logType.logType_id === logTypeId)
+    logTypeIds: selectedLogTypes.filter((selectedLogType: string) =>
+      PDLogTypes.some((logType) => logType.logType_id === selectedLogType)
     ),
   });
 
   console.log(PDLogsData, " is PDLogsData");
+
+  const ouraLogTypeIdsThatAreSelected = selectedLogTypes.filter(
+    (selectedLogType: string) =>
+      ouraLogTypes.some((logType) => logType.id === selectedLogType)
+  );
 
   const {
     data: ouraLogsData,
     error: ouraLogsError,
     isLoading: ouraLogsIsLoading,
   } = useFetchOuraLogsQuery({
-    logTypeIds: selectedLogTypes,
+    logTypeIds: ["average_breath", "respiratory_rate"],
     startDate,
     endDate,
   });
@@ -251,7 +249,6 @@ const AllLogsGraph: React.FC = () => {
   //     setCorrelationData(correlationResult);
   //   }
   // }, [ouraLogsData, selectedLogTypes]);
-  const [selectedPDLogTypes, setSelectedPDLogTypes] = useState<string[]>([]);
 
   const handleLogTypeSelect = (_event: any, newValue: any) => {
     if (newValue.length <= 2) {
@@ -272,6 +269,10 @@ const AllLogsGraph: React.FC = () => {
 
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
     const logType = allLogTypes.find((log) => log.id === logTypeId);
+    console.log(
+      "🚀 ~ file: AllLogsGraph.tsx:268 ~ getChartDataForLogType ~ logType:",
+      logType
+    );
 
     const yAxisID = selectedLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
 
@@ -279,9 +280,7 @@ const AllLogsGraph: React.FC = () => {
       const backgroundColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
       const borderColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
 
-      console.log(PDLogTypes, " in datasetter func");
-
-      let logData;
+      let logData: any;
       if (ouraLogTypes.some((logType) => logType.id === logTypeId)) {
         logData =
           ouraLogsData?.[logTypeId]?.map(
@@ -290,12 +289,21 @@ const AllLogsGraph: React.FC = () => {
       } else if (
         PDLogTypes.some((logType) => logType.logType_id === logTypeId)
       ) {
-        logData = PDLogsData?.map((PDLog: Log) => PDLog.value) || [];
+        logData =
+          PDLogsData?.filter(
+            (logsOfLogType) => logsOfLogType._id.logType_id === logTypeId
+          ).map((logsOfLogType) =>
+            logsOfLogType.logs.map((log) => log.value)
+          ) || [];
       }
+      console.log(
+        "🚀 ~ file: AllLogsGraph.tsx:290 ~ getChartDataForLogType ~ logData: logData",
+        logData.flat()
+      );
 
       return {
         label: logType.label,
-        data: logData,
+        data: logData.flat(),
         backgroundColor,
         borderColor,
         borderWidth: 1,

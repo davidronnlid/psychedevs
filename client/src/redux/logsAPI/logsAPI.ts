@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Log } from "../../typeModels/logTypeModel";
+import { FetchLogsResponseElement } from "../../typeModels/logTypeModel";
 
 const baseUrl =
   process.env.NODE_ENV === "development"
@@ -23,7 +23,7 @@ export const logsAPI = createApi({
   }),
   endpoints: (builder) => ({
     fetchLogs: builder.query<
-      Log[],
+      FetchLogsResponseElement[],
       { startDate: string; endDate: string; logTypeIds: string[] }
     >({
       query: ({ startDate, endDate, logTypeIds }) => {

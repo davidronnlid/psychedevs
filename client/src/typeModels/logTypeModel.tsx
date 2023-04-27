@@ -23,3 +23,11 @@ export interface Log {
   _id: string;
   logType_id: string;
 }
+
+export interface FetchLogsResponseElement {
+  logs: Log[];
+  _id: {
+    logType_id: string;
+    user_id: string;
+  };
+}

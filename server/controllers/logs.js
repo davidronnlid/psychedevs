@@ -35,7 +35,12 @@ module.exports = () => {
     try {
       const parsedLogTypeIds = JSON.parse(logTypeIds);
 
-      console.log(startDate, endDate, parsedLogTypeIds);
+      console.log(
+        "startDate, endDate, parsedLogTypeIds",
+        startDate,
+        endDate,
+        parsedLogTypeIds
+      );
 
       const logsQuery = {
         user_id: new ObjectId(userId),
@@ -55,12 +60,23 @@ module.exports = () => {
             },
           },
         },
-        { $group: { _id: "$_id", logs: { $push: "$logs" } } },
+        {
+          $group: {
+            _id: {
+              user_id: "$_id",
+              logType_id: "$logs.logType_id",
+            },
+            logs: { $push: "$logs" },
+          },
+        },
       ]).exec();
+
+      console.log(foundUserLogs, " is foundUserLogs");
 
       if (foundUserLogs.length > 0) {
         console.log("Found some user logs!");
-        res.status(200).json(foundUserLogs[0].logs);
+
+        res.status(200).json(foundUserLogs);
       } else {
         console.log(
           "No logs found for this user, the foundUserLogs object returned: ",
