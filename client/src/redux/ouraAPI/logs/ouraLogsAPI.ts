@@ -28,7 +28,7 @@ export const ouraLogsAPI = createApi({
     >({
       query: ({ logTypeIds, startDate, endDate }) => {
         const logTypeParam = logTypeIds
-          .map((id) => `logTypeId[]=${id}`)
+          .map((id) => `logTypeId[]=${encodeURIComponent(id)}`)
           .join("&");
         const queryParam = `${logTypeParam}&startDate=${startDate}&endDate=${endDate}`;
 

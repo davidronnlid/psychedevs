@@ -153,7 +153,9 @@ const LogsAnalyzerPage = () => {
             </MenuItem>
           ))}
         </Select>
-        <br />
+      </FormControl>
+      <br />
+      <FormControl>
         <Select
           labelId="select-log-type-label-two"
           id="select-log-type-two"

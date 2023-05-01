@@ -5,16 +5,13 @@ import { LinearScale } from "chart.js/auto";
 import React, { useState, useEffect, useMemo, SetStateAction } from "react";
 import { Autocomplete, TextField, Typography } from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
-import { calculateCorrelation } from "../../functions/correlations";
-import { Log, LogType } from "../../typeModels/logTypeModel";
-import { OuraLog, OuraLogsDataByType } from "../../typeModels/ouraModel";
+// import { calculateCorrelation } from "../../functions/correlations";
 import { useFetchOuraLogTypeCategoriesQuery } from "../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
-import { Box } from "@mui/material";
-import { DatePicker } from "@mui/lab";
 import DateRangePicker from "../../components/dateRangePicker";
 import { selectLogTypes } from "../../redux/logTypesSlice";
 import { useAppSelector } from "../../redux/hooks";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
+import { CircularProgress, LinearProgress } from "@mui/material";
 
 Chart.register(LinearScale);
 
@@ -201,17 +198,14 @@ const AllLogsGraph: React.FC = () => {
 
   console.log(PDLogsData, " is PDLogsData");
 
-  const ouraLogTypeIdsThatAreSelected = selectedLogTypes.filter(
-    (selectedLogType: string) =>
-      ouraLogTypes.some((logType) => logType.id === selectedLogType)
-  );
-
   const {
     data: ouraLogsData,
     error: ouraLogsError,
     isLoading: ouraLogsIsLoading,
   } = useFetchOuraLogsQuery({
-    logTypeIds: ["average_breath", "respiratory_rate"],
+    logTypeIds: selectedLogTypes.filter((selectedLogType: string) =>
+      ouraLogTypes.some((logType) => logType.id === selectedLogType)
+    ),
     startDate,
     endDate,
   });
@@ -296,14 +290,19 @@ const AllLogsGraph: React.FC = () => {
             logsOfLogType.logs.map((log) => log.value)
           ) || [];
       }
-      console.log(
-        "🚀 ~ file: AllLogsGraph.tsx:290 ~ getChartDataForLogType ~ logData: logData",
-        logData.flat()
-      );
+
+      if (Array.isArray(logData)) {
+        logData = logData.flat();
+      } else {
+        console.error(
+          "logData is not an array, have you entered start and end dates?:",
+          logData
+        );
+      }
 
       return {
         label: logType.label,
-        data: logData.flat(),
+        data: logData,
         backgroundColor,
         borderColor,
         borderWidth: 1,
@@ -355,7 +354,13 @@ const AllLogsGraph: React.FC = () => {
       number[]
     >[],
   };
-
+  useEffect(() => {
+    console.log(
+      "PDLogsIsLoading, ouraLogsIsLoading ",
+      PDLogsIsLoading,
+      ouraLogsIsLoading
+    );
+  });
   return ouraLogTypeCategoriesData ? (
     <>
       <Typography variant="h5">Oura logs</Typography>
@@ -395,43 +400,53 @@ const AllLogsGraph: React.FC = () => {
         )}
       />
       <br />
-      <Line data={chartData} options={generateChartOptions(selectedLogTypes)} />
+
+      {PDLogsIsLoading || ouraLogsIsLoading ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <Line
+          data={chartData}
+          options={generateChartOptions(selectedLogTypes)}
+        />
+      )}
 
       {/* {correlationData &&
-        selectedLogTypes[0] !== "" &&
-        selectedLogTypes[1] !== "" &&
-        ((correlationData?.existingSampleSize ?? 0) >=
-          (correlationData?.requiredSampleSize ?? 1100) &&
-        (correlationData?.pValue ?? 1) <= 0.05 ? (
-          <>
-            <p>YOOOO correlation bro</p>
-            <p>Correlation: {correlationData.correlation}</p>
-            <p>P-value: {correlationData.pValue}</p>
-          </>
-        ) : (
-          <>
-            <h3>No correlation was found. </h3>
-            {(correlationData?.existingSampleSize ?? 0) <=
-            (correlationData?.requiredSampleSize ?? 0) ? (
+            selectedLogTypes[0] !== "" &&
+            selectedLogTypes[1] !== "" &&
+            ((correlationData?.existingSampleSize ?? 0) >=
+              (correlationData?.requiredSampleSize ?? 1100) &&
+              (correlationData?.pValue ?? 1) <= 0.05 ? (
               <>
-                <h4>
-                  You need to collect more logs for these log types to find
-                  possible correlations between them.{" "}
-                </h4>
-                <p>
-                  Existing logs per log type:{" "}
-                  {correlationData.existingSampleSize}
-                </p>
-                <p>
-                  Estimated required logs per log type:{" "}
-                  {correlationData.requiredSampleSize}
-                </p>
+                <p>YOOOO correlation bro</p>
+                <p>Correlation: {correlationData.correlation}</p>
+                <p>P-value: {correlationData.pValue}</p>
               </>
             ) : (
-              <h4>One of these log types has no logs.</h4>
-            )}
-          </>
-        ))} */}
+              <>
+                <h3>No correlation was found. </h3>
+                {(correlationData?.existingSampleSize ?? 0) <=
+                (correlationData?.requiredSampleSize ?? 0) ? (
+                  <>
+                    <h4>
+                      You need to collect more logs for these log types to find
+                      possible correlations between them.{" "}
+                    </h4>
+                    <p>
+                      Existing logs per log type:{" "}
+                      {correlationData.existingSampleSize}
+                    </p>
+                    <p>
+                      Estimated required logs per log type:{" "}
+                      {correlationData.requiredSampleSize}
+                    </p>
+                  </>
+                ) : (
+                  <h4>One of these log types has no logs.</h4>
+                )}
+              </>
+            ))} */}
     </>
   ) : (
     <></>
