@@ -13,7 +13,7 @@ const Hamburger: React.FC = (): JSX.Element => {
   const handleCloseMenu = () => {
     setOpen(false);
   };
-  const headerHeight = (50 * 239) / 714 + "vw";
+  const headerHeight = (25 * 239) / 714 + "vw";
 
   return (
     <>

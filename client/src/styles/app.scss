@@ -18,7 +18,7 @@ header {
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 
   & .header-logo {
-    max-width: 25vw;
+    width: 25vw;
   }
 }
 
@@ -82,7 +82,7 @@ header {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.85);
-  z-index: 8;
+  z-index: 1101;
   transform: translateX(-100%);
 
   &.open {

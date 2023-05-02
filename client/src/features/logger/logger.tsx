@@ -175,7 +175,8 @@ const Logger = () => {
               border: "none",
               width: "290px",
               right: 0,
-              top: "35vh",
+              zIndex: 1100,
+              top: "45vh",
               boxShadow:
                 "0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 2px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14)",
               "@media (max-width: 480px)": {
