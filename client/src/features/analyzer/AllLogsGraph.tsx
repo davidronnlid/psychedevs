@@ -261,57 +261,6 @@ const AllLogsGraph: React.FC = () => {
     }
   };
 
-  const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
-    const logType = allLogTypes.find((log) => log.id === logTypeId);
-    console.log(
-      "🚀 ~ file: AllLogsGraph.tsx:268 ~ getChartDataForLogType ~ logType:",
-      logType
-    );
-
-    const yAxisID = selectedLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
-
-    if (logType) {
-      const backgroundColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
-      const borderColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
-
-      let logData: any;
-      if (ouraLogTypes.some((logType) => logType.id === logTypeId)) {
-        logData =
-          ouraLogsData?.[logTypeId]?.map(
-            (ouraLog: any) => ouraLog[logTypeId]
-          ) || "";
-      } else if (
-        PDLogTypes.some((logType) => logType.logType_id === logTypeId)
-      ) {
-        logData =
-          PDLogsData?.filter(
-            (logsOfLogType) => logsOfLogType._id.logType_id === logTypeId
-          ).map((logsOfLogType) =>
-            logsOfLogType.logs.map((log) => log.value)
-          ) || [];
-      }
-
-      if (Array.isArray(logData)) {
-        logData = logData.flat();
-      } else {
-        console.error(
-          "logData is not an array, have you entered start and end dates?:",
-          logData
-        );
-      }
-
-      return {
-        label: logType.label,
-        data: logData,
-        backgroundColor,
-        borderColor,
-        borderWidth: 1,
-        yAxisID,
-      };
-    }
-    return null;
-  };
-
   const convertDateToYMD = (dateString: string): string => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -343,6 +292,70 @@ const AllLogsGraph: React.FC = () => {
     });
 
     return Array.from(new Set(allDayLabels));
+  };
+
+  const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
+    const logType = allLogTypes.find((log) => log.id === logTypeId);
+    console.log(
+      "🚀 ~ file: AllLogsGraph.tsx:268 ~ getChartDataForLogType ~ logType:",
+      logType
+    );
+
+    const allDayLabels = getUniqueDayLabels();
+    console.log(
+      "🚀 ~ file: AllLogsGraph.tsx:305 ~ getChartDataForLogType ~ allDayLabels:",
+      allDayLabels
+    );
+
+    // Loop over all days and check if there is a log object with a value for that day, if there is, then add the value to the logData array. If there is no value, then add null to the array.
+
+    const yAxisID = selectedLogTypes.indexOf(logTypeId) === 0 ? "y1" : "y2";
+
+    if (logType) {
+      const backgroundColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
+      const borderColor = logTypeIndex === 0 ? "#001219" : "#26ace2";
+
+      let logData: any;
+      if (ouraLogTypes.some((logType) => logType.id === logTypeId)) {
+        logData = allDayLabels.map((day) => {
+          const ouraLog = ouraLogsData?.[logTypeId]?.find(
+            (ouraLog) => ouraLog.day === day
+          );
+          return ouraLog ? ouraLog[logTypeId] : null;
+        });
+      } else if (
+        PDLogTypes.some((logType) => logType.logType_id === logTypeId)
+      ) {
+        logData = allDayLabels.map((day) => {
+          const logsOfLogType = PDLogsData?.find(
+            (logs) => logs._id.logType_id === logTypeId
+          );
+          const log = logsOfLogType?.logs.find(
+            (log) => convertDateToYMD(log.date.toString()) === day
+          );
+          return log ? log.value : null;
+        });
+      }
+
+      if (Array.isArray(logData)) {
+        logData = logData.flat();
+      } else {
+        console.error(
+          "logData is not an array, have you entered start and end dates?:",
+          logData
+        );
+      }
+
+      return {
+        label: logType.label,
+        data: logData,
+        backgroundColor,
+        borderColor,
+        borderWidth: 1,
+        yAxisID,
+      };
+    }
+    return null;
   };
 
   const chartData = {

@@ -21,8 +21,6 @@ import { setLogs } from "./redux/logsAPI/logsSlice";
 const AppContainer: React.FC = (): JSX.Element => {
   // const { data, error, isLoading, isSuccess } = useFetchLogsQuery();
 
-  // console.log("🚀!!!!!!!!!!!! ~ file: AppContainer.tsx:22 ~ data:", data);
-
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -30,21 +28,10 @@ const AppContainer: React.FC = (): JSX.Element => {
     if (jwt) {
       dispatch(setAuthState({ isAuthenticated: true, jwt }));
 
-      // console.log("About to set this data into store state: ", data);
-
-      // if (isSuccess) {
-      //   dispatch(setLogs(data));
-      // }
-
-      // req to users/user-id is logged, but not req to users/user-profile, the below function doesn't see to get called
-
       const fetchData = async () => {
-        // Call function that gets user from server from db
         const result = await fetchUserProfile(jwt);
         const user = result.data;
         console.log(result);
-
-        // ask AI why it logs "not valid json" and also try to understand why it doesnt send a req at all as observed in server !logs
 
         if (user) {
           dispatch(
