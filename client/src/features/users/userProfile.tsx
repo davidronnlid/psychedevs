@@ -92,7 +92,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
     <div>
       <h2>User Profile</h2>
       <ul>
-        <li>ID: {userData._id}</li>
         <li>Username: {userData.username}</li>
       </ul>
       <h2>Profile picture</h2>

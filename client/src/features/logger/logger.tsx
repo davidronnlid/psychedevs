@@ -168,13 +168,14 @@ const Logger = () => {
       <div>
         {!completedAll && (
           <AppBar
-            position="static"
+            position="fixed"
             sx={{
               backgroundColor: "#001219",
               color: "#7acde9",
               border: "none",
-              width: "100vw",
-              margin: "-0.2rem -10vw",
+              width: "290px",
+              right: 0,
+              top: "35vh",
               boxShadow:
                 "0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 2px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14)",
               "@media (max-width: 480px)": {

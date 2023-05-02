@@ -29,7 +29,7 @@ const Hamburger: React.FC = (): JSX.Element => {
         </div>
       )}
       {open ? (
-        <div style={{ position: "absolute", right: "3vw" }}>
+        <div>
           <IconButton
             edge="start"
             color="inherit"
@@ -45,7 +45,6 @@ const Hamburger: React.FC = (): JSX.Element => {
           color="inherit"
           aria-label="menu"
           onClick={() => handleToggleMenu()}
-          style={{ position: "absolute", right: "3vw" }}
         >
           <MenuIcon style={{ color: "white" }} />
         </IconButton>
