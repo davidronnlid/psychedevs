@@ -3,6 +3,7 @@ export interface LogType {
   answer_format: string;
   logType_id?: string;
   weekdays: boolean[];
+  unit: string;
 }
 
 export interface logTypeId {

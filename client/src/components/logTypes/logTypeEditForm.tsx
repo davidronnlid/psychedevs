@@ -66,6 +66,7 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
   const [answerFormat, setAnswerFormat] = useState(
     editMode ? logType?.answer_format || "" : ""
   );
+  const [unit, setUnit] = useState(editMode ? logType?.unit || "" : "");
 
   console.log("logType?.weekdays: ", logType?.weekdays);
   const [selectedWeekdays, setSelectedWeekdays] = useState<boolean[]>(
@@ -89,6 +90,7 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
       name,
       answer_format: answerFormat,
       weekdays: selectedWeekdays,
+      unit,
     };
     onSubmit(logTypeToUpdate, updatedLogType);
     setEditMode(false);

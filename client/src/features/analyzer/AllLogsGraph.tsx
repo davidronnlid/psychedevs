@@ -275,8 +275,6 @@ const AllLogsGraph: React.FC = () => {
     selectedLogTypes.forEach((logTypeId) => {
       let dayLabelsForLogType;
 
-      console.log(PDLogTypes, logTypeId, " is PDLogTypes");
-
       if (PDLogTypes.some((PDLType) => PDLType.logType_id === logTypeId)) {
         // Above is checking whether the use has selected any log type in PDLogTypes
 
@@ -293,37 +291,18 @@ const AllLogsGraph: React.FC = () => {
         );
       }
 
-      console.log(dayLabelsForLogType, " dayLabelsForLogType");
-
       if (dayLabelsForLogType) {
         allDayLabels.push(...dayLabelsForLogType);
       }
     });
-    console.log(
-      "🚀 ~ file: AllLogsGraph.tsx:293 ~ selectedLogTypes.forEach ~ PDLogTypes:",
-      PDLogTypes
-    );
 
     return Array.from(new Set(allDayLabels)).flat();
   };
 
-  console.log(
-    "🚀 ~ file: AllLogsGraph.tsx:305 ~ getChartDataForLogType ~ allDayLabels:",
-    selectedLogTypes
-  );
-
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
     const logType = allLogTypes.find((log) => log.id === logTypeId);
-    console.log(
-      "🚀 ~ file: AllLogsGraph.tsx:268 ~ getChartDataForLogType ~ logType:",
-      logType
-    );
 
     const allDayLabels = getUniqueDayLabels();
-    console.log(
-      "🚀 ~ file: AllLogsGraph.tsx:305 ~ getChartDataForLogType ~ allDayLabels:",
-      allDayLabels
-    );
 
     // Loop over all days and check if there is a log object with a value for that day, if there is, then add the value to the logData array. If there is no value, then add null to the array.
 
@@ -394,8 +373,13 @@ const AllLogsGraph: React.FC = () => {
   });
   return ouraLogTypeCategoriesData ? (
     <>
-      <Typography variant="h5">Oura logs</Typography>
+      <Typography variant="h5">All logs graph</Typography>
       <br />
+      <Typography variant="subtitle2">
+        Select a date range and up to two log types for which to display logs.
+      </Typography>
+      <br />
+
       <DateRangePicker
         onStartDateChange={handleStartDateChange}
         onEndDateChange={handleEndDateChange}

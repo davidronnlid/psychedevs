@@ -233,6 +233,7 @@ const Logger = () => {
               name={logType.name}
               answer_format={logType.answer_format}
               logType_id={logType.logType_id ? logType.logType_id : ""}
+              unit={logType.unit}
             />
           ))}
         </TabPanel>

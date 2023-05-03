@@ -24,11 +24,15 @@ const OuraLogTypeCategoriesStyles: Record<string, CSSProperties> = {
     justifyContent: "space-evenly",
     alignItems: "center",
     width: "13rem",
+    marginTop: "1.5rem",
+    marginLeft: "-.5rem",
   },
   Box: {
     display: "flex",
     justifyContent: "space-evenly",
     alignItems: "center",
+    marginLeft: "-0.35rem",
+    marginTop: "4rem",
     width: "10rem",
   },
   logoOfIntegrateButton: {
@@ -145,7 +149,7 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
 
   // Render a loading message, error message, or the log types based on the API call status
   if (ouraLogTypeCategoriesLoading) {
-    return <p>Loading oura log type catgegories...</p>;
+    return <p>Loading oura log type categories...</p>;
   } else if (ouraLogTypeCategoriesError) {
     return (
       <Button
@@ -179,6 +183,7 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
         <OuraLogTypeCategoryButtons
           logTypeCategories={logTypeCategories}
           setSelectedLogTypeCategory={setSelectedLogTypeCategory}
+          selectedLogTypeCategory={selectedLogTypeCategory}
         />
         {ouraLogTypesData && (
           <TableContainer>

@@ -13,12 +13,12 @@ const sleepLogTypes = [
   {
     logType: "average_breath",
     logTypeName: "Respiratory rate",
-    unit: "Breaths per minute",
+    unit: "breaths / Minute",
   },
   {
     logType: "average_heart_rate",
     logTypeName: "Average heart rate",
-    unit: "Beats per minute",
+    unit: "beats / Minute",
   },
   {
     logType: "average_hrv",
@@ -28,7 +28,7 @@ const sleepLogTypes = [
   {
     logType: "deep_sleep_duration",
     logTypeName: "Deep sleep duration",
-    unit: "hours/minutes",
+    unit: "hours",
   },
   {
     logType: "latency",
@@ -38,22 +38,22 @@ const sleepLogTypes = [
   {
     logType: "light_sleep_duration",
     logTypeName: "Light sleep duration",
-    unit: "hours/minutes",
+    unit: "hours",
   },
   {
     logType: "rem_sleep_duration",
     logTypeName: "REM sleep duration",
-    unit: "hours/minutes",
+    unit: "hours",
   },
   {
     logType: "time_in_bed",
     logTypeName: "Time in bed",
-    unit: "hours/minutes",
+    unit: "hours",
   },
   {
     logType: "total_sleep_duration",
     logTypeName: "Total sleep duration",
-    unit: "hours/minutes",
+    unit: "hours",
   },
   {
     logType: "awake_time",
@@ -68,11 +68,6 @@ const sleepLogTypes = [
   {
     logType: "bedtime_end",
     logTypeName: "Bedtime end",
-    unit: "date",
-  },
-  {
-    logType: "day",
-    logTypeName: "Day",
     unit: "date",
   },
 ];
@@ -91,17 +86,12 @@ const dailyActivityLogTypes = [
   {
     logType: "resting_time",
     logTypeName: "Resting time",
-    unit: "hours/minutes",
+    unit: "hours",
   },
   {
     logType: "steps",
     logTypeName: "Steps",
     unit: "number",
-  },
-  {
-    logType: "day",
-    logTypeName: "Day",
-    unit: "date",
   },
 ];
 

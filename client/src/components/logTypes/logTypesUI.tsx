@@ -18,6 +18,7 @@ import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../alerts/confirmationMessage";
 import EditIcon from "@mui/icons-material/Edit";
 import LogTypeEditForm from "./logTypeEditForm";
+import useCapitalizeFirstLetter from "../../functions/proccesStrings";
 
 const LogTypesData = () => {
   const [namesOfLogTypesToRemove, setNamesOfLogTypesToRemove] = useState<
@@ -173,6 +174,14 @@ const LogTypesData = () => {
               >
                 Weekdays to log
               </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: "bold",
+                  borderRight: "1px solid gray",
+                }}
+              >
+                Unit
+              </TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
@@ -198,6 +207,11 @@ const LogTypesData = () => {
                   </TableCell>
                   <TableCell style={{ borderRight: "1px solid gray" }}>
                     {logType.weekdays.join(", ")}
+                  </TableCell>
+                  <TableCell style={{ borderRight: "1px solid gray" }}>
+                    {console.log(logType, " is logType.unit")}
+                    {logType.unit.charAt(0).toUpperCase() +
+                      logType.unit.slice(1)}
                   </TableCell>
                   <TableCell>
                     <EditIcon

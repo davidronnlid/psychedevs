@@ -28,6 +28,10 @@ const logTypesSchema = new Schema({
           required: true,
         },
       ],
+      unit: {
+        type: String,
+        required: true,
+      },
     },
   ],
 });

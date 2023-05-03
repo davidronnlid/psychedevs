@@ -42,7 +42,7 @@ const Planner = () => {
         {inProcessOfLoading && <p>Loading...</p>}
         {err && <p>Error: {err}</p>}
         {!inProcessOfLoading && !err && <LogTypesData />}
-        <Box>
+        <Box sx={{ marginTop: "2rem" }}>
           <Button
             variant="contained"
             color="primary"

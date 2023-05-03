@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Button, Checkbox, FormControlLabel } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useAddLogType } from "../../functions/logTypesHooks";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { addLogType, selectLogTypes } from "../../redux/logTypesSlice";
@@ -7,6 +13,8 @@ import ConfirmationMessage from "../alerts/confirmationMessage";
 import SelectAnswerFormat from "./selectAnswerFormat";
 import { selectAnswerFormats } from "../../redux/answerFormatsSlice";
 import SelectName from "./selectName";
+import SelectUnit from "./selectUnit";
+import VerticalSpacer from "../VerticalSpacer";
 
 interface Props {}
 
@@ -22,6 +30,7 @@ const AddLogTypeForm: React.FC<Props> = () => {
   };
 
   const [nameError, setNameError] = useState<string>("");
+  const [unitError, setUnitError] = useState<string>("");
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
@@ -34,10 +43,16 @@ const AddLogTypeForm: React.FC<Props> = () => {
     }
   };
 
+  const handleUnitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newUnit = e.target.value;
+    setUnit(newUnit);
+  };
+
   const [addLogTypeToDB] = useAddLogType();
 
   const [name, setName] = useState("");
   const [answerFormat, setAnswerFormat] = useState("");
+  const [unit, setUnit] = useState("");
 
   const [selectedWeekdays, setSelectedWeekdays] = useState<boolean[]>([
     true,
@@ -69,6 +84,7 @@ const AddLogTypeForm: React.FC<Props> = () => {
       name,
       weekdays: selectedWeekdays,
       logType_id: "",
+      unit: unit,
     });
 
     dispatch(
@@ -77,12 +93,14 @@ const AddLogTypeForm: React.FC<Props> = () => {
         name,
         weekdays: selectedWeekdays,
         logType_id: "",
+        unit,
       })
     );
 
     setName("");
     setAnswerFormat("");
     setSelectedWeekdays([true, true, true, true, true, true, true]);
+    setUnit("");
     setIsSaved(true);
   };
 
@@ -90,7 +108,9 @@ const AddLogTypeForm: React.FC<Props> = () => {
 
   return (
     <>
-      <h2>Log type creator</h2>
+      <VerticalSpacer size="1rem" />
+      <Typography variant="h4">Log type creator</Typography>{" "}
+      <VerticalSpacer size="0.5rem" />
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column" }}
@@ -120,39 +140,44 @@ const AddLogTypeForm: React.FC<Props> = () => {
               defaultAnswerFormat={answerFormats.answerFormats[0].answer_format}
             />
           </div>
-          {name.length > 0 || answerFormat.length > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                marginBottom: "10px",
-              }}
-            >
-              <label style={{ marginBottom: "5px" }}>
-                Weekdays to log the new log type:
-              </label>
-              <div style={{ width: "400px", overflowX: "auto" }}>
-                {weekdays.map((weekday, index) => (
-                  <FormControlLabel
-                    key={index}
-                    control={
-                      <Checkbox
-                        checked={weekday.value}
-                        onChange={() =>
-                          setSelectedWeekdays((prevState) =>
-                            prevState.map((item, idx) =>
-                              idx === index ? !item : item
-                            )
+          <VerticalSpacer size="0.5rem" />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              marginBottom: "10px",
+            }}
+          >
+            <label style={{ marginBottom: "5px" }}>
+              Weekdays to log the new log type:
+            </label>
+            <div style={{ width: "400px", overflowX: "auto" }}>
+              {weekdays.map((weekday, index) => (
+                <FormControlLabel
+                  key={index}
+                  control={
+                    <Checkbox
+                      checked={weekday.value}
+                      onChange={() =>
+                        setSelectedWeekdays((prevState) =>
+                          prevState.map((item, idx) =>
+                            idx === index ? !item : item
                           )
-                        }
-                      />
-                    }
-                    label={weekday.label}
-                  />
-                ))}
-              </div>
+                        )
+                      }
+                    />
+                  }
+                  label={weekday.label}
+                />
+              ))}
             </div>
-          ) : null}
+          </div>
+          <SelectUnit
+            handleUnitChange={handleUnitChange}
+            unitError={unitError}
+            unit={unit}
+          />
+          <VerticalSpacer size="0.5rem" />
           <Button
             variant="contained"
             color="primary"

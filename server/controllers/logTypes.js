@@ -68,6 +68,7 @@ router.post("/log-types", async (req, res) => {
           name: req.body.name,
           logType_id: mergedId.toString(),
           weekdays: weekdays,
+          unit: req.body.unit,
         },
       ],
     };
@@ -125,18 +126,6 @@ router.delete("/log-types", async (req, res) => {
       "🚀 ~ file: logTypes.js:55 ~ router.post ~ mergedId:",
       mergedId
     );
-
-    const logTypeToSave = {
-      logType_id: mergedId,
-      logTypes: [
-        {
-          answer_format: req.body.answer_format,
-          name: req.body.name,
-          logType_id: mergedId.toString(),
-          weekdays: [...req.body.weekdays],
-        },
-      ],
-    };
 
     const result = await LogTypes.updateOne(
       { userId: userId },
@@ -198,15 +187,6 @@ router.put("/log-types", async (req, res) => {
           "logTypes.$": logTypeToUpdate,
         },
       }
-    );
-
-    console.log(
-      "updatedLogType_id",
-      updatedLogType_id,
-      "oldLogType_id",
-      oldLogType_id,
-      "userId",
-      userId
     );
 
     const logsUpdateResult = await Logs.updateMany(
