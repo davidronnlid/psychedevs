@@ -14,13 +14,14 @@ import OuraLogTypeCategories from "../logger/oura/ouraLogTypeCategories";
 const Planner = () => {
   const [inProcessOfLoading, err] = useFetchLogTypes();
   const [showAddLogTypeForm, setShowAddLogTypeForm] = useState(false);
-  const [addLogTypeButtonText, setAddLogTypeButtonText] =
-    useState("Add new log type");
+  const [addLogTypeButtonText, setAddLogTypeButtonText] = useState(
+    "Open log type creator"
+  );
 
   const handleToggleAddLogTypeForm = () => {
     setShowAddLogTypeForm(!showAddLogTypeForm);
     setAddLogTypeButtonText(
-      showAddLogTypeForm ? "Add new log type" : "Close log type creator"
+      showAddLogTypeForm ? "Open log type creator" : "Close log type creator"
     );
   };
 
