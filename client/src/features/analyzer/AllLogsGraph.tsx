@@ -12,6 +12,7 @@ import { selectLogTypes } from "../../redux/logTypesSlice";
 import { useAppSelector } from "../../redux/hooks";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
 import { CircularProgress, LinearProgress } from "@mui/material";
+import { Log } from "../../typeModels/logTypeModel";
 
 Chart.register(LinearScale);
 
@@ -196,8 +197,6 @@ const AllLogsGraph: React.FC = () => {
     ),
   });
 
-  console.log(PDLogsData, " is PDLogsData");
-
   const {
     data: ouraLogsData,
     error: ouraLogsError,
@@ -276,23 +275,42 @@ const AllLogsGraph: React.FC = () => {
     selectedLogTypes.forEach((logTypeId) => {
       let dayLabelsForLogType;
 
-      if (PDLogTypes.some((log) => log.logType_id === logTypeId)) {
+      console.log(PDLogTypes, logTypeId, " is PDLogTypes");
+
+      if (PDLogTypes.some((PDLType) => PDLType.logType_id === logTypeId)) {
+        // Above is checking whether the use has selected any log type in PDLogTypes
+
         dayLabelsForLogType = PDLogsData?.filter(
-          (PDLog: any) => PDLog.logType_id === logTypeId
-        ).map((PDLog: any) => convertDateToYMD(PDLog.date));
+          (PDLogs: any) => PDLogs._id.logType_id === logTypeId
+        ).map((PDLogs: any) =>
+          PDLogs.logs
+            .map((log: Log) => convertDateToYMD(log.date.toString()))
+            .flat()
+        );
       } else {
         dayLabelsForLogType = ouraLogsData?.[logTypeId]?.map(
           (ouraLog: any) => ouraLog.day
         );
       }
 
+      console.log(dayLabelsForLogType, " dayLabelsForLogType");
+
       if (dayLabelsForLogType) {
         allDayLabels.push(...dayLabelsForLogType);
       }
     });
+    console.log(
+      "🚀 ~ file: AllLogsGraph.tsx:293 ~ selectedLogTypes.forEach ~ PDLogTypes:",
+      PDLogTypes
+    );
 
-    return Array.from(new Set(allDayLabels));
+    return Array.from(new Set(allDayLabels)).flat();
   };
+
+  console.log(
+    "🚀 ~ file: AllLogsGraph.tsx:305 ~ getChartDataForLogType ~ allDayLabels:",
+    selectedLogTypes
+  );
 
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
     const logType = allLogTypes.find((log) => log.id === logTypeId);

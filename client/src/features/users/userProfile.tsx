@@ -82,7 +82,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
     } else {
       setUserData(user);
     }
-  }, [user]);
+  }, [user, token]);
 
   if (!userData) {
     return <div>Loading user data...</div>;
