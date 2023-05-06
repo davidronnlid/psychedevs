@@ -2,6 +2,16 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 
+const secondsToHours = (seconds) => {
+  const hours = seconds / 3600;
+  return hours;
+};
+
+function secondsToMinutes(seconds) {
+  const minutes = seconds / 60;
+  return minutes;
+}
+
 const router = express.Router();
 const OURA_AUTH_URL = "https://cloud.ouraring.com/oauth/authorize";
 const OuraUser = require("../models/ouraUser");
@@ -55,21 +65,6 @@ const sleepLogTypes = [
     logTypeName: "Total sleep duration",
     unit: "hours",
   },
-  {
-    logType: "awake_time",
-    logTypeName: "Awake time",
-    unit: "date",
-  },
-  {
-    logType: "bedtime_start",
-    logTypeName: "Bedtime start",
-    unit: "date",
-  },
-  {
-    logType: "bedtime_end",
-    logTypeName: "Bedtime end",
-    unit: "date",
-  },
 ];
 
 const dailyActivityLogTypes = [
@@ -81,7 +76,7 @@ const dailyActivityLogTypes = [
   {
     logType: "average_met_minutes",
     logTypeName: "Average MET minutes",
-    unit: "minutes",
+    unit: "average MET minutes",
   },
   {
     logType: "resting_time",
@@ -134,10 +129,6 @@ async function fetchDataFromEndpoint(accessToken, dataType, start, end) {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    // console.log(
-    //   "🚀 ~ file: oura.js:51 ~ fetchDataFromEndpoint ~ response:",
-    //   response.data.data
-    // );
     return {
       data: response.data.data,
       error: false,
@@ -303,14 +294,32 @@ module.exports = () => {
         }
       };
 
+      const convertSecondsToHours = [
+        "deep_sleep_duration",
+        "total_sleep_duration",
+        "resting_time",
+        "light_sleep_duration",
+        "rem_sleep_duration",
+        "time_in_bed",
+      ];
+      const convertSecondsToMinutes = ["latency"];
+
       const filterLogsByLogType = (logs, logTypeId) => {
         return logs
           .map((log) => {
             if (log[logTypeId] !== undefined) {
+              let value;
+              if (convertSecondsToHours.includes(logTypeId)) {
+                value = secondsToHours(log[logTypeId]);
+              } else if (convertSecondsToMinutes.includes(logTypeId)) {
+                value = secondsToMinutes(log[logTypeId]);
+              } else {
+                value = log[logTypeId];
+              }
               return {
                 id: log.id,
                 day: log.day,
-                [logTypeId]: log[logTypeId],
+                [logTypeId]: value,
               };
             }
           })

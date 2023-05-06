@@ -2,7 +2,7 @@ import { Line } from "react-chartjs-2";
 import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
-import React, { useState, useEffect, useMemo, SetStateAction } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Autocomplete, TextField, Typography } from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
 // import { calculateCorrelation } from "../../functions/correlations";
@@ -13,6 +13,10 @@ import { useAppSelector } from "../../redux/hooks";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
 import { CircularProgress, LinearProgress } from "@mui/material";
 import { Log } from "../../typeModels/logTypeModel";
+
+function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 Chart.register(LinearScale);
 
@@ -35,7 +39,7 @@ type ChartOptionsType = {
       };
     };
     y2: {
-      type: "linear";
+      type: "linear" | "time";
       position: "right";
       beginAtZero: true;
       display: boolean;
@@ -81,11 +85,13 @@ const AllLogsGraph: React.FC = () => {
     const ouraMapped = ouraLogTypes.map((logType) => ({
       id: logType.id,
       label: logType.label,
+      unit: logType.unit,
     }));
 
     const pdMapped = PDLogTypes.map((logType) => ({
       id: logType.logType_id,
       label: logType.name,
+      unit: logType.unit,
     }));
 
     return [...ouraMapped, ...pdMapped];
@@ -112,6 +118,8 @@ const AllLogsGraph: React.FC = () => {
     const y1AxisDisplay = !!y1LogType;
     const y2AxisDisplay = !!y2LogType;
 
+    console.log(y1LogType, " is y1LogType");
+
     const chartOptions: ChartOptionsType = {
       scales: {
         y1: {
@@ -121,7 +129,13 @@ const AllLogsGraph: React.FC = () => {
           display: y1AxisDisplay,
           title: {
             display: y1AxisDisplay,
-            text: y1LogType ? y1LogType.label : "",
+            text: y1LogType
+              ? y1LogType.label +
+                " " +
+                "(" +
+                capitalizeFirstLetter(y1LogType.unit) +
+                ")"
+              : "",
             color: "#001219",
             font: {
               size: 16,
@@ -136,7 +150,13 @@ const AllLogsGraph: React.FC = () => {
           display: y2AxisDisplay,
           title: {
             display: y2AxisDisplay,
-            text: y2LogType ? y2LogType.label : "",
+            text: y2LogType
+              ? y2LogType.label +
+                " " +
+                "(" +
+                capitalizeFirstLetter(y2LogType.unit) +
+                ")"
+              : "",
             color: "#26ace2",
             font: {
               size: 16,
@@ -299,6 +319,14 @@ const AllLogsGraph: React.FC = () => {
     return Array.from(new Set(allDayLabels)).flat();
   };
 
+  const formatTimeValue = (value: string | number | null) => {
+    if (typeof value === "string") {
+      const timeValue = new Date(value);
+      return timeValue.getHours() * 60 + timeValue.getMinutes();
+    }
+    return value;
+  };
+
   const getChartDataForLogType = (logTypeId: string, logTypeIndex: number) => {
     const logType = allLogTypes.find((log) => log.id === logTypeId);
 
@@ -318,7 +346,11 @@ const AllLogsGraph: React.FC = () => {
           const ouraLog = ouraLogsData?.[logTypeId]?.find(
             (ouraLog) => ouraLog.day === day
           );
-          return ouraLog ? ouraLog[logTypeId] : null;
+          return ouraLog && logType.unit === "date"
+            ? formatTimeValue(ouraLog[logTypeId])
+            : ouraLog
+            ? ouraLog[logTypeId]
+            : null;
         });
       } else if (
         PDLogTypes.some((logType) => logType.logType_id === logTypeId)
@@ -330,7 +362,11 @@ const AllLogsGraph: React.FC = () => {
           const log = logsOfLogType?.logs.find(
             (log) => convertDateToYMD(log.date.toString()) === day
           );
-          return log ? log.value : null;
+          return log && logType.unit === "date"
+            ? formatTimeValue(log.value)
+            : log
+            ? log.value
+            : null;
         });
       }
 
@@ -342,9 +378,13 @@ const AllLogsGraph: React.FC = () => {
           logData
         );
       }
+      if (logType.unit === "date") {
+        logData = logData.map((value: any) => formatTimeValue(value));
+      }
 
       return {
-        label: logType.label,
+        label:
+          logType.label + " " + "(" + capitalizeFirstLetter(logType.unit) + ")",
         data: logData,
         backgroundColor,
         borderColor,

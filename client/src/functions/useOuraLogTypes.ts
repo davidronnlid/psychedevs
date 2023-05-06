@@ -6,6 +6,7 @@ import { OuraLogTypesResponseData } from "../typeModels/ouraModel";
 type OuraLogTypeToDisplay = {
   id: string;
   label: string;
+  unit: string;
 };
 
 function isCategoryKey(key: string): key is keyof OuraLogTypesResponseData {
@@ -34,6 +35,7 @@ export const useOuraLogTypes = (
           ouraLogTypesData[category]?.map((logType: any) => ({
             id: logType.logType,
             label: logType.logTypeName,
+            unit: logType.unit,
           })) || [];
 
         setLogTypes(logTypesForCategory);
