@@ -3,9 +3,9 @@ import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
 import React, { useState, useEffect, useMemo } from "react";
-import { Autocomplete, TextField, Typography } from "@mui/material";
+import { Autocomplete, TextField, Paper, Box, Typography } from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
-// import { calculateCorrelation } from "../../functions/correlations";
+import { calculateCorrelation } from "../../functions/correlations";
 import { useFetchOuraLogTypeCategoriesQuery } from "../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
 import DateRangePicker from "../../components/dateRangePicker";
 import { selectLogTypes } from "../../redux/logTypesSlice";
@@ -13,6 +13,8 @@ import { useAppSelector } from "../../redux/hooks";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
 import { CircularProgress, LinearProgress } from "@mui/material";
 import { Log } from "../../typeModels/logTypeModel";
+import { CorrelationCalculationInput } from "../../typeModels/statsModel";
+import VerticalSpacer from "../../components/VerticalSpacer";
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -185,17 +187,17 @@ const AllLogsGraph: React.FC = () => {
     );
   }, [search, allLogTypes]);
 
-  // const [correlationData, setCorrelationData] = useState<{
-  //   correlation: number | null;
-  //   pValue: number | null;
-  //   requiredSampleSize?: number | null;
-  //   existingSampleSize?: number | null;
-  // }>({
-  //   correlation: null,
-  //   pValue: null,
-  //   requiredSampleSize: null,
-  //   existingSampleSize: null,
-  // });
+  const [correlationData, setCorrelationData] = useState<{
+    correlation: number | null;
+    pValue: number;
+    requiredSampleSize?: number | null;
+    existingSampleSize?: number | null;
+  }>({
+    correlation: null,
+    pValue: 0,
+    requiredSampleSize: null,
+    existingSampleSize: null,
+  });
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -237,32 +239,6 @@ const AllLogsGraph: React.FC = () => {
     setEndDate(newEndDate);
   };
 
-  // useEffect(() => {
-  //   if (ouraLogsData && selectedLogTypes) {
-  //     console.log(
-  //       "🚀 ~ file: AllLogsGraph.tsx:179 ~ useEffect ~ selectedLogTypes:",
-  //       selectedLogTypes
-  //     );
-
-  //     const newSelectedOuraLogsData = selectedLogTypes.map(
-  //       (ouraLogType: any) => {
-  //         return ouraLogsData[ouraLogType];
-  //       }
-  //     );
-  //     console.log(
-  //       "🚀 ~ file: AllLogsGraph.tsx:189 ~ useEffect ~ newSelectedOuraLogsData:",
-  //       newSelectedOuraLogsData
-  //     );
-
-  //     console.log(
-  //       "🚀 ~ file: AllLogsGraph.tsx:192 ~ useEffect ~ selectedOuraLogsData:",
-  //       newSelectedOuraLogsData
-  //     );
-  //     const correlationResult = calculateCorrelation(newSelectedOuraLogsData);
-  //     setCorrelationData(correlationResult);
-  //   }
-  // }, [ouraLogsData, selectedLogTypes]);
-
   const handleLogTypeSelect = (_event: any, newValue: any) => {
     if (newValue.length <= 2) {
       const selectedOura = newValue
@@ -275,8 +251,6 @@ const AllLogsGraph: React.FC = () => {
         .map((item: any) => item.id);
 
       setSelectedLogTypes([...selectedOura, ...selectedPD]);
-      // setSelectedPDLogTypes(selectedPD);
-      // Make sure that these state setters do not overwrite previous state
     }
   };
 
@@ -296,7 +270,7 @@ const AllLogsGraph: React.FC = () => {
       let dayLabelsForLogType;
 
       if (PDLogTypes.some((PDLType) => PDLType.logType_id === logTypeId)) {
-        // Above is checking whether the use has selected any log type in PDLogTypes
+        // Above is checking whether the user has selected any log type in PDLogTypes
 
         dayLabelsForLogType = PDLogsData?.filter(
           (PDLogs: any) => PDLogs._id.logType_id === logTypeId
@@ -411,6 +385,34 @@ const AllLogsGraph: React.FC = () => {
       ouraLogsIsLoading
     );
   });
+
+  useEffect(() => {
+    if (ouraLogsData && selectedLogTypes) {
+      console.log(
+        "🚀 ~ file: AllLogsGraph.tsx:179 ~ useEffect ~ selectedLogTypes:",
+        ouraLogsData,
+        selectedLogTypes
+      );
+
+      const preppedSelectedLogsData: CorrelationCalculationInput =
+        selectedLogTypes.map((ouraLogType: any) => {
+          return ouraLogsData[ouraLogType].map(({ id, ...rest }) => rest);
+        });
+      console.log(
+        "🚀 ~ file: AllLogsGraph.tsx:189 ~ useEffect ~ preppedSelectedLogsData:",
+        preppedSelectedLogsData
+      );
+      if (preppedSelectedLogsData.length > 1) {
+        const correlationResult = calculateCorrelation(preppedSelectedLogsData);
+        console.log(
+          "🚀 ~ file: AllLogsGraph.tsx:409 ~ useEffect ~ correlationResult:",
+          correlationResult
+        );
+        setCorrelationData(correlationResult);
+      }
+    }
+  }, [ouraLogsData]);
+
   return ouraLogTypeCategoriesData ? (
     <>
       <Typography variant="h5">All logs graph</Typography>
@@ -419,12 +421,10 @@ const AllLogsGraph: React.FC = () => {
         Select a date range and up to two log types for which to display logs.
       </Typography>
       <br />
-
       <DateRangePicker
         onStartDateChange={handleStartDateChange}
         onEndDateChange={handleEndDateChange}
       />
-
       <br />
       <Autocomplete
         multiple
@@ -455,7 +455,6 @@ const AllLogsGraph: React.FC = () => {
         )}
       />
       <br />
-
       {PDLogsIsLoading || ouraLogsIsLoading ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
@@ -466,42 +465,62 @@ const AllLogsGraph: React.FC = () => {
           options={generateChartOptions(selectedLogTypes)}
         />
       )}
-
-      {/* {correlationData &&
-            selectedLogTypes[0] !== "" &&
-            selectedLogTypes[1] !== "" &&
-            ((correlationData?.existingSampleSize ?? 0) >=
-              (correlationData?.requiredSampleSize ?? 1100) &&
-              (correlationData?.pValue ?? 1) <= 0.05 ? (
-              <>
-                <p>YOOOO correlation bro</p>
-                <p>Correlation: {correlationData.correlation}</p>
-                <p>P-value: {correlationData.pValue}</p>
-              </>
-            ) : (
-              <>
-                <h3>No correlation was found. </h3>
-                {(correlationData?.existingSampleSize ?? 0) <=
-                (correlationData?.requiredSampleSize ?? 0) ? (
-                  <>
-                    <h4>
-                      You need to collect more logs for these log types to find
-                      possible correlations between them.{" "}
-                    </h4>
-                    <p>
-                      Existing logs per log type:{" "}
-                      {correlationData.existingSampleSize}
-                    </p>
-                    <p>
-                      Estimated required logs per log type:{" "}
-                      {correlationData.requiredSampleSize}
-                    </p>
-                  </>
-                ) : (
-                  <h4>One of these log types has no logs.</h4>
-                )}
-              </>
-            ))} */}
+      <VerticalSpacer size="1rem" />
+      <Box sx={{ p: 2, bgcolor: "warning.light", borderRadius: 1 }}>
+        <Typography variant="h6" component="h3">
+          Beta correlation feature.
+        </Typography>
+        <Typography variant="body1">
+          This correlation feature is currently under development. Validity and
+          reliability for the correlation equations have not yet been fully
+          established.
+        </Typography>
+      </Box>{" "}
+      <VerticalSpacer size="0.5rem" />
+      <Typography variant="h5" component="h2">
+        Result of correlation calculation:
+      </Typography>
+      {correlationData &&
+      selectedLogTypes[0] !== "" &&
+      selectedLogTypes[1] !== "" &&
+      (correlationData?.existingSampleSize ?? 0) >=
+        (correlationData?.requiredSampleSize ?? 1100) &&
+      (correlationData?.pValue ?? 1) >= 0.95 ? (
+        <>
+          <h3>A correlation was found! </h3>
+          <p>Correlation: {correlationData.correlation}</p>
+          <p>P-value: {1 - correlationData.pValue}</p>
+        </>
+      ) : (
+        <>
+          <h3>No correlation was found. </h3>
+          {(correlationData?.existingSampleSize ?? 0) <=
+          (correlationData?.requiredSampleSize ?? 0) ? (
+            <>
+              <h4>
+                You need to collect more logs for these log types to find
+                possible correlations between them.{" "}
+              </h4>
+              <p>
+                Existing logs per log type: {correlationData.existingSampleSize}
+              </p>
+              <p>
+                Estimated required logs per log type:{" "}
+                {correlationData.requiredSampleSize}
+              </p>
+            </>
+          ) : correlationData?.existingSampleSize === 0 ? (
+            <h4>One of these log types has no logs.</h4>
+          ) : (
+            <h4>
+              You have already collected enough logs for these log types. The
+              statistical analysis resulted in the certain conclusion that there
+              is no correlation between these log types in the selected date
+              range.
+            </h4>
+          )}
+        </>
+      )}
     </>
   ) : (
     <></>

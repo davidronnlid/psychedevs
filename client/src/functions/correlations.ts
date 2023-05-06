@@ -1,5 +1,4 @@
-import { Log } from "../typeModels/logTypeModel";
-import { OuraLog } from "../typeModels/ouraModel";
+import { CorrelationCalculationInput } from "../typeModels/statsModel";
 
 // Helper function to approximate the inverse normal cumulative distribution function (quantile function)
 const inverseNormalCDF = (p: number): number | undefined => {
@@ -54,19 +53,26 @@ const inverseNormalCDF = (p: number): number | undefined => {
   }
 };
 
-export const calculateCorrelation = (logs: Log[][]) => {
-  //Filter logs with matching dates
+export const calculateCorrelation = (logs: CorrelationCalculationInput) => {
+  //Filter logs with matching days
   const filteredLogs0 = logs[0].filter((log0) =>
-    logs[1].some((log1) => log1.date === log0.date)
+    logs[1].some((log1) => log1.day === log0.day)
   );
 
   const filteredLogs1 = logs[1].filter((log1) =>
-    logs[0].some((log0) => log0.date === log1.date)
+    logs[0].some((log0) => log0.day === log1.day)
   );
 
   // Get arrays of values
-  const values1 = filteredLogs0.map((log) => log.value);
-  const values2 = filteredLogs1.map((log) => log.value);
+  const values1 = filteredLogs0.map((log) => {
+    const logValue = Object.keys(log).find((key) => key !== "day");
+    return logValue ? log[logValue] : undefined;
+  });
+
+  const values2 = filteredLogs1.map((log) => {
+    const logValue = Object.keys(log).find((key) => key !== "day");
+    return logValue ? log[logValue] : undefined;
+  });
 
   // Ensure both value arrays have the same length
   if (values1.length !== values2.length) {
