@@ -1,5 +1,12 @@
 import { CorrelationCalculationInput } from "../typeModels/statsModel";
 
+type CorrelationResult = {
+  correlation: number | null;
+  pValue: number;
+  requiredSampleSize: number | null;
+  existingSampleSize: number | null;
+};
+
 // Helper function to approximate the inverse normal cumulative distribution function (quantile function)
 const inverseNormalCDF = (p: number): number | undefined => {
   const a1 = -3.969683028665376e1;
@@ -53,31 +60,101 @@ const inverseNormalCDF = (p: number): number | undefined => {
   }
 };
 
-export const calculateCorrelation = (logs: CorrelationCalculationInput) => {
+function studentTcdf(t: number, df: number): number {
+  const x = df / (df + t * t);
+  const CDF = 1 - 0.5 * regularizedIncompleteBeta(x, df / 2, 0.5);
+  console.log("🚀 ~ file: correlations.ts:66 ~ studentTcdf ~ CDF:", CDF);
+  return t > 0 ? CDF : 1 - CDF;
+}
+
+function regularizedIncompleteBeta(x: number, a: number, b: number): number {
+  const maxIterations = 1000;
+  const epsilon = 1e-15;
+
+  const factor = Math.exp(
+    gammaLn(a + b) -
+      gammaLn(a) -
+      gammaLn(b) +
+      a * Math.log(x) +
+      b * Math.log(1 - x)
+  );
+
+  let ai = 1 / a;
+  let bi = 1 / b;
+  let alpha = ai;
+  let beta = bi;
+  let convergence = alpha;
+
+  for (let i = 0; i < maxIterations; i++) {
+    ai *= ((1 - bi) * x) / (1 + ai);
+    bi *= ((1 - ai) * x) / (1 + bi);
+    alpha += ai;
+    beta += bi;
+    convergence = alpha * beta;
+
+    if (convergence < epsilon) {
+      break;
+    }
+  }
+
+  return (factor * alpha) / a;
+}
+
+function gammaLn(x: number): number {
+  const c = [
+    76.18009172947146, -86.50532032941677, 24.01409824083091,
+    -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5,
+  ];
+
+  let y = x;
+  let t = x + 5.5;
+  t -= (x + 0.5) * Math.log(t);
+  let sum = 1.000000000190015;
+  for (let j = 0; j < c.length; j++) {
+    sum += c[j] / ++y;
+  }
+
+  return -t + Math.log((2.5066282746310005 * sum) / x);
+}
+
+export const calculateCorrelation = (
+  logs: CorrelationCalculationInput
+): CorrelationResult => {
   //Filter logs with matching days
   const filteredLogs0 = logs[0].filter((log0) =>
-    logs[1].some((log1) => log1.day === log0.day)
+    logs[1].some(
+      (log1) =>
+        log1.day === log0.day && log0.value !== null && log1.value !== null
+    )
   );
 
   const filteredLogs1 = logs[1].filter((log1) =>
-    logs[0].some((log0) => log0.day === log1.day)
+    logs[0].some(
+      (log0) =>
+        log0.day === log1.day && log0.value !== null && log1.value !== null
+    )
   );
 
-  // Get arrays of values
-  const values1 = filteredLogs0.map((log) => {
-    const logValue = Object.keys(log).find((key) => key !== "day");
-    return logValue ? log[logValue] : undefined;
-  });
+  console.log(
+    "About to calculate correlation for this data: ",
+    filteredLogs0,
+    filteredLogs1
+  );
 
-  const values2 = filteredLogs1.map((log) => {
-    const logValue = Object.keys(log).find((key) => key !== "day");
-    return logValue ? log[logValue] : undefined;
-  });
+  const values1 = filteredLogs0.map((log) => log.value);
+
+  const values2 = filteredLogs1.map((log) => log.value);
+  // Data prep done above this line
 
   // Ensure both value arrays have the same length
   if (values1.length !== values2.length) {
     console.error("The value arrays must have the same length.");
-    return { correlation: NaN, pValue: NaN };
+    return {
+      correlation: null,
+      pValue: NaN,
+      requiredSampleSize: null,
+      existingSampleSize: null,
+    };
   }
 
   // Calculate correlation using Pearson correlation coefficient
@@ -99,27 +176,36 @@ export const calculateCorrelation = (logs: CorrelationCalculationInput) => {
     (n * sumX2 - sumX ** 2) * (n * sumY2 - sumY ** 2)
   );
   const correlation = numerator / denominator;
+  // Correlation calculation done above this line
 
-  // Calculate degrees of freedom, t-score, and p-value
+  // Calculate pValue for correlation
   const tScore = correlation * Math.sqrt((n - 2) / (1 - correlation ** 2));
+  const df = n - 2;
 
-  // Calculate the p-value using the t-score and degrees of freedom (n - 2)
-  // This requires the CDF (Cumulative Distribution Function) of the t-distribution
-  // Implementing the CDF from scratch is complex, but you can use an approximation
-  // This approximation is for large sample sizes (n > 30)
-  const zScore = Math.abs(tScore) / Math.sqrt(n);
-  const pValue = Math.exp(-1 * zScore * (Math.PI / Math.sqrt(6 * n)));
+  const pValue = 2 * (1 - studentTcdf(Math.abs(tScore), df));
+  console.log("🚀 ~ file: correlations.ts:184 ~ pValue:", pValue);
 
   // Calculating requiredSampleSize
   const zAlpha = inverseNormalCDF(1 - 0.05 / 2);
   const zBeta = inverseNormalCDF(0.8);
+  const fishersZTransformation = (r: number): number => {
+    return 0.5 * Math.log((1 + r) / (1 - r));
+  };
 
   let requiredSampleSize;
   if (zAlpha && zBeta) {
-    requiredSampleSize = Math.ceil(Math.pow((zAlpha + zBeta) / correlation, 2));
+    const transformedCorrelation = fishersZTransformation(correlation);
+    requiredSampleSize = Math.ceil(
+      Math.pow((zAlpha + zBeta) / transformedCorrelation, 2) + 3
+    );
   } else requiredSampleSize = 1100;
 
   const existingSampleSize = n;
 
-  return { correlation, pValue, requiredSampleSize, existingSampleSize };
+  return {
+    correlation,
+    pValue,
+    existingSampleSize,
+    requiredSampleSize,
+  };
 };

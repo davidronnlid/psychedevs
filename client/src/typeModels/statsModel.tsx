@@ -1,6 +1,6 @@
 export interface CorrelationDataPoint {
-  day: string;
-  [key: string]: any;
+  day: string | null;
+  value: any;
 }
 
 export type CorrelationCalculationInput = CorrelationDataPoint[][];
