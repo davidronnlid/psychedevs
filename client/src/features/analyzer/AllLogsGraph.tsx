@@ -19,6 +19,8 @@ import {
 } from "../../typeModels/statsModel";
 import VerticalSpacer from "../../components/VerticalSpacer";
 import OuraData from "../logger/oura/ouraData";
+import { CorrelationComponent } from "./CorrelationComponent";
+import { CorrelationDataType } from "../../typeModels/correlationModel";
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -64,12 +66,7 @@ type ChartOptionsType = {
 };
 
 const AllLogsGraph: React.FC = () => {
-  const [correlationData, setCorrelationData] = useState<{
-    correlation: number | null;
-    pValue: number;
-    requiredSampleSize?: number | null;
-    existingSampleSize?: number | null;
-  }>({
+  const [correlationData, setCorrelationData] = useState<CorrelationDataType>({
     correlation: null,
     pValue: 1,
     requiredSampleSize: null,
@@ -509,78 +506,10 @@ const AllLogsGraph: React.FC = () => {
         />
       )}
       <VerticalSpacer size="1rem" />
-      <Box sx={{ p: 2, bgcolor: "warning.light", borderRadius: 1 }}>
-        <Typography variant="h6" component="h3">
-          Beta correlation feature.
-        </Typography>
-        <Typography variant="body1">
-          This correlation feature is currently under development. Validity and
-          reliability for the correlation equations have not yet been fully
-          established.
-        </Typography>
-      </Box>{" "}
-      <VerticalSpacer size="0.5rem" />
-      <Typography variant="h5" component="h2">
-        Result of correlation calculation:
-      </Typography>
-      {correlationData &&
-      selectedLogTypes[0] !== "" &&
-      selectedLogTypes[1] !== "" &&
-      (correlationData?.existingSampleSize ?? 0) >=
-        (correlationData?.requiredSampleSize ?? 1100) &&
-      (correlationData?.pValue ?? 1) <= 0.05 ? (
-        <>
-          <h3>A correlation was found! </h3>
-          <p>Correlation: {correlationData.correlation}</p>
-          <p>P-value: {correlationData.pValue}</p>
-          <p>
-            Existing <i>logs</i> per <i>log type</i> analyzed:{" "}
-            {correlationData.existingSampleSize}
-          </p>
-        </>
-      ) : (
-        <>
-          <h3>
-            <u>No correlation was found.</u>
-          </h3>
-          {(correlationData?.existingSampleSize ?? 0) <=
-          (correlationData?.requiredSampleSize ?? 0) ? (
-            <>
-              <h4>
-                You need to collect more logs for these log types to find
-                possible correlations between them.{" "}
-              </h4>
-              <p>
-                Existing <i>logs</i> per <i>log type</i>:{" "}
-                {correlationData.existingSampleSize}
-              </p>
-              <p>
-                Estimated required <i>logs</i> per <i>log type</i>:{" "}
-                {correlationData.requiredSampleSize}
-              </p>
-            </>
-          ) : correlationData?.existingSampleSize === 0 ? (
-            <h4>One of these log types has no logs.</h4>
-          ) : (
-            <>
-              <h4>
-                Enough logs have been collected for these log types in the
-                selected date range to conclude with a high degree of certainty
-                that no correlation exists between these log types in the
-                selected date range.
-              </h4>
-              <p>
-                Existing <i>logs</i> per <i>log type</i>:{" "}
-                {correlationData.existingSampleSize}
-              </p>
-              <p>
-                Estimated required <i>logs</i> per <i>log type</i>:{" "}
-                {correlationData.requiredSampleSize}
-              </p>
-            </>
-          )}
-        </>
-      )}
+      <CorrelationComponent
+        selectedLogTypes={selectedLogTypes}
+        correlationData={correlationData}
+      />
     </>
   ) : (
     <></>
