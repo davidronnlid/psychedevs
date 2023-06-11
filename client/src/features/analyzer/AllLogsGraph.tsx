@@ -18,6 +18,7 @@ import {
   CorrelationDataPoint,
 } from "../../typeModels/statsModel";
 import VerticalSpacer from "../../components/VerticalSpacer";
+import OuraData from "../logger/oura/ouraData";
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -63,6 +64,18 @@ type ChartOptionsType = {
 };
 
 const AllLogsGraph: React.FC = () => {
+  const [correlationData, setCorrelationData] = useState<{
+    correlation: number | null;
+    pValue: number;
+    requiredSampleSize?: number | null;
+    existingSampleSize?: number | null;
+  }>({
+    correlation: null,
+    pValue: 1,
+    requiredSampleSize: null,
+    existingSampleSize: null,
+  });
+
   const PDLogTypes = useAppSelector(selectLogTypes);
 
   const [selectedLogTypes, setSelectedLogTypes] = useState<string[]>([]);
@@ -110,9 +123,6 @@ const AllLogsGraph: React.FC = () => {
   } = useFetchOuraLogTypeCategoriesQuery();
 
   const generateChartOptions = (selectedLogTypes: string[]) => {
-    const selectedLogData = selectedLogTypes.map((logId) =>
-      ouraLogTypes.find((log) => log.id === logId)
-    );
     const y1LogType = allLogTypes.find(
       (log) => log && selectedLogTypes.indexOf(log.id ?? "") === 0
     );
@@ -190,18 +200,6 @@ const AllLogsGraph: React.FC = () => {
     );
   }, [search, allLogTypes]);
 
-  const [correlationData, setCorrelationData] = useState<{
-    correlation: number | null;
-    pValue: number;
-    requiredSampleSize?: number | null;
-    existingSampleSize?: number | null;
-  }>({
-    correlation: null,
-    pValue: 0,
-    requiredSampleSize: null,
-    existingSampleSize: null,
-  });
-
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   console.log(
@@ -267,21 +265,19 @@ const AllLogsGraph: React.FC = () => {
   };
 
   const getUniqueDayLabels = () => {
-    const allDayLabels: string[] = [];
+    const allDayLabels = new Set<string>();
 
     selectedLogTypes.forEach((logTypeId) => {
       let dayLabelsForLogType;
 
       if (PDLogTypes.some((PDLType) => PDLType.logType_id === logTypeId)) {
-        // Above is checking whether the user has selected any log type in PDLogTypes
-
         dayLabelsForLogType = PDLogsData?.filter(
           (PDLogsOfAPDLogType: any) =>
             PDLogsOfAPDLogType._id.logType_id === logTypeId
-        ).map((PDLogsOfAPDLogType: any) =>
-          PDLogsOfAPDLogType.logs
-            .map((log: Log) => convertDateToYMD(log.date.toString()))
-            .flat()
+        ).flatMap((PDLogsOfAPDLogType: any) =>
+          PDLogsOfAPDLogType.logs.map((log: Log) =>
+            convertDateToYMD(log.date.toString())
+          )
         );
       } else {
         dayLabelsForLogType = ouraLogsData?.[logTypeId]?.map(
@@ -290,15 +286,16 @@ const AllLogsGraph: React.FC = () => {
       }
 
       if (dayLabelsForLogType) {
-        allDayLabels.push(...dayLabelsForLogType);
+        dayLabelsForLogType.forEach((dayLabel: string) => {
+          if (!allDayLabels.has(dayLabel)) {
+            allDayLabels.add(dayLabel);
+          }
+        });
       }
     });
 
-    // Create a new Set from allDayLabels to get unique values.
-    // Then convert it back to an array.
-    const uniqueDayLabels = Array.from(new Set(allDayLabels)).flat();
+    const uniqueDayLabels = Array.from(allDayLabels);
 
-    // Sort the array of date strings.
     uniqueDayLabels.sort();
 
     return uniqueDayLabels;
@@ -370,18 +367,25 @@ const AllLogsGraph: React.FC = () => {
       number[]
     >[],
   };
+
   useEffect(() => {
-    const allDayLabels = getUniqueDayLabels();
+    // Purpose of this useEffect is to calculate correlation data and set correlation state
+    const uniqueDayLabels = getUniqueDayLabels();
 
-    const hodlVar = (logTypeId: string, logTypeIndex: number) => {
+    const dataOfALogTypeForCorrelationCalculation = (logTypeId: string) => {
+      console.log(
+        "useEffect to calculate correlation was called!!",
+        logTypeId,
+        uniqueDayLabels
+      );
+
       const logType = allLogTypes.find((log) => log.id === logTypeId);
-
-      console.log("hodlVar was called!!", allDayLabels);
 
       if (logType) {
         let logData: any;
+
         if (ouraLogTypes.some((logType) => logType.id === logTypeId)) {
-          logData = allDayLabels.map((day) => {
+          logData = uniqueDayLabels.map((day) => {
             const ouraLog = ouraLogsData?.[logTypeId]?.find(
               (ouraLog) => ouraLog.day === day
             );
@@ -392,10 +396,15 @@ const AllLogsGraph: React.FC = () => {
 
             return logToReturn;
           });
+
+          console.log(
+            "useEffect to calculate correlation, ouraLogs: ",
+            logData
+          );
         } else if (
           PDLogTypes.some((logType) => logType.logType_id === logTypeId)
         ) {
-          logData = allDayLabels.map((day) => {
+          logData = uniqueDayLabels.map((day) => {
             const logsOfLogType = PDLogsData?.find(
               (logs) => logs._id.logType_id === logTypeId
             );
@@ -414,11 +423,11 @@ const AllLogsGraph: React.FC = () => {
 
             return logToReturn ?? null;
           });
+          console.log("useEffect to calculate correlation,  PDLogs: ", logData);
         }
 
         if (Array.isArray(logData)) {
           logData = logData.flat();
-          console.log("hodlVar was called!!", logData);
           return logData;
         } else {
           console.error(
@@ -428,8 +437,14 @@ const AllLogsGraph: React.FC = () => {
         }
       }
     };
-    const dataForCorrelationCalculation = selectedLogTypes.map(
-      (logTypeId, index) => hodlVar(logTypeId, index)
+
+    console.log(
+      "before setting dataForCorrelationCalculation, ",
+      selectedLogTypes
+    );
+
+    const dataForCorrelationCalculation = selectedLogTypes.map((logTypeId) =>
+      dataOfALogTypeForCorrelationCalculation(logTypeId)
     );
 
     if (dataForCorrelationCalculation.length > 1) {
@@ -441,78 +456,12 @@ const AllLogsGraph: React.FC = () => {
     console.log("YOOO", correlationData);
   }, [ouraLogsData, PDLogsData]);
 
-  // RENAME HODLVAR TO MORE DESCRIPTIVE NAME AND ALSO REMOVE WHATS COMMENTED OUT BELOW IF AND ONLY IF IT IS APPROPRIATE
-
-  // useEffect(() => {
-  //   if ((selectedLogTypes && ouraLogsData) || PDLogsData) {
-  //     const preppedLogsData = selectedLogTypes.map(() => {
-  //       let logData: any;
-  //       if (ouraLogTypes.some((logType) => logType.id === logTypeId)) {
-  //         logData = allDayLabels.map((day) => {
-  //           const ouraLog = ouraLogsData?.[logTypeId]?.find(
-  //             (ouraLog) => ouraLog.day === day
-  //           );
-  //           return ouraLog && logType.unit === "date"
-  //             ? formatTimeValue(ouraLog[logTypeId])
-  //             : ouraLog
-  //             ? ouraLog[logTypeId]
-  //             : null;
-  //         });
-  //       } else if (
-  //         PDLogTypes.some((logType) => logType.logType_id === logTypeId)
-  //       ) {
-  //         logData = allDayLabels.map((day) => {
-  //           const logsOfLogType = PDLogsData?.find(
-  //             (logs) => logs._id.logType_id === logTypeId
-  //           );
-  //           const log = logsOfLogType?.logs.find(
-  //             (log) => convertDateToYMD(log.date.toString()) === day
-  //           );
-  //           return log && logType.unit === "date"
-  //             ? formatTimeValue(log.value)
-  //             : log
-  //             ? log.value
-  //             : null;
-  //         });
-  //       }
-
-  //       if (Array.isArray(logData)) {
-  //         logData = logData.flat();
-  //       } else {
-  //         console.error(
-  //           "logData is not an array, have you entered start and end dates?:",
-  //           logData
-  //         );
-  //       }
-  //     });
-
-  //   const preppedSelectedLogsData: CorrelationCalculationInput =
-  //     selectedLogTypes.map((ouraLogType: any) => {
-  //       return ouraLogsData[ouraLogType].map(({ id, ...rest }) => rest);
-  //     });
-  //   console.log(
-  //     "🚀 ~ file: AllLogsGraph.tsx:189 ~ useEffect ~ preppedSelectedLogsData:",
-  //     preppedSelectedLogsData
-  //   );
-  //   if (preppedSelectedLogsData.length > 1) {
-  //     const correlationResult = calculateCorrelation(preppedSelectedLogsData);
-  //     console.log(
-  //       "🚀 ~ file: AllLogsGraph.tsx:409 ~ useEffect ~ correlationResult:",
-  //       correlationResult
-  //     );
-  //     setCorrelationData(correlationResult);
-  //   }
-  //   }
-  // }, [ouraLogsData]);
-
-  // Finds and returns the log type objects of the log types selected by the user in the UI
-
   return ouraLogTypeCategoriesData ? (
     <>
       <Typography variant="h5">All logs graph</Typography>
       <br />
       <Typography variant="subtitle2">
-        Select a date range and up to two log types for which to display logs.
+        Select a date range and up to two log types to display logs for.
       </Typography>
       <br />
       <DateRangePicker
@@ -579,15 +528,21 @@ const AllLogsGraph: React.FC = () => {
       selectedLogTypes[1] !== "" &&
       (correlationData?.existingSampleSize ?? 0) >=
         (correlationData?.requiredSampleSize ?? 1100) &&
-      (correlationData?.pValue ?? 1) >= 0.95 ? (
+      (correlationData?.pValue ?? 1) <= 0.05 ? (
         <>
           <h3>A correlation was found! </h3>
           <p>Correlation: {correlationData.correlation}</p>
-          <p>P-value?????????: {1 - correlationData.pValue}</p>
+          <p>P-value: {correlationData.pValue}</p>
+          <p>
+            Existing <i>logs</i> per <i>log type</i> analyzed:{" "}
+            {correlationData.existingSampleSize}
+          </p>
         </>
       ) : (
         <>
-          <h3>No correlation was found. </h3>
+          <h3>
+            <u>No correlation was found.</u>
+          </h3>
           {(correlationData?.existingSampleSize ?? 0) <=
           (correlationData?.requiredSampleSize ?? 0) ? (
             <>
@@ -596,27 +551,32 @@ const AllLogsGraph: React.FC = () => {
                 possible correlations between them.{" "}
               </h4>
               <p>
-                Existing logs per log type: {correlationData.existingSampleSize}
+                Existing <i>logs</i> per <i>log type</i>:{" "}
+                {correlationData.existingSampleSize}
               </p>
               <p>
-                Estimated required logs per log type:{" "}
+                Estimated required <i>logs</i> per <i>log type</i>:{" "}
                 {correlationData.requiredSampleSize}
               </p>
-              <p>Correlation: {correlationData.correlation}</p>
-              <p>P-value: {correlationData.pValue}</p>
             </>
           ) : correlationData?.existingSampleSize === 0 ? (
             <h4>One of these log types has no logs.</h4>
           ) : (
             <>
               <h4>
-                You have already collected enough logs for these log types for a
-                correlation to be found if there was one. The statistical
-                analysis result is that no correlation exists between these log
-                types in the selected date range.
+                Enough logs have been collected for these log types in the
+                selected date range to conclude with a high degree of certainty
+                that no correlation exists between these log types in the
+                selected date range.
               </h4>
-              <p>Correlation: {correlationData.correlation}</p>
-              <p>P-value???????: {1 - correlationData.pValue}</p>
+              <p>
+                Existing <i>logs</i> per <i>log type</i>:{" "}
+                {correlationData.existingSampleSize}
+              </p>
+              <p>
+                Estimated required <i>logs</i> per <i>log type</i>:{" "}
+                {correlationData.requiredSampleSize}
+              </p>
             </>
           )}
         </>

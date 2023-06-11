@@ -1,4 +1,10 @@
 import { CorrelationCalculationInput } from "../typeModels/statsModel";
+import { jStat } from "jstat";
+
+function correlationPValue(r: number, n: number) {
+  var t = r * Math.sqrt((n - 2) / (1 - r * r));
+  return 2 * (1 - jStat.studentt.cdf(Math.abs(t), n - 2));
+}
 
 type CorrelationResult = {
   correlation: number | null;
@@ -59,63 +65,6 @@ const inverseNormalCDF = (p: number): number | undefined => {
     return 0;
   }
 };
-
-function studentTcdf(t: number, df: number): number {
-  const x = df / (df + t * t);
-  const CDF = 1 - 0.5 * regularizedIncompleteBeta(x, df / 2, 0.5);
-  console.log("🚀 ~ file: correlations.ts:66 ~ studentTcdf ~ CDF:", CDF);
-  return t > 0 ? CDF : 1 - CDF;
-}
-
-function regularizedIncompleteBeta(x: number, a: number, b: number): number {
-  const maxIterations = 1000;
-  const epsilon = 1e-15;
-
-  const factor = Math.exp(
-    gammaLn(a + b) -
-      gammaLn(a) -
-      gammaLn(b) +
-      a * Math.log(x) +
-      b * Math.log(1 - x)
-  );
-
-  let ai = 1 / a;
-  let bi = 1 / b;
-  let alpha = ai;
-  let beta = bi;
-  let convergence = alpha;
-
-  for (let i = 0; i < maxIterations; i++) {
-    ai *= ((1 - bi) * x) / (1 + ai);
-    bi *= ((1 - ai) * x) / (1 + bi);
-    alpha += ai;
-    beta += bi;
-    convergence = alpha * beta;
-
-    if (convergence < epsilon) {
-      break;
-    }
-  }
-
-  return (factor * alpha) / a;
-}
-
-function gammaLn(x: number): number {
-  const c = [
-    76.18009172947146, -86.50532032941677, 24.01409824083091,
-    -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5,
-  ];
-
-  let y = x;
-  let t = x + 5.5;
-  t -= (x + 0.5) * Math.log(t);
-  let sum = 1.000000000190015;
-  for (let j = 0; j < c.length; j++) {
-    sum += c[j] / ++y;
-  }
-
-  return -t + Math.log((2.5066282746310005 * sum) / x);
-}
 
 export const calculateCorrelation = (
   logs: CorrelationCalculationInput
@@ -179,11 +128,7 @@ export const calculateCorrelation = (
   // Correlation calculation done above this line
 
   // Calculate pValue for correlation
-  const tScore = correlation * Math.sqrt((n - 2) / (1 - correlation ** 2));
-  const df = n - 2;
-
-  const pValue = 2 * (1 - studentTcdf(Math.abs(tScore), df));
-  console.log("🚀 ~ file: correlations.ts:184 ~ pValue:", pValue);
+  const pValue = correlationPValue(correlation, n);
 
   // Calculating requiredSampleSize
   const zAlpha = inverseNormalCDF(1 - 0.05 / 2);

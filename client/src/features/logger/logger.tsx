@@ -145,28 +145,28 @@ const Logger = () => {
 
   console.log("filteredLogTypesData ", dayOfWeek, filteredLogTypesData); // will log an array of logType objects with true for the current dayOfWeek
 
-  const completedLogtypes = logTypesData.filter((logType) =>
+  const collectedLogtypes = logTypesData.filter((logType) =>
     hasLogTypeToday(logs, logType.logType_id ? logType.logType_id : "")
   );
 
   console.log(
-    "🚀 ~ file: logger.tsx:35 ~ Logger ~ completedLogs:",
-    completedLogtypes
+    "🚀 ~ file: logger.tsx:35 ~ Logger ~ collectedLogs:",
+    collectedLogtypes
   );
-  const [completedAll, setCompletedAll] = useState(
-    filteredLogTypesData.length === 0 && completedLogtypes.length > 0
+  const [collectedAll, setCollectedAll] = useState(
+    filteredLogTypesData.length === 0 && collectedLogtypes.length > 0
   );
 
   useEffect(() => {
-    setCompletedAll(
-      filteredLogTypesData.length === 0 && completedLogtypes.length > 0
+    setCollectedAll(
+      filteredLogTypesData.length === 0 && collectedLogtypes.length > 0
     );
-  }, [filteredLogTypesData, completedLogtypes]);
+  }, [filteredLogTypesData, collectedLogtypes]);
 
   return (
     <>
       <div>
-        {!completedAll && (
+        {!collectedAll && (
           <AppBar
             position="fixed"
             sx={{
@@ -188,7 +188,7 @@ const Logger = () => {
           >
             <Tabs value={tabValue} onChange={handleChange}>
               <Tab
-                label="To complete"
+                label="To collect"
                 sx={{
                   "&.MuiTab-root": {
                     color: "#26ace2",
@@ -203,7 +203,7 @@ const Logger = () => {
                 }}
               />
               <Tab
-                label="Completed"
+                label="collected"
                 sx={{
                   "&.MuiTab-root": {
                     color: "#26ace2",
@@ -221,9 +221,9 @@ const Logger = () => {
           </AppBar>
         )}
         <VerticalSpacer size="3rem" />
-        <TabPanel value={tabValue} index={completedAll ? 1 : 0}>
+        <TabPanel value={tabValue} index={collectedAll ? 1 : 0}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Logs <b>to complete</b> for today,{dateToDisplay}
+            Logs <b>to collect</b> for today,{dateToDisplay}
           </Typography>
           {inProcessOfLoading && <p>Loading...</p>}
           {err && <p>Error: {err}</p>}
@@ -237,7 +237,7 @@ const Logger = () => {
             />
           ))}
         </TabPanel>
-        {completedAll && (
+        {collectedAll && (
           <div
             style={{
               backgroundColor: "#4caf50",
@@ -252,7 +252,7 @@ const Logger = () => {
               gutterBottom
               style={{ color: "#fff" }}
             >
-              Good job! You completed all planned log types for today.
+              Good job! You collected all planned log types for today.
             </Typography>
             <Typography
               variant="body1"
@@ -270,9 +270,9 @@ const Logger = () => {
             </Typography>
           </div>
         )}
-        <TabPanel value={tabValue} index={completedAll ? 0 : 1}>
+        <TabPanel value={tabValue} index={collectedAll ? 0 : 1}>
           <Typography variant="h4" component="h1" gutterBottom>
-            <b>Completed</b> logs for today, {dateToDisplay}
+            Logs <b>collected</b> today, {dateToDisplay}
           </Typography>
           <TableContainer component={Paper} sx={{}}>
             <Table>
@@ -313,7 +313,7 @@ const Logger = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {completedLogtypes.map((logType: LogType) => {
+                {collectedLogtypes.map((logType: LogType) => {
                   const log = logs?.find(
                     (log) => log.logType_id === logType.logType_id
                   );
