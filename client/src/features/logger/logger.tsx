@@ -2,9 +2,13 @@ import { useFetchLogTypes } from "../../functions/logTypesHooks";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import EditIcon from "@mui/icons-material/Edit";
 import { selectLogTypes } from "../../redux/logTypesSlice";
-import { LogType } from "../../typeModels/logTypeModel";
+import {
+  FetchLogsResponseElement,
+  Log,
+  LogType,
+} from "../../typeModels/logTypeModel";
 import VasForm from "./vas_form/vasForm";
-import { hasLogTypeToday } from "../../functions/hasLogTypeToday";
+import { hasCollectedLogTypeToday } from "../../functions/hasCollectedLogTypeToday";
 import { useEffect, useState } from "react";
 import TabPanel from "../../components/tabPanel";
 import {
@@ -22,10 +26,11 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import VerticalSpacer from "../../components/VerticalSpacer";
-import { selectLogs, updateLog } from "../../redux/logsAPI/logsSlice";
+import { updateLog } from "../../redux/logsAPI/logsSlice";
 import { Button } from "@mui/material";
 import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../../components/alerts/confirmationMessage";
+import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
 
 const Logger = () => {
   const [editable, setEditable] = useState(false);
@@ -41,46 +46,49 @@ const Logger = () => {
     setEditable(true);
   };
 
-  const handleSaveUpdatedLogs = async () => {
-    setEditable(false);
-    const updatedLogs = logs.filter((log) => updatedLogsIds.includes(log._id));
-    console.log(
-      "🚀 ~ file: logger.tsx:53 ~ handleSaveUpdatedLogs ~ updatedLogs:",
-      updatedLogs
-    );
+  // const handleSaveUpdatedLogs = async () => {
+  //   setEditable(false);
+  //   const updatedLogs = fetchLogsResponseElements?.filter(
+  //     (fetchLogsResponseElement: FetchLogsResponseElement) =>
+  //       updatedLogsIds.includes(log._id)
+  //   );
+  //   console.log(
+  //     "🚀 ~ file: logger.tsx:53 ~ handleSaveUpdatedLogs ~ updatedLogs:",
+  //     updatedLogs
+  //   );
 
-    // Dispatch updateLog action for each updated log
-    updatedLogs.forEach((log) => {
-      dispatch(updateLog(log));
-    });
+  //   // Dispatch updateLog action for each updated log
+  //   updatedLogs?.forEach((log: Log) => {
+  //     dispatch(updateLog(log));
+  //   });
 
-    // Send PUT request to server to update the logs in the database
-    try {
-      const baseUrl =
-        process.env.NODE_ENV === "development"
-          ? process.env.REACT_APP_BACKEND_LOCAL_URL
-          : process.env.REACT_APP_PROD_URL;
+  //   // Send PUT request to server to update the logs in the database
+  //   try {
+  //     const baseUrl =
+  //       process.env.NODE_ENV === "development"
+  //         ? process.env.REACT_APP_BACKEND_LOCAL_URL
+  //         : process.env.REACT_APP_PROD_URL;
 
-      const response = await fetch(`${baseUrl}/vas/logs`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token, // Assuming you have the token
-        },
-        body: JSON.stringify(updatedLogs),
-      });
+  //     const response = await fetch(`${baseUrl}/vas/logs`, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: "Bearer " + token, // Assuming you have the token
+  //       },
+  //       body: JSON.stringify(updatedLogs),
+  //     });
 
-      if (!response.ok) {
-        throw new Error("Failed to update logs");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update logs");
+  //     }
 
-      if (response.ok) {
-        setConfirmationMessageOpen(true);
-      }
-    } catch (error) {
-      console.error("Error updating logs:", error);
-    }
-  };
+  //     if (response.ok) {
+  //       setConfirmationMessageOpen(true);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating logs:", error);
+  //   }
+  // };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -89,16 +97,39 @@ const Logger = () => {
   const getToday: () => Date = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     return today;
   };
 
   const today = getToday();
 
   const [inProcessOfLoading, err] = useFetchLogTypes();
-  const logs = useAppSelector(selectLogs);
+  const [fetchLogsResponseElements, setFetchLogsResponseElements] =
+    useState<FetchLogsResponseElement[]>();
+
+  const onLogDataReceived = (fetchedLogs: any) => {
+    console.log("fetchedLogs in parent", fetchedLogs);
+    setFetchLogsResponseElements(fetchedLogs);
+  };
 
   const logTypesData = useAppSelector(selectLogTypes);
   console.log("logTypesData ", logTypesData);
+
+  const { data, error } = useFetchLogsQuery({
+    startDate: today.toString(),
+    endDate: today.toString(),
+    logTypeIds: logTypesData.map((logType: LogType) => logType.logType_id) ?? [
+      "",
+    ],
+  });
+
+  if (data) {
+    console.log("Fetched logs: ", data);
+  }
+
+  if (error) {
+    console.log("Error fetching logs: ", error);
+  }
 
   const thisDate = new Date();
   let dayOfWeek = thisDate.getDay(); // Returns a number between 0 and 6 representing the day of the week
@@ -139,20 +170,29 @@ const Logger = () => {
   const filteredLogTypesData = logTypesData
     .filter(
       (logType) =>
-        !hasLogTypeToday(logs, logType.logType_id ? logType.logType_id : "")
+        !hasCollectedLogTypeToday(
+          fetchLogsResponseElements,
+          logType.logType_id ? logType.logType_id : ""
+        )
     )
     .filter((logType) => logType.weekdays[dayOfWeek] === true);
-
-  console.log("filteredLogTypesData ", dayOfWeek, filteredLogTypesData); // will log an array of logType objects with true for the current dayOfWeek
-
-  const collectedLogtypes = logTypesData.filter((logType) =>
-    hasLogTypeToday(logs, logType.logType_id ? logType.logType_id : "")
+  console.log(
+    "🚀 ~ file: logger.tsx:155 ~ Logger ~ filteredLogTypesData:",
+    filteredLogTypesData
   );
 
+  // Below here is the logic for READING which log types have been selected
+  const collectedLogtypes = logTypesData.filter((logType) =>
+    hasCollectedLogTypeToday(
+      fetchLogsResponseElements,
+      logType.logType_id ? logType.logType_id : ""
+    )
+  );
   console.log(
-    "🚀 ~ file: logger.tsx:35 ~ Logger ~ collectedLogs:",
+    "🚀 ~ file: logger.tsx:191 ~ Logger ~ collectedLogtypes:",
     collectedLogtypes
   );
+
   const [collectedAll, setCollectedAll] = useState(
     filteredLogTypesData.length === 0 && collectedLogtypes.length > 0
   );
@@ -234,6 +274,7 @@ const Logger = () => {
               answer_format={logType.answer_format}
               logType_id={logType.logType_id ? logType.logType_id : ""}
               unit={logType.unit}
+              onLogDataReceived={onLogDataReceived}
             />
           ))}
         </TabPanel>
@@ -287,7 +328,7 @@ const Logger = () => {
                       <Button
                         color="primary"
                         size="small"
-                        onClick={handleSaveUpdatedLogs}
+                        // onClick={handleSaveUpdatedLogs}
                       >
                         Save
                       </Button>
@@ -314,9 +355,12 @@ const Logger = () => {
               </TableHead>
               <TableBody>
                 {collectedLogtypes.map((logType: LogType) => {
-                  const log = logs?.find(
-                    (log) => log.logType_id === logType.logType_id
-                  );
+                  const fetchLogsResponseElementOfLogTypeLoggedToday =
+                    fetchLogsResponseElements?.find(
+                      (fetchLogsResponseElement) =>
+                        fetchLogsResponseElement.logs[0].logType_id ===
+                        logType.logType_id
+                    );
                   return (
                     <TableRow key={logType.logType_id}>
                       <TableCell>
@@ -330,7 +374,8 @@ const Logger = () => {
                             const updatedValue = parseFloat(
                               e.target.textContent ?? ""
                             );
-                            const logId = log?._id;
+                            const logId =
+                              fetchLogsResponseElementOfLogTypeLoggedToday?._id;
 
                             // Check if the value is within the allowed range based on the answer_format
                             const isValueWithinRange =
@@ -343,35 +388,45 @@ const Logger = () => {
 
                             if (
                               logId &&
-                              log?.value !== updatedValue &&
+                              fetchLogsResponseElementOfLogTypeLoggedToday
+                                ?.logs[0].value !== updatedValue &&
                               !isNaN(updatedValue)
                             ) {
                               if (isValueWithinRange) {
                                 const updatedLog = {
-                                  ...log,
+                                  ...fetchLogsResponseElementOfLogTypeLoggedToday,
                                   value: updatedValue,
                                 };
 
                                 // Dispatch the action to update the log in the Redux store
-                                dispatch(updateLog(updatedLog));
+                                // dispatch(updateLog(updatedLog));
 
-                                if (!updatedLogsIds.includes(logId)) {
-                                  setUpdatedLogsIds([...updatedLogsIds, logId]);
-                                }
+                                // if (!updatedLogsIds.includes(logId)) {
+                                //   setUpdatedLogsIds([...updatedLogsIds, logId]);
+                                // }
                               } else {
                                 // Reset the input value to the original log value if it's not within the allowed range
                                 e.target.textContent =
-                                  log?.value !== undefined
-                                    ? log.value.toString()
+                                  fetchLogsResponseElementOfLogTypeLoggedToday
+                                    ?.logs[0].value !== undefined
+                                    ? fetchLogsResponseElementOfLogTypeLoggedToday.logs[0].value.toString()
                                     : "";
                               }
                             }
                           }}
                         >
-                          {log?.value}
+                          {
+                            fetchLogsResponseElementOfLogTypeLoggedToday
+                              ?.logs[0].value
+                          }
                         </TableCell>
                       ) : (
-                        <TableCell>{log?.value}</TableCell>
+                        <TableCell>
+                          {
+                            fetchLogsResponseElementOfLogTypeLoggedToday
+                              ?.logs[0].value
+                          }
+                        </TableCell>
                       )}
                     </TableRow>
                   );

@@ -91,6 +91,7 @@ const LogTypeEditForm: React.FC<LogTypeEditFormProps> = ({
       answer_format: answerFormat,
       weekdays: selectedWeekdays,
       unit,
+      logType_id: logType ? logType.logType_id : "",
     };
     onSubmit(logTypeToUpdate, updatedLogType);
     setEditMode(false);

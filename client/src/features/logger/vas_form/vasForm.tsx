@@ -16,6 +16,7 @@ interface VasFormProps {
   name: string;
   logType_id: string;
   unit: string;
+  onLogDataReceived?: any;
 }
 
 const VasForm: React.FC<VasFormProps> = ({
@@ -24,6 +25,7 @@ const VasForm: React.FC<VasFormProps> = ({
   value,
   logType_id,
   unit,
+  onLogDataReceived,
 }) => {
   const navigate = useNavigate();
 
@@ -120,7 +122,7 @@ const VasForm: React.FC<VasFormProps> = ({
             ? process.env.REACT_APP_BACKEND_LOCAL_URL
             : process.env.REACT_APP_PROD_URL;
 
-        const response = await fetch(`${baseUrl}/vas/logs`, {
+        const postLogRes = await fetch(`${baseUrl}/vas/logs`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -136,19 +138,20 @@ const VasForm: React.FC<VasFormProps> = ({
             unit: unit,
           }),
         });
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        if (!postLogRes.ok) {
+          throw new Error("Network postLogRes was not ok");
         }
-        console.log("Form submitted successfully");
+        console.log("Form submitted successfully", postLogRes);
+        if (postLogRes.ok) {
+          setLogSaveSuccess(true);
+          setTimeout(() => {
+            setLogSaveSuccess(false);
+          }, 5000);
+        }
         // Reset form inputs after submission
         // This will only be for the temporary redux state log so that the user gets instant updates in the UI, a separate _id will be generated serverside and it will overwrite this temporary _id
 
-        console.log("adding this to app log state: ", {
-          date: formInputs.date ? formInputs.date : new Date(Date.now()),
-          value: formInputs.value,
-          _id: _id.toString(),
-          logType_id: logType_id,
-        });
+        // Here get the logged data from the DB and set it to app state
 
         dispatch(
           addLog({
@@ -175,11 +178,6 @@ const VasForm: React.FC<VasFormProps> = ({
     if (!token || token === "") {
       navigate("/signup");
     }
-
-    setLogSaveSuccess(true);
-    setTimeout(() => {
-      setLogSaveSuccess(false);
-    }, 5000);
   };
 
   return (
