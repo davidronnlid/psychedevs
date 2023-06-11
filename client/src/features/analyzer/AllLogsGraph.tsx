@@ -506,10 +506,12 @@ const AllLogsGraph: React.FC = () => {
         />
       )}
       <VerticalSpacer size="1rem" />
-      <CorrelationComponent
-        selectedLogTypes={selectedLogTypes}
-        correlationData={correlationData}
-      />
+      {correlationData.correlation ? (
+        <CorrelationComponent
+          selectedLogTypes={selectedLogTypes}
+          correlationData={correlationData}
+        />
+      ) : null}
     </>
   ) : (
     <></>
