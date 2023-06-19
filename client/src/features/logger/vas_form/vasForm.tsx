@@ -16,7 +16,6 @@ interface VasFormProps {
   name: string;
   logType_id: string;
   unit: string;
-  onLogDataReceived?: any;
 }
 
 const VasForm: React.FC<VasFormProps> = ({
@@ -25,7 +24,6 @@ const VasForm: React.FC<VasFormProps> = ({
   value,
   logType_id,
   unit,
-  onLogDataReceived,
 }) => {
   const navigate = useNavigate();
 

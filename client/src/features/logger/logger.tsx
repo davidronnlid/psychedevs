@@ -1,12 +1,8 @@
 import { useFetchLogTypes } from "../../functions/logTypesHooks";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { useAppSelector } from "../../redux/hooks";
 import EditIcon from "@mui/icons-material/Edit";
 import { selectLogTypes } from "../../redux/logTypesSlice";
-import {
-  FetchLogsResponseElement,
-  Log,
-  LogType,
-} from "../../typeModels/logTypeModel";
+import { LogType } from "../../typeModels/logTypeModel";
 import VasForm from "./vas_form/vasForm";
 import { hasCollectedLogTypeToday } from "../../functions/hasCollectedLogTypeToday";
 import { useEffect, useState } from "react";
@@ -31,17 +27,89 @@ import { Button } from "@mui/material";
 import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../../components/alerts/confirmationMessage";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
+import getTodayDate from "../../functions/getToday";
+import useWeekday from "../../functions/useWeekday";
 
 const Logger = () => {
-  const [editable, setEditable] = useState(false);
-
-  const dispatch = useAppDispatch();
-  const [confirmationMessageOpen, setConfirmationMessageOpen] = useState(false);
+  // Component state, functions and properties
+  const today = getTodayDate();
 
   const [tabValue, setTabValue] = useState<number>(0);
-  const [updatedLogsIds, setUpdatedLogsIds] = useState<string[]>([]);
+  const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
-  const token = useJwt();
+  const [confirmationMessageOpen, setConfirmationMessageOpen] = useState(false);
+
+  // Getting log and log type data state, functions and properties
+  const [inProcessOfLoading, err] = useFetchLogTypes();
+  const logTypesOfUser: LogType[] = useAppSelector(selectLogTypes);
+
+  const { data: logsOfToday, error: logsOfTodayError } = useFetchLogsQuery({
+    startDate: today.toString(),
+    endDate: today.toString(),
+    logTypeIds: logTypesOfUser.map(
+      (logType: LogType) => logType.logType_id
+    ) ?? [""],
+  });
+
+  // Getting the day of the week today for rendering in the UI of the Logger
+  let dayOfWeekToday = today.getDay(); // Returns a number between 0 and 6 representing the day of the week
+
+  // These below lines are to set dayOfWeekToday to 0-6 : monday-sunday since today.getDay() starts at 0=sunday
+  if (dayOfWeekToday === 0) {
+    dayOfWeekToday = 6;
+  } else {
+    dayOfWeekToday--;
+  }
+
+  const weekday = useWeekday(dayOfWeekToday);
+  const dateToDisplay = (
+    <>
+      {" "}
+      <u>{weekday}</u>{" "}
+      <span style={{ fontSize: "1rem" }}>
+        <i>({today.toLocaleDateString()})</i>
+      </span>
+    </>
+  );
+
+  // Below variable is array of all log types that user has planned to collect today AND don't have a collected log today
+  const logTypesToCollectToday = logTypesOfUser
+    .filter((logType) => logType.weekdays[dayOfWeekToday] === true)
+    .filter(
+      (logType) =>
+        !hasCollectedLogTypeToday(
+          logsOfToday,
+          logType.logType_id ? logType.logType_id : ""
+        )
+    );
+
+  // Below variable is array of all log types that user has planned to collect today AND have a collected log today
+  const collectedLogtypes = logTypesOfUser.filter((logType) =>
+    hasCollectedLogTypeToday(
+      logsOfToday,
+      logType.logType_id ? logType.logType_id : ""
+    )
+  );
+  console.log(
+    "🚀 ~ file: logger.tsx:95 ~ Logger ~ collectedLogtypes:",
+    collectedLogtypes
+  );
+
+  const [collectedAll, setCollectedAll] = useState(
+    logTypesToCollectToday.length === 0 && collectedLogtypes.length > 0
+  );
+
+  useEffect(() => {
+    setCollectedAll(
+      logTypesToCollectToday.length === 0 && collectedLogtypes.length > 0
+    );
+  }, [logTypesToCollectToday, collectedLogtypes]);
+
+  // Update log values state, functions and properties below
+  const [editable, setEditable] = useState(false);
+  const [updatedLogsIds, setUpdatedLogsIds] = useState<string[]>([]);
   const handleStartEditing = () => {
     setEditable(true);
   };
@@ -89,120 +157,6 @@ const Logger = () => {
   //     console.error("Error updating logs:", error);
   //   }
   // };
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-
-  const getToday: () => Date = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return today;
-  };
-
-  const today = getToday();
-
-  const [inProcessOfLoading, err] = useFetchLogTypes();
-  const [fetchLogsResponseElements, setFetchLogsResponseElements] =
-    useState<FetchLogsResponseElement[]>();
-
-  const onLogDataReceived = (fetchedLogs: any) => {
-    console.log("fetchedLogs in parent", fetchedLogs);
-    setFetchLogsResponseElements(fetchedLogs);
-  };
-
-  const logTypesData = useAppSelector(selectLogTypes);
-  console.log("logTypesData ", logTypesData);
-
-  const { data, error } = useFetchLogsQuery({
-    startDate: today.toString(),
-    endDate: today.toString(),
-    logTypeIds: logTypesData.map((logType: LogType) => logType.logType_id) ?? [
-      "",
-    ],
-  });
-
-  if (data) {
-    console.log("Fetched logs: ", data);
-  }
-
-  if (error) {
-    console.log("Error fetching logs: ", error);
-  }
-
-  const thisDate = new Date();
-  let dayOfWeek = thisDate.getDay(); // Returns a number between 0 and 6 representing the day of the week
-
-  // These below lines are to set dayOfWeek to 0-6 : monday-sunday since today.getDay() starts at 0=sunday
-  if (dayOfWeek === 0) {
-    dayOfWeek = 6;
-  } else {
-    dayOfWeek--;
-  }
-
-  function getWeekday(dayOfWeek: number): string {
-    const weekdays = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ];
-
-    return weekdays[dayOfWeek];
-  }
-
-  const weekday = getWeekday(dayOfWeek);
-
-  const dateToDisplay = (
-    <>
-      {" "}
-      <u>{weekday}</u>{" "}
-      <span style={{ fontSize: "1rem" }}>
-        <i>({today.toLocaleDateString()})</i>
-      </span>
-    </>
-  );
-
-  const filteredLogTypesData = logTypesData
-    .filter(
-      (logType) =>
-        !hasCollectedLogTypeToday(
-          fetchLogsResponseElements,
-          logType.logType_id ? logType.logType_id : ""
-        )
-    )
-    .filter((logType) => logType.weekdays[dayOfWeek] === true);
-  console.log(
-    "🚀 ~ file: logger.tsx:155 ~ Logger ~ filteredLogTypesData:",
-    filteredLogTypesData
-  );
-
-  // Below here is the logic for READING which log types have been selected
-  const collectedLogtypes = logTypesData.filter((logType) =>
-    hasCollectedLogTypeToday(
-      fetchLogsResponseElements,
-      logType.logType_id ? logType.logType_id : ""
-    )
-  );
-  console.log(
-    "🚀 ~ file: logger.tsx:191 ~ Logger ~ collectedLogtypes:",
-    collectedLogtypes
-  );
-
-  const [collectedAll, setCollectedAll] = useState(
-    filteredLogTypesData.length === 0 && collectedLogtypes.length > 0
-  );
-
-  useEffect(() => {
-    setCollectedAll(
-      filteredLogTypesData.length === 0 && collectedLogtypes.length > 0
-    );
-  }, [filteredLogTypesData, collectedLogtypes]);
-
   return (
     <>
       <div>
@@ -226,7 +180,7 @@ const Logger = () => {
               },
             }}
           >
-            <Tabs value={tabValue} onChange={handleChange}>
+            <Tabs value={tabValue} onChange={handleTabsChange}>
               <Tab
                 label="To collect"
                 sx={{
@@ -267,14 +221,13 @@ const Logger = () => {
           </Typography>
           {inProcessOfLoading && <p>Loading...</p>}
           {err && <p>Error: {err}</p>}
-          {filteredLogTypesData.map((logType: LogType) => (
+          {logTypesToCollectToday.map((logType: LogType) => (
             <VasForm
               value={3}
               name={logType.name}
               answer_format={logType.answer_format}
               logType_id={logType.logType_id ? logType.logType_id : ""}
               unit={logType.unit}
-              onLogDataReceived={onLogDataReceived}
             />
           ))}
         </TabPanel>
@@ -356,7 +309,7 @@ const Logger = () => {
               <TableBody>
                 {collectedLogtypes.map((logType: LogType) => {
                   const fetchLogsResponseElementOfLogTypeLoggedToday =
-                    fetchLogsResponseElements?.find(
+                    logsOfToday?.find(
                       (fetchLogsResponseElement) =>
                         fetchLogsResponseElement.logs[0].logType_id ===
                         logType.logType_id

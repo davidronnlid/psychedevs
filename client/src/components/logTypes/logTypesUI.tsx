@@ -18,7 +18,6 @@ import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../alerts/confirmationMessage";
 import EditIcon from "@mui/icons-material/Edit";
 import LogTypeEditForm from "./logTypeEditForm";
-import useCapitalizeFirstLetter from "../../functions/proccesStrings";
 
 const LogTypesData = () => {
   const [namesOfLogTypesToRemove, setNamesOfLogTypesToRemove] = useState<

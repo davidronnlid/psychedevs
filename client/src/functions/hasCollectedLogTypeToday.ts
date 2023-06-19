@@ -1,24 +1,33 @@
 import { FetchLogsResponseElement } from "../typeModels/logTypeModel";
+import getTodayDate from "./getToday";
 
 export const hasCollectedLogTypeToday = (
-  FetchLogsResponseElement: FetchLogsResponseElement[] | undefined,
+  logsOfToday: FetchLogsResponseElement[] | undefined,
   logTypeId: string
 ): boolean => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  let today = getTodayDate();
 
-  if (typeof FetchLogsResponseElement === "undefined") {
-    console.log("Undefined FetchLogsResponseElement array");
+  console.log(
+    "🚀 ~ file: hasCollectedLogTypeToday.ts:9 ~ today:",
+    today,
+    logsOfToday
+  );
+
+  if (typeof logsOfToday === "undefined") {
+    console.log("Undefined FetchLogsResponseElement array (logsOfToday)");
     return false;
   } else {
-    return FetchLogsResponseElement.some((logElement) => {
-      return logElement.logs.some((log) => {
+    return logsOfToday.some((fetchLogsResponseElement) => {
+      return fetchLogsResponseElement.logs.some((log) => {
         const logDate = new Date(log.date);
+
         logDate.setHours(0, 0, 0, 0);
+
+        console.log("logDate, today", log, logDate.getTime(), today.getTime());
 
         return (
           logDate.getTime() === today.getTime() &&
-          logElement._id.logType_id === logTypeId
+          fetchLogsResponseElement._id.logType_id === logTypeId
         );
       });
     });
