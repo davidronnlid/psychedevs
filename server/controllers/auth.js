@@ -4,10 +4,46 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { ObjectId } = require("mongodb");
 const User = require("../models/user");
+// const { requiresAuth } = require("express-openid-connect");
 
 module.exports = () => {
   console.log("Router for /auth set up");
 
+  router.get("/signin", (req, res) => {
+    if (!req.oidc.isAuthenticated()) {
+      res.oidc.login({
+        returnTo: req.hostname,
+      });
+    } else {
+      console.log("User already logged in", req.oidc.user);
+      const idToken = req.oidc.idToken;
+      console.log("🚀 ~ file: index.js:100 ~ app.get ~ idToken:", idToken);
+    }
+    res.redirect("/auth/signedin");
+  });
+  router.get("/callback", (req, res) => {
+    console.log("In callback function, this is user: ");
+    console.log("In callback function, this is user: ", req.oidc.user);
+
+    const id_token = req.oidc.idToken;
+    console.log("🚀 ~ file: index.js:112 ~ app.get ~ id_token:", id_token);
+    if (req.oidc.isAuthenticated()) {
+      const userName = req.oidc.user.name;
+      console.log("User name is: ", userName);
+      res.redirect(
+        `http://localhost:3000/signed-in?name=${encodeURIComponent(userName)}`
+      );
+    }
+  });
+
+  router.get("/signedin", (req, res) => {
+    console.log("signedin route working");
+    const userName = req.oidc.user.name;
+
+    res.redirect(
+      `http://localhost:3000/signed-in?name=${encodeURIComponent(userName)}`
+    );
+  });
   // User registration route
   router.post("/signup", async (req, res) => {
     console.log("Req received at /auth/signup");

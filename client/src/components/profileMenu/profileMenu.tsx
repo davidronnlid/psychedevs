@@ -39,7 +39,10 @@ const ProfileMenu: React.FC = () => {
     </div>
   ) : (
     <div className="profileMenu signupOrLoginMenu ">
-      <Link to="/signup" style={{ textDecoration: "none" }}>
+      <Link
+        to="https://localhost:5000/auth/signin"
+        style={{ textDecoration: "none" }}
+      >
         <Button
           style={{
             color: "white",
@@ -55,7 +58,10 @@ const ProfileMenu: React.FC = () => {
       >
         |
       </span>
-      <Link to="/login" style={{ textDecoration: "none" }}>
+      <Link
+        to="https://localhost:5000/auth/signin"
+        style={{ textDecoration: "none" }}
+      >
         <Button
           style={{
             color: "white",

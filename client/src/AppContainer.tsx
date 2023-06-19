@@ -68,6 +68,7 @@ const AppContainer: React.FC = (): JSX.Element => {
           <Route path="/" element={<App />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signed-in" element={<App />} />
           <Route path="/logs/analyzer" element={<LogsAnalyzerPage />} />
           <Route path="/logs/planner" element={<PlanLogs />} />
           <Route path="/user-profile/:userId" element={<UserProfile />} />

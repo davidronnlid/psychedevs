@@ -1,10 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+const https = require("https");
+const fs = require("fs");
 const bodyParser = require("body-parser");
 const passport = require("passport");
-const { ObjectId } = require("mongodb");
 const OuraUser = require("./models/ouraUser");
 const OAuth2Strategy = require("passport-oauth2");
+const { auth } = require("express-openid-connect");
 
 const app = express();
 
@@ -26,6 +28,20 @@ app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
 app.use("/logs", logsRouter);
 app.use("/oura", ouraRouter());
+
+// Auth0 Config below
+const auth0Config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.RANDOM_AUTH0_STRING,
+  baseURL: "https://localhost:5000",
+  clientID: "do5IMk9C19lzZCyvsl4Ltr0bX2iFUeYF",
+  issuerBaseURL: "https://psychedevs.eu.auth0.com",
+  authorizationParams: {
+    scope: "openid profile email",
+  },
+};
+app.use(auth(auth0Config));
 app.use("/auth", authRouter());
 
 (async () => {
@@ -37,9 +53,7 @@ app.use("/auth", authRouter());
     console.error("Error connecting to MongoDB", err);
   }
 })();
-
 app.use(passport.initialize());
-
 passport.use(
   new OAuth2Strategy(
     {
@@ -89,6 +103,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
-});
+const sslServer = https.createServer(
+  {
+    key: fs.readFileSync(path.join(__dirname, "certs", "localhost.key")),
+    cert: fs.readFileSync(path.join(__dirname, "certs", "localhost.crt")),
+  },
+  app
+);
+
+sslServer.listen(PORT, () => console.log(`Server listening on ${PORT}`));
