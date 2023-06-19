@@ -1,8 +1,11 @@
 import { useFetchLogTypes } from "../../functions/logTypesHooks";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import EditIcon from "@mui/icons-material/Edit";
 import { selectLogTypes } from "../../redux/logTypesSlice";
-import { LogType } from "../../typeModels/logTypeModel";
+import {
+  FetchLogsResponseElement,
+  LogType,
+} from "../../typeModels/logTypeModel";
 import VasForm from "./vas_form/vasForm";
 import { hasCollectedLogTypeToday } from "../../functions/hasCollectedLogTypeToday";
 import { useEffect, useState } from "react";
@@ -22,7 +25,6 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import VerticalSpacer from "../../components/VerticalSpacer";
-import { updateLog } from "../../redux/logsAPI/logsSlice";
 import { Button } from "@mui/material";
 import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../../components/alerts/confirmationMessage";
@@ -31,6 +33,8 @@ import getTodayDate from "../../functions/getToday";
 import useWeekday from "../../functions/useWeekday";
 
 const Logger = () => {
+  const token = useJwt();
+
   // Component state, functions and properties
   const today = getTodayDate();
 
@@ -109,54 +113,45 @@ const Logger = () => {
 
   // Update log values state, functions and properties below
   const [editable, setEditable] = useState(false);
-  const [updatedLogsIds, setUpdatedLogsIds] = useState<string[]>([]);
+  const [updatedLogs, setUpdatedLogs] = useState<FetchLogsResponseElement[]>(
+    []
+  );
   const handleStartEditing = () => {
     setEditable(true);
   };
 
-  // const handleSaveUpdatedLogs = async () => {
-  //   setEditable(false);
-  //   const updatedLogs = fetchLogsResponseElements?.filter(
-  //     (fetchLogsResponseElement: FetchLogsResponseElement) =>
-  //       updatedLogsIds.includes(log._id)
-  //   );
-  //   console.log(
-  //     "🚀 ~ file: logger.tsx:53 ~ handleSaveUpdatedLogs ~ updatedLogs:",
-  //     updatedLogs
-  //   );
+  const handleSaveUpdatedLogs = async () => {
+    setEditable(false);
+    console.log("updatedLogs ", updatedLogs);
 
-  //   // Dispatch updateLog action for each updated log
-  //   updatedLogs?.forEach((log: Log) => {
-  //     dispatch(updateLog(log));
-  //   });
+    // Send PUT request to server to update the logs in the database
+    try {
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.REACT_APP_BACKEND_LOCAL_URL
+          : process.env.REACT_APP_PROD_URL;
 
-  //   // Send PUT request to server to update the logs in the database
-  //   try {
-  //     const baseUrl =
-  //       process.env.NODE_ENV === "development"
-  //         ? process.env.REACT_APP_BACKEND_LOCAL_URL
-  //         : process.env.REACT_APP_PROD_URL;
+      const response = await fetch(`${baseUrl}/vas/logs`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token, // Assuming you have the token
+        },
+        body: JSON.stringify(updatedLogs),
+      });
 
-  //     const response = await fetch(`${baseUrl}/vas/logs`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: "Bearer " + token, // Assuming you have the token
-  //       },
-  //       body: JSON.stringify(updatedLogs),
-  //     });
+      if (!response.ok) {
+        throw new Error("Failed to update logs");
+      }
 
-  //     if (!response.ok) {
-  //       throw new Error("Failed to update logs");
-  //     }
-
-  //     if (response.ok) {
-  //       setConfirmationMessageOpen(true);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating logs:", error);
-  //   }
-  // };
+      if (response.ok) {
+        setConfirmationMessageOpen(true);
+      }
+    } catch (error) {
+      console.error("Error updating logs:", error);
+    }
+    setUpdatedLogs([]);
+  };
   return (
     <>
       <div>
@@ -281,7 +276,7 @@ const Logger = () => {
                       <Button
                         color="primary"
                         size="small"
-                        // onClick={handleSaveUpdatedLogs}
+                        onClick={handleSaveUpdatedLogs}
                       >
                         Save
                       </Button>
@@ -308,7 +303,7 @@ const Logger = () => {
               </TableHead>
               <TableBody>
                 {collectedLogtypes.map((logType: LogType) => {
-                  const fetchLogsResponseElementOfLogTypeLoggedToday =
+                  const fetchLogsResponseElementOfLogTypeCollectedToday =
                     logsOfToday?.find(
                       (fetchLogsResponseElement) =>
                         fetchLogsResponseElement.logs[0].logType_id ===
@@ -327,8 +322,9 @@ const Logger = () => {
                             const updatedValue = parseFloat(
                               e.target.textContent ?? ""
                             );
-                            const logId =
-                              fetchLogsResponseElementOfLogTypeLoggedToday?._id;
+                            const editingLogOfLogTypeId =
+                              fetchLogsResponseElementOfLogTypeCollectedToday
+                                ?._id.logType_id;
 
                             // Check if the value is within the allowed range based on the answer_format
                             const isValueWithinRange =
@@ -340,43 +336,44 @@ const Logger = () => {
                                 updatedValue <= 10);
 
                             if (
-                              logId &&
-                              fetchLogsResponseElementOfLogTypeLoggedToday
+                              editingLogOfLogTypeId &&
+                              fetchLogsResponseElementOfLogTypeCollectedToday
                                 ?.logs[0].value !== updatedValue &&
                               !isNaN(updatedValue)
                             ) {
                               if (isValueWithinRange) {
-                                const updatedLog = {
-                                  ...fetchLogsResponseElementOfLogTypeLoggedToday,
-                                  value: updatedValue,
+                                let updatedLog: FetchLogsResponseElement = {
+                                  ...fetchLogsResponseElementOfLogTypeCollectedToday,
+                                  logs: fetchLogsResponseElementOfLogTypeCollectedToday.logs.map(
+                                    (log) => ({ ...log, value: updatedValue })
+                                  ),
                                 };
+                                console.log(
+                                  "🚀 ~ file: logger.tsx:345 ~ {collectedLogtypes.map ~ updatedLog:",
+                                  updatedLog
+                                );
 
-                                // Dispatch the action to update the log in the Redux store
-                                // dispatch(updateLog(updatedLog));
-
-                                // if (!updatedLogsIds.includes(logId)) {
-                                //   setUpdatedLogsIds([...updatedLogsIds, logId]);
-                                // }
+                                setUpdatedLogs([...updatedLogs, updatedLog]);
                               } else {
                                 // Reset the input value to the original log value if it's not within the allowed range
                                 e.target.textContent =
-                                  fetchLogsResponseElementOfLogTypeLoggedToday
+                                  fetchLogsResponseElementOfLogTypeCollectedToday
                                     ?.logs[0].value !== undefined
-                                    ? fetchLogsResponseElementOfLogTypeLoggedToday.logs[0].value.toString()
+                                    ? fetchLogsResponseElementOfLogTypeCollectedToday.logs[0].value.toString()
                                     : "";
                               }
                             }
                           }}
                         >
                           {
-                            fetchLogsResponseElementOfLogTypeLoggedToday
+                            fetchLogsResponseElementOfLogTypeCollectedToday
                               ?.logs[0].value
                           }
                         </TableCell>
                       ) : (
                         <TableCell>
                           {
-                            fetchLogsResponseElementOfLogTypeLoggedToday
+                            fetchLogsResponseElementOfLogTypeCollectedToday
                               ?.logs[0].value
                           }
                         </TableCell>

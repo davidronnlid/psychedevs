@@ -228,14 +228,25 @@ module.exports = () => {
 
       const logsToUpdate = req.body;
 
+      console.log(logsToUpdate.map((elm) => elm.logs));
+
       const updateOperations = logsToUpdate.map((log) => {
         return {
           updateOne: {
             filter: {
               user_id: new ObjectId(userId),
-              "logs._id": new ObjectId(log._id),
+              logs: {
+                $elemMatch: {
+                  date: log.logs[0].date,
+                  logType_id: log.logs[0].logType_id,
+                },
+              },
             },
-            update: { $set: { "logs.$.value": log.value } },
+            update: {
+              $set: {
+                "logs.$.value": log.logs[0].value,
+              },
+            },
           },
         };
       });
