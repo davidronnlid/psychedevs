@@ -1,24 +1,9 @@
 // models/userModel.js
-const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  username: {
+  user_id: {
     type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  profile_pic: {
-    filename: String,
-    contentType: String,
-    image: Buffer,
-  },
-  _id: {
-    type: ObjectId,
     required: true,
   },
 });

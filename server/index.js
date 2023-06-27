@@ -9,14 +9,13 @@ const OAuth2Strategy = require("passport-oauth2");
 const { auth } = require("express-openid-connect");
 
 const app = express();
+app.use(cors());
 
 const PORT = process.env.PORT || 5000;
-app.use(cors());
 app.use(bodyParser.json());
 
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
-const usersRouter = require("./controllers/users");
 const logsRouter = require("./controllers/logTypes");
 const ouraRouter = require("./controllers/oura");
 
@@ -24,7 +23,6 @@ const connectToDB = require("./dbConnect");
 
 app.use("/uploads", express.static("uploads"));
 
-app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
 app.use("/logs", logsRouter);
 app.use("/oura", ouraRouter());
@@ -34,9 +32,10 @@ const auth0Config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.RANDOM_AUTH0_STRING,
-  baseURL: "https://localhost:5000",
+  baseURL: "https://localhost:5000/auth/", //OBS! /auth/ is important here since all the route handlers for the auth0 authentication are in the /auth/ router
   clientID: "do5IMk9C19lzZCyvsl4Ltr0bX2iFUeYF",
   issuerBaseURL: "https://psychedevs.eu.auth0.com",
+  idpLogout: true,
   authorizationParams: {
     scope: "openid profile email",
   },
@@ -67,10 +66,6 @@ passport.use(
           : process.env.OURA_REDIRECT_URI,
     },
     async (accessToken, refreshToken, profile, done) => {
-      // Save or update the access token and refresh token in your database.
-      // You can also use the 'profile' object to obtain the user's Oura ID and other details.
-
-      // For example:
       const user_id = profile.id;
       const existingOuraUser = await OuraUser.findOne({ ouraId: user_id });
 

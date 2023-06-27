@@ -1,11 +1,19 @@
 export interface User {
-  username: string;
-  _id: string;
-  profile_pic_filename?: string;
+  email: string;
+  name: string;
+  locale: string;
+  email_verified: boolean;
+  sub: string;
+  sid: string;
 }
 
-export type FetchUserProfileResult = {
+export type FetchUserResultData = {
+  token: string;
+  user: User;
+} | null;
+
+export type FetchUserResult = {
   success: boolean;
-  data: User | null;
+  data: FetchUserResultData;
   error: string | null;
 };

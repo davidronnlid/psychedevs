@@ -26,6 +26,8 @@ const VasForm: React.FC<VasFormProps> = ({
   unit,
 }) => {
   const navigate = useNavigate();
+  const token = localStorage.getItem("user_sesh_JWT");
+  console.log("🚀 ~ file: vasForm.tsx:30 ~ token:", token);
 
   const [logSaveSuccess, setLogSaveSuccess] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -85,8 +87,6 @@ const VasForm: React.FC<VasFormProps> = ({
     logType_id,
     unit,
   });
-
-  const token = useJwt();
 
   // Define a function to handle form input changes
   const handleInputChange = (
@@ -174,7 +174,8 @@ const VasForm: React.FC<VasFormProps> = ({
     }
 
     if (!token || token === "") {
-      navigate("/signup");
+      console.log("No token when submitting log!!!", token);
+      navigate("/");
     }
   };
 

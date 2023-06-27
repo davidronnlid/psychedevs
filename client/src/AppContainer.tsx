@@ -8,45 +8,23 @@ import Hamburger from "./components/hamburger";
 import PDHeaderLogo from "./images/PDHeaderLogo.png";
 import "./styles/app.scss";
 import ProfileMenu from "./components/profileMenu/profileMenu";
-import { fetchUserProfile } from "./functions/fetchUserProfile";
-import { setUserState } from "./redux/userSlice";
-import SignUpPage from "./features/signupAndLoginForms/signUpPage";
-import LoginPage from "./features/signupAndLoginForms/loginPage";
 import PlanLogs from "./features/planner/plannerPage";
 import LogsAnalyzerPage from "./features/analyzer/logsAnalyzerPage";
-import { useFetchLogsQuery } from "./redux/logsAPI/logsAPI";
-
-import { setLogs } from "./redux/logsAPI/logsSlice";
+import useGetUser from "./functions/useGetUser";
 
 const AppContainer: React.FC = (): JSX.Element => {
-  // const { data, error, isLoading, isSuccess } = useFetchLogsQuery();
-
   const dispatch = useAppDispatch();
+  const user: any = useGetUser();
+  console.log("🚀 ~ file: AppContainer.tsx:18 ~ user:", user);
+  if (user) {
+    localStorage.setItem("user_sesh_JWT", user.token);
+  }
+  console.log(user);
 
   useEffect(() => {
     const jwt = localStorage.getItem("user_sesh_JWT");
-    if (jwt) {
-      dispatch(setAuthState({ isAuthenticated: true, jwt }));
-
-      const fetchData = async () => {
-        const result = await fetchUserProfile(jwt);
-        const user = result.data;
-        console.log(result);
-
-        if (user) {
-          dispatch(
-            setUserState({
-              _id: user._id,
-              username: user.username,
-              profile_pic_filename: user?.profile_pic_filename,
-            })
-          );
-        }
-      };
-
-      fetchData();
-    }
-  }, [dispatch]);
+    dispatch(setAuthState({ isAuthenticated: true, jwt }));
+  }, [user]);
 
   return (
     <div className="appContainer">
@@ -66,9 +44,6 @@ const AppContainer: React.FC = (): JSX.Element => {
       <div className="nonHeaderContentContainer">
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signed-in" element={<App />} />
           <Route path="/logs/analyzer" element={<LogsAnalyzerPage />} />
           <Route path="/logs/planner" element={<PlanLogs />} />
           <Route path="/user-profile/:userId" element={<UserProfile />} />

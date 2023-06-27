@@ -1,8 +1,12 @@
-import { FetchUserProfileResult, User } from "../typeModels/userModel";
+import {
+  FetchUserResult,
+  FetchUserResultData,
+  User,
+} from "../typeModels/userModel";
 
 export const fetchUserProfile = async (
   token: string
-): Promise<FetchUserProfileResult> => {
+): Promise<FetchUserResult> => {
   const baseUrl =
     process.env.NODE_ENV === "development"
       ? process.env.REACT_APP_BACKEND_LOCAL_URL
@@ -24,7 +28,7 @@ export const fetchUserProfile = async (
         throw new Error(`HTTP error ${response.status}`);
       }
 
-      const data: User = await response.json();
+      const data: FetchUserResultData = await response.json();
       return { success: true, data, error: null };
     } catch (error) {
       // Check if error is an instance of Error, and then access the message property

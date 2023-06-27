@@ -18,6 +18,7 @@ module.exports = () => {
     }
 
     const token = req.headers.authorization.split(" ")[1];
+    console.log("🚀 ~ file: logs.js:21 ~ router.get ~ token:", token);
     let decodedToken;
     try {
       decodedToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -26,8 +27,9 @@ module.exports = () => {
       res.status(401).json({ message: "Invalid token" });
       return;
     }
-    const userId = new ObjectId(decodedToken.userId);
     console.log("decodedToken.userId:", decodedToken.userId);
+
+    const userId = decodedToken.userId;
     console.log("userId:", userId);
 
     const { startDate, endDate, logTypeIds } = req.query;
@@ -43,7 +45,7 @@ module.exports = () => {
       );
 
       const logsQuery = {
-        user_id: new ObjectId(userId),
+        user_id: userId,
       };
 
       const foundUserLogs = await Logs.aggregate([

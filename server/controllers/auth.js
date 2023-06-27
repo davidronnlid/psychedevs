@@ -1,32 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { ObjectId } = require("mongodb");
 const User = require("../models/user");
-// const { requiresAuth } = require("express-openid-connect");
+const { requiresAuth } = require("express-openid-connect");
 
 module.exports = () => {
   console.log("Router for /auth set up");
 
   router.get("/signin", (req, res) => {
+    console.log("Route handler for /auth/signin");
     if (!req.oidc.isAuthenticated()) {
-      res.oidc.login({
-        returnTo: req.hostname,
+      return res.oidc.login({
+        returnTo: "/auth/callback",
       });
     } else {
       console.log("User already logged in", req.oidc.user);
       const idToken = req.oidc.idToken;
       console.log("🚀 ~ file: index.js:100 ~ app.get ~ idToken:", idToken);
     }
-    res.redirect("/auth/signedin");
+    res.redirect("http://localhost:3000");
   });
-  router.get("/callback", (req, res) => {
-    console.log("In callback function, this is user: ");
+  router.post("/callback", requiresAuth(), (req, res) => {
+    console.log("Route handler for /auth/callback");
+
     console.log("In callback function, this is user: ", req.oidc.user);
 
-    const id_token = req.oidc.idToken;
-    console.log("🚀 ~ file: index.js:112 ~ app.get ~ id_token:", id_token);
+    // const id_token = req.oidc.idToken;
     if (req.oidc.isAuthenticated()) {
       const userName = req.oidc.user.name;
       console.log("User name is: ", userName);
@@ -36,77 +35,58 @@ module.exports = () => {
     }
   });
 
-  router.get("/signedin", (req, res) => {
-    console.log("signedin route working");
-    const userName = req.oidc.user.name;
+  router.get("/user", requiresAuth(), async (req, res) => {
+    console.log("Route handler for /auth/user");
 
-    res.redirect(
-      `http://localhost:3000/signed-in?name=${encodeURIComponent(userName)}`
-    );
-  });
-  // User registration route
-  router.post("/signup", async (req, res) => {
-    console.log("Req received at /auth/signup");
+    console.log("in /auth/user", req.oidc.user);
+    // Current problem to be solved is here, where the logged in user doesn't seem to be persisted / consistently accessible
 
-    const { username, password } = req.body;
     try {
-      // Generate a salt value
-      const salt = await bcrypt.genSalt(10);
-      // Hash the password with the salt value
-      const hashedPw = await bcrypt.hash(password, salt);
+      let userWithoutPassword = {};
 
-      const newUser = new User({
+      if (req.oidc.user) {
+        const { password, ...temp } = req.oidc.user;
+        userWithoutPassword = temp;
+
+        console.log(
+          "🚀 ~ file: auth.js:53 ~ router.get ~ userWithoutPassword:",
+          userWithoutPassword
+        );
         // Create a new user using the Mongoose model
-        username,
-        password: hashedPw,
-        _id: new ObjectId(),
-      });
+        const newUser = new User({
+          user_id: userWithoutPassword.sub,
+        });
 
-      const result = await newUser.save();
-      console.log("User registered successfully", result);
+        // Save the new user
+        const userInDB = await newUser.save();
+        console.log("🚀 ~ file: auth.js:70 ~ router.get ~ result:", userInDB);
 
-      // Generate a JWT token
-      const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET);
-      res.status(200).send({ token });
-      console.log("JWT was sent successfully to logged in user");
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Error registering user" });
-    }
-  });
+        const token = jwt.sign(
+          { userId: userWithoutPassword.sub },
+          process.env.JWT_SECRET
+        );
 
-  // User login route
-  router.post("/login", async (req, res) => {
-    const { username, password } = req.body;
-    console.log("Req received at /auth/login");
+        console.log("JWT was sent successfully to logged in user");
 
-    try {
-      // Find the user by username
-      const user = await User.findOne({ username });
-      console.log("Found user with this username: ", user.username, user);
-
-      if (!user) {
-        return res.status(404).send();
+        return res.status(200).send({ token, userWithoutPassword }); // Make sure to return here to prevent further execution
+      } else {
+        return res.status(404).send("User not found");
       }
-      // Check if the password is correct
-      if (!(await bcrypt.compare(password, user.password))) {
-        return res.status(401).send();
-      }
-
-      console.log("Password correct! About to generate JWT token.");
-      // Generate a JWT token
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
-      res.status(200).send({ token });
-      console.log("JWT was sent successfully to logged in user");
-    } catch {
-      res.status(500).send();
+    } catch (err) {
+      console.log(err);
+      return res.status(500).send("User creation or JWT creation failed");
     }
   });
 
   // User logout route
-  router.post("/logout", async (req, res) => {
-    // Implement logout logic here
-    // As user logs out, their JWT should be deleted - not sure yet if this should be implemented in the front or backend tho
+  router.get("/logout", (req, res) => {
+    console.log("Route handler for /auth/logout");
+
+    if (req.oidc && typeof req.oidc.logout === "function") {
+      req.oidc.logout({ returnTo: "https://localhost:3000/auth/logged-out" });
+    } else {
+      res.send("User is not logged in");
+    }
   });
 
   return router;
