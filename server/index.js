@@ -40,11 +40,11 @@ app.use("/vas", vasRouter());
 app.use("/logs", logsRouter);
 app.use("/oura", ouraRouter());
 
-app.get("/", (req, res, next) => {
-  console.log("In server /", req.oidc.user);
-  const isAuthenticated = req.oidc.isAuthenticated();
-  console.log("In server /, isAuthenticated:", isAuthenticated);
-});
+// app.get("/", (req, res, next) => {
+//   console.log("In server /", req.oidc.user);
+//   const isAuthenticated = req.oidc.isAuthenticated();
+//   console.log("In server /, isAuthenticated:", isAuthenticated);
+// });
 
 const authRouter = require("./controllers/auth");
 app.use("/auth", authRouter());
