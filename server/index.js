@@ -109,12 +109,16 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-const sslServer = https.createServer(
-  {
-    key: fs.readFileSync(path.join(__dirname, "certs", "localhost.key")),
-    cert: fs.readFileSync(path.join(__dirname, "certs", "localhost.crt")),
-  },
-  app
-);
+// const sslServer = https.createServer(
+//   {
+//     key: fs.readFileSync(path.join(__dirname, "certs", "localhost.key")),
+//     cert: fs.readFileSync(path.join(__dirname, "certs", "localhost.crt")),
+//   },
+//   app
+// );
 
-sslServer.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+// sslServer.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+
+let server = app.listen(process.env.PORT || 5000, function () {
+  console.log("Listening on port " + server.address().port);
+});
