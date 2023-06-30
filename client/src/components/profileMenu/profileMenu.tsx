@@ -40,7 +40,7 @@ const ProfileMenu: React.FC = () => {
   ) : (
     <div className="profileMenu signupOrLoginMenu ">
       <Link
-        to="https://localhost:5000/login"
+        to="https://psychedevs.com/login"
         style={{ textDecoration: "none" }}
       >
         <Button
@@ -59,7 +59,7 @@ const ProfileMenu: React.FC = () => {
         |
       </span>
       <Link
-        to="https://localhost:5000/auth/signin"
+        to="https://psychedevs.com/login"
         style={{ textDecoration: "none" }}
       >
         <Button
