@@ -17,7 +17,7 @@ module.exports = () => {
   //   res.redirect("http://localhost:3000");
   //   console.log("User is not authenticated.");
   // });
-  router.get("/user", requiresAuth(), async (req, res) => {
+  router.get("/user", async (req, res) => {
     console.log("Response Headers:", res.getHeaders());
 
     console.log("Route handler for /auth/user");

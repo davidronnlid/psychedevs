@@ -7,49 +7,27 @@ const passport = require("passport");
 const OuraUser = require("./models/ouraUser");
 const OAuth2Strategy = require("passport-oauth2");
 const { auth } = require("express-openid-connect");
-const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(cors());
-app.use(
-  cors({
-    origin: "http://localhost:3000", // or your client origin
-    credentials: true, // this allows cookies to be sent
-  })
-);
 
 const PORT = process.env.PORT || 5000;
 app.use(bodyParser.json());
-app.use(cookieParser());
 
 const connectToDB = require("./dbConnect");
 const auth0config = {
   authRequired: false,
   auth0Logout: true,
   issuerBaseURL: "https://psychedevs.eu.auth0.com",
-  baseURL: "https://localhost:5000",
+  baseURL: "https://psychedevs.com",
   secret: process.env.RANDOM_AUTH0_STRING,
   clientSecret: process.env.AUTH0_SECRET,
-  clientID: "do5IMk9C19lzZCyvsl4Ltr0bX2iFUeYF",
+  clientID: process.env.AUTH0clientID,
   authorizationParams: {
     response_type: "code id_token",
     scope: "openid profile email",
   },
 };
-
-const session = require("express-session");
-
-app.use(
-  session({
-    secret: process.env.RANDOM_AUTH0_STRING,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      sameSite: "Lax",
-      secure: true, // this should be set to true for secure (HTTPS) sites
-    },
-  })
-);
 
 app.use(auth(auth0config));
 const vasRouter = require("./controllers/logs");
@@ -66,25 +44,16 @@ app.get("/", (req, res, next) => {
   console.log("In server /", req.oidc.user);
   const isAuthenticated = req.oidc.isAuthenticated();
   console.log("In server /, isAuthenticated:", isAuthenticated);
-
-  req.session.save((err) => {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("http://localhost:3000");
-  });
-});
-
-app.use((req, res, next) => {
-  console.log("Cookies: ", req.cookies);
-  console.log("Session ID: ", req.sessionID);
-  console.log("Session: ", req.session);
-  next();
 });
 
 const authRouter = require("./controllers/auth");
 app.use("/auth", authRouter());
+app.use((req, res, next) => {
+  console.log("Cookies: ", req.cookies);
+  console.log("req.oidc.user: ", req.oidc.user);
 
+  next();
+});
 (async () => {
   try {
     await connectToDB();
