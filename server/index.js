@@ -7,19 +7,54 @@ const passport = require("passport");
 const OuraUser = require("./models/ouraUser");
 const OAuth2Strategy = require("passport-oauth2");
 const { auth } = require("express-openid-connect");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // or your client origin
+    credentials: true, // this allows cookies to be sent
+  })
+);
 
 const PORT = process.env.PORT || 5000;
 app.use(bodyParser.json());
+app.use(cookieParser());
 
-const authRouter = require("./controllers/auth");
+const connectToDB = require("./dbConnect");
+const auth0config = {
+  authRequired: false,
+  auth0Logout: true,
+  issuerBaseURL: "https://psychedevs.eu.auth0.com",
+  baseURL: "https://localhost:5000",
+  secret: process.env.RANDOM_AUTH0_STRING,
+  clientSecret: process.env.AUTH0_SECRET,
+  clientID: "do5IMk9C19lzZCyvsl4Ltr0bX2iFUeYF",
+  authorizationParams: {
+    response_type: "code id_token",
+    scope: "openid profile email",
+  },
+};
+
+const session = require("express-session");
+
+app.use(
+  session({
+    secret: process.env.RANDOM_AUTH0_STRING,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      sameSite: "Lax",
+      secure: true, // this should be set to true for secure (HTTPS) sites
+    },
+  })
+);
+
+app.use(auth(auth0config));
 const vasRouter = require("./controllers/logs");
 const logsRouter = require("./controllers/logTypes");
 const ouraRouter = require("./controllers/oura");
-
-const connectToDB = require("./dbConnect");
 
 app.use("/uploads", express.static("uploads"));
 
@@ -27,20 +62,27 @@ app.use("/vas", vasRouter());
 app.use("/logs", logsRouter);
 app.use("/oura", ouraRouter());
 
-// Auth0 Config below
-const auth0Config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.RANDOM_AUTH0_STRING,
-  baseURL: "https://localhost:5000/auth/", //OBS! /auth/ is important here since all the route handlers for the auth0 authentication are in the /auth/ router
-  clientID: "do5IMk9C19lzZCyvsl4Ltr0bX2iFUeYF",
-  issuerBaseURL: "https://psychedevs.eu.auth0.com",
-  idpLogout: true,
-  authorizationParams: {
-    scope: "openid profile email",
-  },
-};
-app.use(auth(auth0Config));
+app.get("/", (req, res, next) => {
+  console.log("In server /", req.oidc.user);
+  const isAuthenticated = req.oidc.isAuthenticated();
+  console.log("In server /, isAuthenticated:", isAuthenticated);
+
+  req.session.save((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("http://localhost:3000");
+  });
+});
+
+app.use((req, res, next) => {
+  console.log("Cookies: ", req.cookies);
+  console.log("Session ID: ", req.sessionID);
+  console.log("Session: ", req.session);
+  next();
+});
+
+const authRouter = require("./controllers/auth");
 app.use("/auth", authRouter());
 
 (async () => {

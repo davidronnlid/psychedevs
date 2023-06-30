@@ -7,38 +7,22 @@ const { requiresAuth } = require("express-openid-connect");
 module.exports = () => {
   console.log("Router for /auth set up");
 
-  router.get("/signin", (req, res) => {
-    console.log("Route handler for /auth/signin");
-    if (!req.oidc.isAuthenticated()) {
-      return res.oidc.login({
-        returnTo: "/auth/callback",
-      });
-    } else {
-      console.log("User already logged in", req.oidc.user);
-      const idToken = req.oidc.idToken;
-      console.log("🚀 ~ file: index.js:100 ~ app.get ~ idToken:", idToken);
-    }
-    res.redirect("http://localhost:3000");
-  });
-  router.post("/callback", requiresAuth(), (req, res) => {
-    console.log("Route handler for /auth/callback");
+  // router.post("/callback", (req, res) => {
+  //   console.log("in /auth/callback req.oidc", req.oidc);
 
-    console.log("In callback function, this is user: ", req.oidc.user);
-
-    // const id_token = req.oidc.idToken;
-    if (req.oidc.isAuthenticated()) {
-      const userName = req.oidc.user.name;
-      console.log("User name is: ", userName);
-      res.redirect(
-        `http://localhost:3000/signed-in?name=${encodeURIComponent(userName)}`
-      );
-    }
-  });
-
+  //   if (req.oidc.isAuthenticated()) {
+  //     console.log("User is: ", req.oidc.idToken);
+  //     // Further processing
+  //   }
+  //   res.redirect("http://localhost:3000");
+  //   console.log("User is not authenticated.");
+  // });
   router.get("/user", requiresAuth(), async (req, res) => {
+    console.log("Response Headers:", res.getHeaders());
+
     console.log("Route handler for /auth/user");
 
-    console.log("in /auth/user", req.oidc.user);
+    console.log("in /auth/user", req.oidc.isAuthenticated());
     // Current problem to be solved is here, where the logged in user doesn't seem to be persisted / consistently accessible
 
     try {
@@ -79,15 +63,15 @@ module.exports = () => {
   });
 
   // User logout route
-  router.get("/logout", (req, res) => {
-    console.log("Route handler for /auth/logout");
+  // router.get("/logout", (req, res) => {
+  //   console.log("Route handler for /auth/logout");
 
-    if (req.oidc && typeof req.oidc.logout === "function") {
-      req.oidc.logout({ returnTo: "https://localhost:3000/auth/logged-out" });
-    } else {
-      res.send("User is not logged in");
-    }
-  });
+  //   if (req.oidc && typeof req.oidc.logout === "function") {
+  //     req.oidc.logout({ returnTo: "https://localhost:3000/auth/logged-out" });
+  //   } else {
+  //     res.send("User is not logged in");
+  //   }
+  // });
 
   return router;
 };

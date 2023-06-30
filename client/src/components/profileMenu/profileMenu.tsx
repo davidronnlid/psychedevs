@@ -40,7 +40,7 @@ const ProfileMenu: React.FC = () => {
   ) : (
     <div className="profileMenu signupOrLoginMenu ">
       <Link
-        to="https://localhost:5000/auth/signin"
+        to="https://localhost:5000/login"
         style={{ textDecoration: "none" }}
       >
         <Button

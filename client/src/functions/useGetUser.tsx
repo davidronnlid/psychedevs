@@ -8,7 +8,10 @@ function useGetUser() {
       process.env.NODE_ENV === "development"
         ? process.env.REACT_APP_BACKEND_LOCAL_URL
         : process.env.REACT_APP_PROD_URL;
-    fetch(baseUrl + "/auth/user")
+    fetch(baseUrl + "/auth/user", {
+      method: "GET",
+      credentials: "include",
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
