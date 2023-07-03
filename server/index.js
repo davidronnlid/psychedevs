@@ -53,10 +53,6 @@ passport.use(
           : process.env.OURA_REDIRECT_URI,
     },
     async (accessToken, refreshToken, profile, done) => {
-      // Save or update the access token and refresh token in your database.
-      // You can also use the 'profile' object to obtain the user's Oura ID and other details.
-
-      // For example:
       const user_id = profile.id;
       const existingOuraUser = await OuraUser.findOne({ ouraId: user_id });
 
