@@ -18,7 +18,7 @@ import {
   CorrelationDataPoint,
 } from "../../typeModels/statsModel";
 import VerticalSpacer from "../../components/VerticalSpacer";
-import OuraData from "../logger/oura/ouraData";
+import OuraData from "../planner/oura/ouraData";
 import { CorrelationComponent } from "./CorrelationComponent";
 import { CorrelationDataType } from "../../typeModels/correlationModel";
 

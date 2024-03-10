@@ -401,8 +401,15 @@ module.exports = () => {
 
     const log_type_categories = req.query.log_type_categories.split(",");
 
-    const token = req.headers.authorization.split(" ")[1];
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader) {
+      return res
+        .status(401)
+        .json({ message: "Authorization header is missing" });
+    }
+
+    const token = authHeader.split(" ")[1];
     try {
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
       const PD_user_id = new ObjectId(decodedToken.userId);

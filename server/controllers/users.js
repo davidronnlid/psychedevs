@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const { ObjectId } = require("mongodb");
 const User = require("../models/user");
 const multer = require("multer");
 // for profile-pic feature
@@ -15,7 +14,7 @@ module.exports = () => {
 
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    const userId = new ObjectId(decodedToken.userId);
+    const userId = decodedToken.userId;
 
     try {
       const foundUser = await User.findOne({ _id: userId });
@@ -41,7 +40,7 @@ module.exports = () => {
 
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-      const userId = new ObjectId(decodedToken.userId);
+      const userId = decodedToken.userId;
 
       const foundUser = await User.findOne({ _id: userId });
 
@@ -86,7 +85,7 @@ module.exports = () => {
 
     console.log("token", token, "decodedtoken", decodedToken);
 
-    const userId = new ObjectId(decodedToken.userId);
+    const userId = decodedToken.userId;
 
     console.log("JWT userId is " + userId);
 

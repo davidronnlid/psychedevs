@@ -9,7 +9,8 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { useState } from "react";
 
-import OuraLogTypeCategories from "../logger/oura/ouraLogTypeCategories";
+import OuraLogTypeCategories from "./oura/ouraLogTypeCategories";
+import WithingsIntegration from "./withings/withingsIntegration";
 
 const Planner = () => {
   const [inProcessOfLoading, err] = useFetchLogTypes();
@@ -56,6 +57,7 @@ const Planner = () => {
         </Box>
       </div>
       <OuraLogTypeCategories />
+      <WithingsIntegration />
     </>
   );
 };

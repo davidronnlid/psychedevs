@@ -111,7 +111,7 @@ const SignupForm: React.FC<SignupFormProps> = () => {
       localStorage.setItem("user_sesh_JWT", data.token);
       dispatch(setAuthState({ isAuthenticated: true, jwt: data.token }));
 
-      console.log("data received in signup component: " + data.token);
+      console.log("data received in signup component: " + data);
 
       // Check if there's any temporary data in localStorage
       const tempData = localStorage.getItem("tempData");

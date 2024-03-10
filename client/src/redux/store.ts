@@ -4,10 +4,11 @@ import userReducer from "./userSlice";
 import logTypesReducer from "./logTypesSlice";
 import answerFormatsReducer from "./answerFormatsSlice";
 import logsReducer from "./logsAPI/logsSlice";
+import { logsAPI } from "./logsAPI/logsAPI";
+
 import ouraLogsReducer from "./ouraAPI/logs/ouraLogsSlice";
 import ouraLogTypesReducer from "./ouraAPI/logTypes/ouraLogTypesSlice";
 import ouraLogTypeCategoriesReducer from "./ouraAPI/logTypeCategories/ouraLogTypeCategoriesSlice";
-import { logsAPI } from "./logsAPI/logsAPI";
 import { ouraLogsAPI } from "./ouraAPI/logs/ouraLogsAPI";
 import { ouraLogTypeCategoriesAPI } from "./ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
 import { ouraLogTypesAPI } from "./ouraAPI/logTypes/ouraLogTypesAPI";

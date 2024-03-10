@@ -17,6 +17,7 @@ const vasRouter = require("./controllers/logs");
 const usersRouter = require("./controllers/users");
 const logsRouter = require("./controllers/logTypes");
 const ouraRouter = require("./controllers/oura");
+const withingsRouter = require("./controllers/withings");
 
 const connectToDB = require("./dbConnect");
 
@@ -26,6 +27,7 @@ app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
 app.use("/logs", logsRouter);
 app.use("/oura", ouraRouter());
+app.use("/withings", withingsRouter());
 app.use("/auth", authRouter());
 
 (async () => {

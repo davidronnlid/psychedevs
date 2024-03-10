@@ -14,17 +14,15 @@ import SignUpPage from "./features/signupAndLoginForms/signUpPage";
 import LoginPage from "./features/signupAndLoginForms/loginPage";
 import PlanLogs from "./features/planner/plannerPage";
 import LogsAnalyzerPage from "./features/analyzer/logsAnalyzerPage";
-import { useFetchLogsQuery } from "./redux/logsAPI/logsAPI";
-
-import { setLogs } from "./redux/logsAPI/logsSlice";
+import { useNavigate } from "react-router-dom";
 
 const AppContainer: React.FC = (): JSX.Element => {
-  // const { data, error, isLoading, isSuccess } = useFetchLogsQuery();
+  const navigate = useNavigate();
 
   const dispatch = useAppDispatch();
+  const jwt = localStorage.getItem("user_sesh_JWT");
 
   useEffect(() => {
-    const jwt = localStorage.getItem("user_sesh_JWT");
     if (jwt) {
       dispatch(setAuthState({ isAuthenticated: true, jwt }));
 
@@ -45,8 +43,10 @@ const AppContainer: React.FC = (): JSX.Element => {
       };
 
       fetchData();
+    } else {
+      navigate("/signup");
     }
-  }, [dispatch]);
+  }, [jwt]);
 
   return (
     <div className="appContainer">
