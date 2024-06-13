@@ -123,7 +123,9 @@ const refreshAccessToken = async (client_id, client_secret, refresh_token) => {
 };
 async function fetchDataFromEndpoint(accessToken, dataType, start, end) {
   const url = `https://api.ouraring.com/v2/usercollection/${dataType}?start_date=${start}&end_date=${end}`;
+
   try {
+    console.log("🚀 ~ fetchDataFromEndpoint ~ url:", url);
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -373,6 +375,7 @@ module.exports = () => {
       }
 
       const allData = (await Promise.all(dataPromises)).flat();
+      console.log("🚀 ~ router.get ~ allData:", allData);
 
       const filteredData = allData.reduce((acc, { logTypeId, data }) => {
         const logs = filterLogsByLogType(data, logTypeId);

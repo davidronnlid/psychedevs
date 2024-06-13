@@ -2,11 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const passport = require("passport");
-const { ObjectId } = require("mongodb");
+const path = require("path");
 const OuraUser = require("./models/ouraUser");
 const OAuth2Strategy = require("passport-oauth2");
 
 const app = express();
+
+app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 5000;
 app.use(cors());
@@ -17,7 +19,7 @@ const vasRouter = require("./controllers/logs");
 const usersRouter = require("./controllers/users");
 const logsRouter = require("./controllers/logTypes");
 const ouraRouter = require("./controllers/oura");
-const withingsRouter = require("./controllers/withings");
+// const withingsRouter = require("./controllers/withings");
 
 const connectToDB = require("./dbConnect");
 
@@ -25,10 +27,10 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
-app.use("/logs", logsRouter);
 app.use("/oura", ouraRouter());
-app.use("/withings", withingsRouter());
+// app.use("/withings", withingsRouter());
 app.use("/auth", authRouter());
+app.use("/logs", logsRouter());
 
 (async () => {
   try {
@@ -79,8 +81,6 @@ passport.use(
     }
   )
 );
-
-const path = require("path");
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/build")));

@@ -15,13 +15,32 @@ import VerticalSpacer from "../../components/VerticalSpacer";
 import { useJwt } from "../../redux/authSlice";
 import ConfirmationMessage from "../../components/alerts/confirmationMessage";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
+import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI"; // Import for Oura logs
 import getTodayDate from "../../functions/getToday";
 import useWeekday from "../../functions/useWeekday";
 import CollectedLogs from "./collectedLogs";
 
+// Helper function to format the date as YYYY-MM-DD
+const formatDate = (date: Date): { start: string; end: string } => {
+  const endYear = date.getFullYear();
+  const endMonth = String(date.getMonth() + 1).padStart(2, "0");
+  const endDay = String(date.getDate()).padStart(2, "0");
+  const end = `${endYear}-${endMonth}-${endDay}`;
+
+  const startDate = new Date(date);
+  startDate.setDate(date.getDate() - 1);
+  const startYear = startDate.getFullYear();
+  const startMonth = String(startDate.getMonth() + 1).padStart(2, "0");
+  const startDay = String(startDate.getDate()).padStart(2, "0");
+  const start = `${startYear}-${startMonth}-${startDay}`;
+
+  return { start, end };
+};
+
 const Logger = () => {
   // Component state, functions and properties
   const today = getTodayDate();
+  const formattedToday = formatDate(today);
 
   const [tabValue, setTabValue] = useState<number>(0);
   const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -35,12 +54,42 @@ const Logger = () => {
   const logTypesOfUser: LogType[] = useAppSelector(selectLogTypes);
 
   const { data: logsOfToday, error: logsOfTodayError } = useFetchLogsQuery({
-    startDate: today.toString(),
-    endDate: today.toString(),
+    startDate: formattedToday.start,
+    endDate: formattedToday.end,
     logTypeIds: logTypesOfUser.map(
       (logType: LogType) => logType.logType_id
     ) ?? [""],
   });
+
+  // Fetching Oura Logs for "average_hrv" log type id
+  const {
+    data: ouraLogsData,
+    error: ouraLogsError,
+    isLoading: ouraLogsIsLoading,
+  } = useFetchOuraLogsQuery({
+    logTypeIds: ["average_hrv"],
+    startDate: formattedToday.start,
+    endDate: formattedToday.end,
+  });
+
+  // Function to be triggered when average_hrv is less than 65
+  const handleLowHRV = () => {
+    console.log("HRV is less than 65, taking action!");
+    // Your custom logic here
+  };
+
+  useEffect(() => {
+    if (
+      ouraLogsData &&
+      ouraLogsData["average_hrv"] &&
+      ouraLogsData["average_hrv"].length > 0
+    ) {
+      const averageHRV = ouraLogsData["average_hrv"][0]?.average_hrv;
+      if (averageHRV < 75) {
+        handleLowHRV();
+      }
+    }
+  }, [ouraLogsData]);
 
   // Getting the day of the week today for rendering in the UI of the Logger
   let dayOfWeekToday = today.getDay(); // Returns a number between 0 and 6 representing the day of the week
@@ -209,6 +258,11 @@ const Logger = () => {
             collectedLogTypes={collectedLogtypes}
             logsOfToday={logsOfToday}
           />
+          {ouraLogsData && ouraLogsData["average_hrv"] && (
+            <Typography variant="h6" component="p" gutterBottom>
+              HRV: {ouraLogsData["average_hrv"][0]?.average_hrv}
+            </Typography>
+          )}
         </TabPanel>
       </div>
       <ConfirmationMessage
