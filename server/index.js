@@ -10,10 +10,10 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
+const notificationRouter = require("./controllers/notification");
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
 const usersRouter = require("./controllers/users");
@@ -25,6 +25,7 @@ const connectToDB = require("./dbConnect");
 
 app.use("/uploads", express.static("uploads"));
 
+app.use("/notification", notificationRouter());
 app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
 app.use("/oura", ouraRouter());
@@ -91,6 +92,18 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
+// Read certificates
+const key = fs.readFileSync("./localhost-key.pem", "utf8");
+const cert = fs.readFileSync("./localhost.pem", "utf8");
+
+// HTTPS options
+const httpsOptions = {
+  key,
+  cert,
+};
+
+// Create HTTPS server
+const PORT = process.env.PORT || 5000;
+https.createServer(httpsOptions, app).listen(PORT, () => {
+  console.log(`HTTPS server running on https://localhost:${PORT}`);
 });
