@@ -67,7 +67,7 @@ const Logger = () => {
     error: ouraLogsError,
     isLoading: ouraLogsIsLoading,
   } = useFetchOuraLogsQuery({
-    logTypeIds: ["average_hrv"],
+    logTypeIds: ["average_hrv", "total_sleep_duration"],
     startDate: formattedToday.start,
     endDate: formattedToday.end,
   });
@@ -145,6 +145,10 @@ const Logger = () => {
     );
   }, [logTypesToCollectToday, collectedLogtypes]);
 
+  const getHRVBackgroundColor = (hrv: number) => (hrv >= 66 ? "green" : "red");
+  const getSleepBackgroundColor = (sleep: number) =>
+    sleep > 7.5 ? "green" : "red";
+
   return (
     <>
       <div>
@@ -202,10 +206,10 @@ const Logger = () => {
             </Tabs>
           </AppBar>
         )}
-        <VerticalSpacer size="3rem" />
+        <VerticalSpacer size="1rem" />
         <TabPanel value={tabValue} index={collectedAll ? 1 : 0}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Logs <b>to collect</b> for today,{dateToDisplay}
+            Logs <b>to collect</b> today,{dateToDisplay}
           </Typography>
           {inProcessOfLoading && <p>Loading...</p>}
           {err && <p>Error: {err}</p>}
@@ -258,9 +262,45 @@ const Logger = () => {
             collectedLogTypes={collectedLogtypes}
             logsOfToday={logsOfToday}
           />
+          <Typography variant="h4" component="p" mt={3}>
+            Oura sleep data for today
+          </Typography>
           {ouraLogsData && ouraLogsData["average_hrv"] && (
-            <Typography variant="h6" component="p" gutterBottom>
+            <Typography
+              variant="h6"
+              component="p"
+              gutterBottom
+              style={{
+                backgroundColor: getHRVBackgroundColor(
+                  ouraLogsData["average_hrv"][0]?.average_hrv
+                ),
+                color: "#fff",
+                padding: "0.5rem",
+                borderRadius: "0.25rem",
+              }}
+            >
               HRV: {ouraLogsData["average_hrv"][0]?.average_hrv}
+            </Typography>
+          )}
+
+          {ouraLogsData && ouraLogsData["total_sleep_duration"] && (
+            <Typography
+              variant="h6"
+              component="p"
+              gutterBottom
+              style={{
+                backgroundColor: getSleepBackgroundColor(
+                  ouraLogsData["total_sleep_duration"][0]?.total_sleep_duration
+                ),
+                color: "#fff",
+                padding: "0.5rem",
+                borderRadius: "0.25rem",
+              }}
+            >
+              Total sleep:{" "}
+              {roundToTwo(
+                ouraLogsData["total_sleep_duration"][0]?.total_sleep_duration
+              )}
             </Typography>
           )}
         </TabPanel>
@@ -285,3 +325,7 @@ const Logger = () => {
 };
 
 export default Logger;
+
+function roundToTwo(num: number) {
+  return Math.round(num * 100) / 100;
+}

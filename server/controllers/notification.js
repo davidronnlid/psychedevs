@@ -10,10 +10,12 @@ const tokens = [];
 
 module.exports = () => {
   const router = express.Router();
+  // Endpoint to save FCM tokens
   router.post("/save-token", (req, res) => {
     const { token } = req.body;
     if (token && !tokens.includes(token)) {
       tokens.push(token);
+      console.log("Token saved:", token);
     }
     res.sendStatus(200);
   });

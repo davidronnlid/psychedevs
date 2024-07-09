@@ -237,7 +237,7 @@ module.exports = () => {
       console.log("No error when integrating with oura.");
       const clientBaseUrl =
         process.env.NODE_ENV === "development"
-          ? "http://localhost:3000"
+          ? "https://localhost:3000"
           : "https://psychedevs.com";
       const redirectTo = `${clientBaseUrl}/logs/planner`;
       res.redirect(redirectTo);

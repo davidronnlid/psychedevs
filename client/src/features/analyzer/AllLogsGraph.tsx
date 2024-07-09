@@ -3,7 +3,12 @@ import { useFetchOuraLogsQuery } from "../../redux/ouraAPI/logs/ouraLogsAPI";
 import { Chart, ChartDataset } from "chart.js";
 import { LinearScale } from "chart.js/auto";
 import React, { useState, useEffect, useMemo } from "react";
-import { Autocomplete, TextField, Paper, Box, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  TextField,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 import { useOuraLogTypes } from "../../functions/useOuraLogTypes";
 import { calculateCorrelation } from "../../functions/correlations";
 import { useFetchOuraLogTypeCategoriesQuery } from "../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
@@ -11,16 +16,15 @@ import DateRangePicker from "../../components/dateRangePicker";
 import { selectLogTypes } from "../../redux/logTypesSlice";
 import { useAppSelector } from "../../redux/hooks";
 import { useFetchLogsQuery } from "../../redux/logsAPI/logsAPI";
-import { CircularProgress } from "@mui/material";
 import { Log } from "../../typeModels/logTypeModel";
 import {
   CorrelationCalculationInput,
   CorrelationDataPoint,
 } from "../../typeModels/statsModel";
 import VerticalSpacer from "../../components/VerticalSpacer";
-import OuraData from "../planner/oura/ouraData";
 import { CorrelationComponent } from "./CorrelationComponent";
 import { CorrelationDataType } from "../../typeModels/correlationModel";
+import LogTypeSelectorComponent from "../../components/logTypeSelector";
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -29,13 +33,16 @@ function capitalizeFirstLetter(str: string) {
 Chart.register(LinearScale);
 
 type ChartOptionsType = {
+  responsive: boolean;
+  maintainAspectRatio: boolean;
   scales: {
     y1: {
       type: "linear";
       position: "left";
       beginAtZero: true;
       display: boolean;
-
+      min: number;
+      max: number;
       title: {
         display: boolean;
         text: string;
@@ -51,7 +58,8 @@ type ChartOptionsType = {
       position: "right";
       beginAtZero: true;
       display: boolean;
-
+      min: number;
+      max: number;
       title: {
         display: boolean;
         text: string;
@@ -74,11 +82,6 @@ const AllLogsGraph: React.FC = () => {
   });
 
   const PDLogTypes = useAppSelector(selectLogTypes);
-
-  const [selectedLogTypes, setSelectedLogTypes] = useState<string[]>([]);
-
-  const [search, setSearch] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const {
     logTypes: ouraSleepLogTypes,
@@ -112,6 +115,24 @@ const AllLogsGraph: React.FC = () => {
     return [...ouraMapped, ...pdMapped];
   }, [ouraLogTypes, PDLogTypes]);
 
+  const defaultSelectedLogTypes = useMemo(() => {
+    const defaults = ["average_hrv", "total_sleep_duration"];
+    return defaults.filter((logTypeId) =>
+      allLogTypes.some((logType) => logType.id === logTypeId)
+    );
+  }, [allLogTypes]);
+
+  const [selectedLogTypes, setSelectedLogTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (selectedLogTypes.length === 0) {
+      setSelectedLogTypes(defaultSelectedLogTypes);
+    }
+  }, [defaultSelectedLogTypes, selectedLogTypes]);
+
+  const [search, setSearch] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const {
     data: ouraLogTypeCategoriesData,
     error: ouraLogTypeCategoriesError,
@@ -132,13 +153,42 @@ const AllLogsGraph: React.FC = () => {
 
     console.log(y1LogType, " is y1LogType");
 
+    let y1MinValue = Number.POSITIVE_INFINITY;
+    let y1MaxValue = Number.NEGATIVE_INFINITY;
+    let y2MinValue = Number.POSITIVE_INFINITY;
+    let y2MaxValue = Number.NEGATIVE_INFINITY;
+
+    if (chartData.datasets && chartData.datasets.length > 0) {
+      chartData.datasets.forEach((dataset: any) => {
+        if (dataset.yAxisID === "y1") {
+          dataset.data.forEach((value: number) => {
+            if (value < y1MinValue) y1MinValue = value;
+            if (value > y1MaxValue) y1MaxValue = value;
+          });
+        } else if (dataset.yAxisID === "y2") {
+          dataset.data.forEach((value: number) => {
+            if (value < y2MinValue) y2MinValue = value;
+            if (value > y2MaxValue) y2MaxValue = value;
+          });
+        }
+      });
+    }
+
+    // Calculate margins
+    const y1Margin = (y1MaxValue - y1MinValue) * 0.025;
+    const y2Margin = (y2MaxValue - y2MinValue) * 0.025;
+
     const chartOptions: ChartOptionsType = {
+      responsive: true,
+      maintainAspectRatio: true,
       scales: {
         y1: {
           type: "linear",
           position: "left",
           beginAtZero: true,
           display: y1AxisDisplay,
+          min: y1MinValue - y1Margin,
+          max: y1MaxValue + y1Margin,
           title: {
             display: y1AxisDisplay,
             text: y1LogType
@@ -160,6 +210,8 @@ const AllLogsGraph: React.FC = () => {
           position: "right",
           beginAtZero: true,
           display: y2AxisDisplay,
+          min: y2MinValue - y2Margin,
+          max: y2MaxValue + y2Margin,
           title: {
             display: y2AxisDisplay,
             text: y2LogType
@@ -451,50 +503,12 @@ const AllLogsGraph: React.FC = () => {
     }
 
     console.log("YOOO", correlationData);
-  }, [ouraLogsData, PDLogsData]);
+  }, [ouraLogsData, PDLogsData, selectedLogTypes]);
 
   return ouraLogTypeCategoriesData ? (
     <>
       <Typography variant="h5">All logs graph</Typography>
-      <br />
-      <Typography variant="subtitle2">
-        Select a date range and up to two log types to display logs for.
-      </Typography>
-      <br />
-      <DateRangePicker
-        onStartDateChange={handleStartDateChange}
-        onEndDateChange={handleEndDateChange}
-      />
-      <br />
-      <Autocomplete
-        multiple
-        open={dropdownOpen}
-        onOpen={() => {
-          if (selectedLogTypes.length < 2) {
-            setDropdownOpen(true);
-          }
-        }}
-        onClose={() => setDropdownOpen(false)}
-        options={filteredLogTypes}
-        getOptionLabel={(option) => option?.label || ""}
-        onChange={handleLogTypeSelect}
-        value={selectedLogTypes.map((logId) =>
-          allLogTypes.find((log) => log.id === logId)
-        )}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Select 2 log types to display logs for"
-            disabled={selectedLogTypes.length >= 2}
-            helperText={
-              selectedLogTypes.length >= 2
-                ? "Max number of log types selected"
-                : ""
-            }
-          />
-        )}
-      />
-      <br />
+
       {PDLogsIsLoading || ouraLogsIsLoading ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress />
@@ -505,6 +519,17 @@ const AllLogsGraph: React.FC = () => {
           options={generateChartOptions(selectedLogTypes)}
         />
       )}
+      <VerticalSpacer size="1rem" />
+
+      <LogTypeSelectorComponent
+        selectedLogTypes={selectedLogTypes}
+        setSelectedLogTypes={setSelectedLogTypes}
+      />
+      <br />
+      <DateRangePicker
+        onStartDateChange={handleStartDateChange}
+        onEndDateChange={handleEndDateChange}
+      />
       <VerticalSpacer size="1rem" />
       {correlationData.correlation ? (
         <CorrelationComponent

@@ -1,3 +1,5 @@
+// serviceWorkerRegistration.ts
+
 const isLocalhost = Boolean(
   window.location.hostname === "localhost" ||
     window.location.hostname === "[::1]" ||
@@ -9,7 +11,7 @@ const isLocalhost = Boolean(
 export function register() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      const swUrl = `${process.env.REACT_APP_BACKEND_LOCAL_URL}/firebase-messaging-sw.js`;
+      const swUrl = `${process.env.REACT_APP_FRONTEND_LOCAL_URL}/firebase-messaging-sw.js`;
 
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.

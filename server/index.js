@@ -6,6 +6,9 @@ const path = require("path");
 const OuraUser = require("./models/ouraUser");
 const OAuth2Strategy = require("passport-oauth2");
 
+const fs = require("fs");
+const https = require("https");
+
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -104,6 +107,7 @@ const httpsOptions = {
 
 // Create HTTPS server
 const PORT = process.env.PORT || 5000;
+
 https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`HTTPS server running on https://localhost:${PORT}`);
 });
