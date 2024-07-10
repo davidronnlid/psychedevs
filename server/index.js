@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const passport = require("passport");
 const path = require("path");
 const OuraUser = require("./models/ouraUser");
+const WithingsUser = require("./models/withingsUser");
+
 const OAuth2Strategy = require("passport-oauth2");
 
 const fs = require("fs");
@@ -16,25 +18,25 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
 
-const notificationRouter = require("./controllers/notification");
+// const notificationRouter = require("./controllers/notification");
 const authRouter = require("./controllers/auth");
 const vasRouter = require("./controllers/logs");
 const usersRouter = require("./controllers/users");
 const logsRouter = require("./controllers/logTypes");
 const ouraRouter = require("./controllers/oura");
-// const withingsRouter = require("./controllers/withings");
+const withingsRouter = require("./controllers/withings");
 
 const connectToDB = require("./dbConnect");
 
 app.use("/uploads", express.static("uploads"));
 
-app.use("/notification", notificationRouter());
+// app.use("/notification", notificationRouter());
 app.use("/users", usersRouter());
 app.use("/vas", vasRouter());
 app.use("/oura", ouraRouter());
-// app.use("/withings", withingsRouter());
 app.use("/auth", authRouter());
 app.use("/logs", logsRouter());
+app.use("/withings", withingsRouter);
 
 (async () => {
   try {

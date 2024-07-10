@@ -11,6 +11,7 @@ import { useState } from "react";
 
 import OuraLogTypeCategories from "./oura/ouraLogTypeCategories";
 import WithingsIntegration from "./withings/withingsIntegration";
+import WithingsAuthButton from "./withings/WithingsAuthButton";
 
 const Planner = () => {
   const [inProcessOfLoading, err] = useFetchLogTypes();
@@ -57,7 +58,8 @@ const Planner = () => {
         </Box>
       </div>
       <OuraLogTypeCategories />
-      <WithingsIntegration />
+      {/* <WithingsIntegration /> */}
+      <WithingsAuthButton />
     </>
   );
 };

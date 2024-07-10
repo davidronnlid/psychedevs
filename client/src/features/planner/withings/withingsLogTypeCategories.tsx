@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { useFetchOuraLogTypeCategoriesQuery } from "../../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
-import { useFetchOuraLogTypesQuery } from "../../../redux/ouraAPI/logTypes/ouraLogTypesAPI";
-import { setLogTypeCategories } from "../../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesSlice";
-import { selectLogTypeCategories } from "../../../redux/ouraAPI/logTypeCategories/ouraLogTypeCategoriesSlice";
-import OuraLogTypeCategoryButtons from "./ouraLogTypeCategoryButtons";
-import { OuraLogType } from "../../../typeModels/ouraModel";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -14,11 +8,19 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { Box, Button, Typography } from "@mui/material";
 import { useJwt } from "../../../redux/authSlice";
-import OuraLogo from "../../../images/OuraLogo.png";
+import WithingsLogo from "../../../images/WithingsLogo.png";
 
 import { CSSProperties } from "react";
+import {
+  selectLogTypeCategories,
+  setLogTypeCategories,
+} from "../../../redux/withingsAPI/logTypeCategories/withingsLogTypeCategoriesSlice";
+import { useFetchWithingsLogTypeCategoriesQuery } from "../../../redux/withingsAPI/logTypeCategories/withingsLogTypeCategoriesAPI";
+import { useFetchWithingsLogTypesQuery } from "../../../redux/withingsAPI/logTypes/withingsLogTypesAPI";
+import WithingsLogTypeCategoryButtons from "./withingsLogTypeCategoryButtons";
+import { WithingsLogType } from "../../../typeModels/withingsModel";
 
-const OuraLogTypeCategoriesStyles: Record<string, CSSProperties> = {
+const WithingsLogTypeCategoriesStyles: Record<string, CSSProperties> = {
   button: {
     display: "flex",
     justifyContent: "space-evenly",
@@ -41,7 +43,7 @@ const OuraLogTypeCategoriesStyles: Record<string, CSSProperties> = {
     top: "-2px",
     left: "4px",
   },
-  logoOfOuraLogTypesTitle: {
+  logoOfWithingsLogTypesTitle: {
     width: "3.75rem",
     position: "relative",
     top: "-5px",
@@ -49,7 +51,7 @@ const OuraLogTypeCategoriesStyles: Record<string, CSSProperties> = {
   },
 };
 
-const OuraLogTypeCategories: React.FC = (): JSX.Element => {
+const WithingsLogTypeCategories: React.FC = (): JSX.Element => {
   const [selectedLogTypeCategory, setSelectedLogTypeCategory] =
     useState<string>("");
 
@@ -63,11 +65,11 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const logTypeCategories = useAppSelector(selectLogTypeCategories);
   const {
-    data: ouraLogTypeCategoriesData,
-    error: ouraLogTypeCategoriesError,
-    isLoading: ouraLogTypeCategoriesLoading,
-    isSuccess: ouraLogTypeCategoriesSuccess,
-  } = useFetchOuraLogTypeCategoriesQuery();
+    data: WithingsLogTypeCategoriesData,
+    error: WithingsLogTypeCategoriesError,
+    isLoading: WithingsLogTypeCategoriesLoading,
+    isSuccess: WithingsLogTypeCategoriesSuccess,
+  } = useFetchWithingsLogTypeCategoriesQuery();
 
   useEffect(() => {
     console.log(
@@ -75,17 +77,17 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
       selectedLogTypeCategory
     );
 
-    if (ouraLogTypeCategoriesSuccess && ouraLogTypeCategoriesData) {
+    if (WithingsLogTypeCategoriesSuccess && WithingsLogTypeCategoriesData) {
       console.log(
-        "Setting this into ouraLogTypeCategories state: ",
-        ouraLogTypeCategoriesData
+        "Setting this into WithingsLogTypeCategories state: ",
+        WithingsLogTypeCategoriesData
       );
-      dispatch(setLogTypeCategories(ouraLogTypeCategoriesData));
+      dispatch(setLogTypeCategories(WithingsLogTypeCategoriesData));
     }
   }, [
     dispatch,
-    ouraLogTypeCategoriesSuccess,
-    ouraLogTypeCategoriesData,
+    WithingsLogTypeCategoriesSuccess,
+    WithingsLogTypeCategoriesData,
     selectedLogTypeCategory,
   ]);
 
@@ -95,36 +97,36 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
   );
 
   const {
-    data: ouraLogTypesData,
-    error: ouraLogTypesError,
-    isLoading: ouraLogTypesLoading,
-  } = useFetchOuraLogTypesQuery({ category: selectedLogTypeCategory });
+    data: WithingsLogTypesData,
+    error: WithingsLogTypesError,
+    isLoading: WithingsLogTypesLoading,
+  } = useFetchWithingsLogTypesQuery({ category: selectedLogTypeCategory });
 
   console.log(
-    "ouraLogTypesData is: ",
-    ouraLogTypesData,
+    "WithingsLogTypesData is: ",
+    WithingsLogTypesData,
     "or error: ",
-    ouraLogTypesError
+    WithingsLogTypesError
   );
 
   useEffect(() => {
-    if (ouraLogTypesData) {
-      console.log("Received log types:", ouraLogTypesData);
+    if (WithingsLogTypesData) {
+      console.log("Received log types:", WithingsLogTypesData);
     }
-  }, [ouraLogTypesData]);
+  }, [WithingsLogTypesData]);
 
   const token = useJwt();
 
-  const handleIntegrateOura = async () => {
+  const handleIntegrateWithings = async () => {
     const baseUrl =
       process.env.NODE_ENV === "development"
         ? process.env.REACT_APP_BACKEND_LOCAL_URL
         : process.env.REACT_APP_PROD_URL;
 
-    console.log("About to send req to /oura/auth");
+    console.log("About to send req to /Withings/auth");
 
     try {
-      const response = await fetch(`${baseUrl}/oura/auth`, {
+      const response = await fetch(`${baseUrl}/Withings/auth`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -132,15 +134,15 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
         },
       });
       if (!response.ok) {
-        throw new Error("Error fetching oura data");
+        throw new Error("Error fetching Withings data");
       }
       const data = await response.json();
       console.log(
-        "🚀 ~ file: plannerPage.tsx:43 ~ handleIntegrateOura ~ data:",
+        "🚀 ~ file: plannerPage.tsx:43 ~ handleIntegrateWithings ~ data:",
         data
       );
 
-      // Redirect the user to the Oura authentication URL
+      // Redirect the user to the Withings authentication URL
       window.location.href = data.redirectUrl;
     } catch (error) {
       console.log(error);
@@ -148,30 +150,30 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
   };
 
   // Render a loading message, error message, or the log types based on the API call status
-  if (ouraLogTypeCategoriesLoading) {
-    return <p>Loading oura log type categories...</p>;
-  } else if (ouraLogTypeCategoriesError) {
+  if (WithingsLogTypeCategoriesLoading) {
+    return <p>Loading Withings log type categories...</p>;
+  } else if (WithingsLogTypeCategoriesError) {
     return (
       <Button
-        onClick={() => handleIntegrateOura()}
-        style={OuraLogTypeCategoriesStyles.button}
+        onClick={() => handleIntegrateWithings()}
+        style={WithingsLogTypeCategoriesStyles.button}
       >
         <Typography>Integrate with </Typography>
         <img
-          src={OuraLogo}
-          alt="Oura logo"
-          style={OuraLogTypeCategoriesStyles.logoOfIntegrateButton}
+          src={WithingsLogo}
+          alt="Withings logo"
+          style={WithingsLogTypeCategoriesStyles.logoOfIntegrateButton}
         />
       </Button>
     );
   } else {
     return (
       <>
-        <Box sx={OuraLogTypeCategoriesStyles.Box}>
+        <Box sx={WithingsLogTypeCategoriesStyles.Box}>
           <img
-            src={OuraLogo}
-            alt="Oura logo"
-            style={OuraLogTypeCategoriesStyles.logoOfOuraLogTypesTitle}
+            src={WithingsLogo}
+            alt="Withings logo"
+            style={WithingsLogTypeCategoriesStyles.logoOfWithingsLogTypesTitle}
           />
           <Typography variant="h6" gutterBottom>
             log types
@@ -180,12 +182,12 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
         <Typography variant="subtitle1" gutterBottom>
           Categories
         </Typography>
-        <OuraLogTypeCategoryButtons
+        <WithingsLogTypeCategoryButtons
           logTypeCategories={logTypeCategories}
           setSelectedLogTypeCategory={setSelectedLogTypeCategory}
           selectedLogTypeCategory={selectedLogTypeCategory}
         />
-        {ouraLogTypesData && (
+        {WithingsLogTypesData && (
           <TableContainer>
             <Table>
               <TableHead>
@@ -199,22 +201,22 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {ouraLogTypesData.daily_activity?.map(
-                  (ouraLogType: OuraLogType, index: number) => (
+                {WithingsLogTypesData.daily_activity?.map(
+                  (WithingsLogType: WithingsLogType, index: number) => (
                     <TableRow key={index}>
-                      <TableCell>{ouraLogType.logTypeName}</TableCell>
+                      <TableCell>{WithingsLogType.logTypeName}</TableCell>
                       <TableCell>
-                        {capitalizeFirstLetter(ouraLogType.unit)}
+                        {capitalizeFirstLetter(WithingsLogType.unit)}
                       </TableCell>
                     </TableRow>
                   )
                 )}
-                {ouraLogTypesData.sleep?.map(
-                  (ouraLogType: OuraLogType, index: number) => (
+                {WithingsLogTypesData.sleep?.map(
+                  (WithingsLogType: WithingsLogType, index: number) => (
                     <TableRow key={index}>
-                      <TableCell>{ouraLogType.logTypeName}</TableCell>
+                      <TableCell>{WithingsLogType.logTypeName}</TableCell>
                       <TableCell>
-                        {capitalizeFirstLetter(ouraLogType.unit)}
+                        {capitalizeFirstLetter(WithingsLogType.unit)}
                       </TableCell>
                     </TableRow>
                   )
@@ -228,6 +230,6 @@ const OuraLogTypeCategories: React.FC = (): JSX.Element => {
   }
 };
 
-export default OuraLogTypeCategories;
+export default WithingsLogTypeCategories;
 
 // When user clicks on a category, then they should be prompted to fill in which dates and log Types they want to display logs for, after which the corresponding logs should be displayed

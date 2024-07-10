@@ -13,6 +13,13 @@ import { ouraLogsAPI } from "./ouraAPI/logs/ouraLogsAPI";
 import { ouraLogTypeCategoriesAPI } from "./ouraAPI/logTypeCategories/ouraLogTypeCategoriesAPI";
 import { ouraLogTypesAPI } from "./ouraAPI/logTypes/ouraLogTypesAPI";
 
+import withingsLogsReducer from "./withingsAPI/logs/withingsLogsSlice";
+import withingsLogTypesReducer from "./withingsAPI/logTypes/withingsLogTypesSlice";
+import withingsLogTypeCategoriesReducer from "./withingsAPI/logTypeCategories/withingsLogTypeCategoriesSlice";
+import { withingsLogsAPI } from "./withingsAPI/logs/withingsLogsAPI";
+import { withingsLogTypesAPI } from "./withingsAPI/logTypes/withingsLogTypesAPI";
+import { WithingsLogTypeCategoriesAPI } from "./withingsAPI/logTypeCategories/withingsLogTypeCategoriesAPI";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -27,6 +34,12 @@ export const store = configureStore({
     ouraLogs: ouraLogsReducer,
     ouraLogTypes: ouraLogTypesReducer,
     ouraLogTypeCategories: ouraLogTypeCategoriesReducer,
+    withingsLogsAPI: withingsLogsAPI.reducer,
+    withingsLogTypesAPI: withingsLogTypesAPI.reducer,
+    withingsLogTypeCategoriesAPI: WithingsLogTypeCategoriesAPI.reducer,
+    withingsLogs: withingsLogsReducer,
+    withingsLogTypes: withingsLogTypesReducer,
+    withingsLogTypeCategories: withingsLogTypeCategoriesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
